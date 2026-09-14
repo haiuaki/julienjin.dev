@@ -1,12 +1,103 @@
 <!doctype html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8" />
-	<meta name="author" content="Julien Jin" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>Julien Jin</title>
+    <!-- --- METADATA & RESOURCES --- -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Julien Jin">
+    
+    <title>Julien Jin</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-	// coming soon
+
+    <!-- --- 3D SOLAR SYSTEM NAVIGATION --- -->
+    <header id="space-container">
+        
+        <!-- Main coordinate anchor -->
+        <div id="solar-system">
+            
+            <!-- Interactive sun / start trigger -->
+            <button id="start-btn" class="circle-btn size-large bg-dark"></button>
+
+            <!-- Orbital navigation rings -->
+            <nav id="main-nav">
+                
+                <div class="orbit-ring ring-1">
+                    <a href="" class="planet-btn planet-home size-small bg-dark"></a>
+                </div>
+                
+                <div class="orbit-ring ring-2">
+                    <a href="" class="planet-btn planet-projects size-small bg-dark"></a>
+                </div>
+                
+                <div class="orbit-ring ring-3">
+                    <a href="" class="planet-btn planet-about size-small bg-dark"></a>
+                </div>
+
+                <div class="orbit-ring ring-4">
+                    <a href="" class="planet-btn planet-about size-small bg-dark"></a>
+                </div>
+
+            </nav>
+        </div>
+    </header>
+
+    <!-- --- MAIN CONTENT --- -->
+    <main>
+        <!-- (Reserved for future content) -->
+    </main>
+
+    <!-- --- FOOTER --- -->
+    <footer>
+        <p>&copy; 2026 Julien Jin. All rights reserved.</p>
+    </footer>
+
+    <!-- --- SYSTEM INITIALIZATION SCRIPT --- -->
+    <script>
+		const startButton = document.getElementById('start-btn');
+		const solarSystem = document.getElementById('solar-system');
+		
+		let isPaused = sessionStorage.getItem('isPaused') === 'true';
+		let systemEpoch = parseInt(sessionStorage.getItem('systemEpoch'), 10);
+		let pauseTimestamp = parseInt(sessionStorage.getItem('pauseTimestamp'), 10);
+
+		// If this is the absolute first visit, set the "Big Bang" creation time to right now
+		if (isNaN(systemEpoch)) {
+			systemEpoch = Date.now();
+			sessionStorage.setItem('systemEpoch', systemEpoch);
+		}
+
+		if (isPaused) {
+			// If it's paused, the running time is permanently frozen at the exact millisecond they hit pause
+			let runningTimeMs = pauseTimestamp - systemEpoch;
+			document.documentElement.style.setProperty('--system-time', `-${runningTimeMs}ms`);
+			solarSystem.classList.add('paused');
+		} else {
+			// If it's running, the running time is just the current hardware clock minus the Big Bang epoch
+			let runningTimeMs = Date.now() - systemEpoch;
+			document.documentElement.style.setProperty('--system-time', `-${runningTimeMs}ms`);
+		}
+
+		// Listen for Play/Pause clicks
+		startButton.addEventListener('click', function() {
+			isPaused = !isPaused;
+			
+			if (isPaused) {
+				// Pausing: Record the exact hardware timestamp so we can freeze it in time
+				pauseTimestamp = Date.now();
+				sessionStorage.setItem('pauseTimestamp', pauseTimestamp);
+				solarSystem.classList.add('paused');
+			} else {
+				// Unpausing: Calculate how long it was frozen for, and shift the Big Bang epoch forward by that amount!
+				let pauseDuration = Date.now() - pauseTimestamp;
+				systemEpoch += pauseDuration;
+				sessionStorage.setItem('systemEpoch', systemEpoch);
+				solarSystem.classList.remove('paused');
+			}
+			
+			sessionStorage.setItem('isPaused', isPaused);
+		});
+    </script>
 </body>
 </html>

@@ -1,0 +1,203 @@
+/* --- 1. RESET & BASE STYLES --- */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #fafafa;
+    color: #333;
+}
+
+main, footer {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+/* --- 2. GLOBAL VARIABLES --- */
+
+:root {
+    /* System positioning and scale coordinates */
+    --system-x: 50%;
+    --system-y: 45%;
+    
+    /* System scaling multiplier */
+    --system-scale: 1;
+    
+    /* Physics engine state */
+    --play-state: running;
+}
+
+/* Responsive scaling rules */
+@media (max-width: 1200px) { :root { --system-scale: 0.85; } }
+@media (max-width: 950px)  { :root { --system-scale: 0.65; } }
+@media (max-width: 700px)  { :root { --system-scale: 0.45; } }
+@media (max-width: 450px)  { :root { --system-scale: 0.3; } }
+
+/* --- 3. MODULAR UTILITIES --- */
+
+/* Modular Sizes */
+.size-small  { --planet-size: 30px;  width: var(--planet-size); height: var(--planet-size); }
+.size-medium { --planet-size: 65px;  width: var(--planet-size); height: var(--planet-size); }
+.size-large  { --planet-size: 100px; width: var(--planet-size); height: var(--planet-size); }
+
+/* Modular Colors */
+.bg-dark { background-color: #333; color: white; }
+
+/* Base Button Shape */
+.circle-btn {
+    border-radius: 50%;
+    border: none;
+    outline: none;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* --- 4. 3D SOLAR SYSTEM LAYOUT --- */
+
+#space-container {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    
+    perspective: 1500px;
+    /* Align perspective origin with system coordinates */
+    perspective-origin: var(--system-x) var(--system-y);
+}
+
+/* Main wrapper */
+#solar-system {
+    position: absolute;
+    top: var(--system-y); 
+    left: var(--system-x);
+    transform-style: preserve-3d;
+    transform: scale(var(--system-scale));
+}
+
+#start-btn {
+    position: absolute;
+    top: 0; left: 0;
+    transform: translate(-50%, -50%) translateZ(0); 
+    animation: click-delay 2.5s forwards;
+}
+
+#main-nav {
+    position: absolute;
+    top: 0; left: 0;
+    transform-style: preserve-3d;
+}
+
+/* Synchronize CSS animation time with JS persistent clock */
+#solar-system *,
+#solar-system *::before,
+#solar-system *::after {
+    animation-delay: var(--system-time, 0ms) !important;
+}
+
+#solar-system.paused {
+	--play-state: paused;
+}
+
+/* --- 5. ORBIT COMPONENTS --- */
+
+/* Orbit ring containers */
+.orbit-ring {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: var(--ring-size); 
+    height: var(--ring-size);
+    margin-top: calc(var(--ring-size) / -2);
+    margin-left: calc(var(--ring-size) / -2);
+    border-radius: 50%;
+    transform-style: preserve-3d;
+    pointer-events: none;
+    
+    /* Spin animation assignment */
+    animation: master-spin var(--spin-duration) linear infinite;
+    animation-play-state: var(--play-state) !important;
+}
+
+/* The actual dotted line */
+.orbit-ring::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    border-radius: 50%;
+    
+    /* Prevents SVG clipping at 50% radius */
+    background-image: url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' overflow='visible' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='50%25' cy='50%25' r='50%25' fill='none' stroke='black' stroke-opacity='0.5' stroke-width='3' stroke-dasharray='0 15' stroke-linecap='round' /%3E%3C/svg%3E");
+    
+    /* Counter-spin animation assignment & Initial Fade-in */
+    animation: master-static-dots var(--spin-duration) linear infinite, initial-fade-in 2.5s ease-in-out both;
+    /* Decoupled: Physics can pause, but the Fade-in ALWAYS runs! */
+    animation-play-state: var(--play-state), running !important;
+}
+
+.planet-btn {
+    position: absolute;
+    top: calc(var(--planet-size) / -2); 
+    left: calc(50% - (var(--planet-size) / 2));
+    border-radius: 50%;
+    display: block; 
+    text-decoration: none;
+    pointer-events: auto; 
+    
+    /* Planet counter-spin animation assignment & Initial Fade-in */
+    animation: master-anti-spin var(--spin-duration) linear infinite, initial-fade-in 2.5s ease-in-out both;
+    animation-play-state: var(--play-state), running !important;
+}
+
+/* --- 6. PLANET CONFIGURATIONS --- */
+
+/* --orbit-diag defines Z-axis rotation; --orbit-tilt defines X-axis pitch */
+.ring-1 { --ring-size: 360px;  --orbit-diag: 0deg;   --orbit-tilt: 70deg; --start-angle: 0deg;   --spin-duration: 10s; }
+.ring-2 { --ring-size: 580px;  --orbit-diag: 15deg;  --orbit-tilt: 60deg; --start-angle: 120deg; --spin-duration: 15s; }
+.ring-3 { --ring-size: 800px;  --orbit-diag: -5deg;  --orbit-tilt: 75deg; --start-angle: 240deg; --spin-duration: 20s; }
+.ring-4 { --ring-size: 1000px; --orbit-diag: 5deg;  --orbit-tilt: 70deg; --start-angle: 180deg; --spin-duration: 25s; }
+
+/* --- 7. PHYSICS ENGINE (KEYFRAMES) --- */
+
+/* 1. Primary spin animation */
+@keyframes master-spin {
+    from { transform: rotateZ(var(--orbit-diag)) rotateX(var(--orbit-tilt)) rotateZ(var(--start-angle)); }
+    to { transform: rotateZ(var(--orbit-diag)) rotateX(var(--orbit-tilt)) rotateZ(calc(var(--start-angle) + 360deg)); }
+}
+
+/* 2. Orbit line counter-spin */
+@keyframes master-static-dots {
+    from { transform: rotateZ(calc(var(--start-angle) * -1)); }
+    to { transform: rotateZ(calc((var(--start-angle) + 360deg) * -1)); }
+}
+
+/* 3. Planet counter-spin */
+@keyframes master-anti-spin {
+    from { transform: rotateZ(calc(var(--start-angle) * -1)) rotateX(calc(var(--orbit-tilt) * -1)) rotateZ(calc(var(--orbit-diag) * -1)); }
+    to { transform: rotateZ(calc((var(--start-angle) + 360deg) * -1)) rotateX(calc(var(--orbit-tilt) * -1)) rotateZ(calc(var(--orbit-diag) * -1)); }
+}
+
+/* 4. Initial page load fade-in */
+@keyframes initial-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* 5. Click delay to prevent fade-in glitches */
+@keyframes click-delay {
+    0%, 99% { pointer-events: none; }
+    100% { pointer-events: auto; }
+}
