@@ -200,8 +200,8 @@ h1 {
 
 /* Main Planets */
 .planet-1 { --ring-size: 240px; --orbit-diag: 0deg; --orbit-tilt: 68deg; --start-angle: 80deg; --spin-duration: 10s; }
-.planet-2 { --ring-size: 460px; --orbit-diag: 12deg; --orbit-tilt: 72deg; --start-angle: 240deg; --spin-duration: 15s; }
-.planet-3 { --ring-size: 680px; --orbit-diag: -8deg; --orbit-tilt: 58deg; --start-angle: 160deg; --spin-duration: 20s; }
+.planet-2 { --ring-size: 460px; --orbit-diag: 16deg; --orbit-tilt: 70deg; --start-angle: 240deg; --spin-duration: 15s; }
+.planet-3 { --ring-size: 680px; --orbit-diag: -12deg; --orbit-tilt: 58deg; --start-angle: 160deg; --spin-duration: 20s; }
 .planet-4 { --ring-size: 900px; --orbit-diag: 10deg; --orbit-tilt: 75deg; --start-angle: 0deg; --spin-duration: 25s; }
 
 /* Empty Comet Trails */
