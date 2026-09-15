@@ -1,5 +1,5 @@
 /* --- 1. PHYSICS ENGINE INITIALIZATION --- */
-const startButton = document.getElementById('start-btn');
+const sunBtn = document.getElementById('sun-btn');
 const solarSystem = document.getElementById('solar-system');
 
 /* Track if user explicitly clicked the Sun */
@@ -91,7 +91,7 @@ if (isPhysicsPaused) {
 }
 
 /* Manual Sun Button Toggle */
-startButton.addEventListener('click', function() {
+sunBtn.addEventListener('click', function() {
     isManuallyPaused = !isManuallyPaused;
     sessionStorage.setItem('isManuallyPaused', isManuallyPaused);
     
