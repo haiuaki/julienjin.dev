@@ -42,10 +42,10 @@ h1 {
 }
 
 /* Responsive scaling rules */
-@media (max-width: 1200px) { :root { --system-scale: 0.85; } }
-@media (max-width: 950px)  { :root { --system-scale: 0.65; } }
-@media (max-width: 700px)  { :root { --system-scale: 0.45; } }
-@media (max-width: 450px)  { :root { --system-scale: 0.3; } }
+@media (max-width: 1200px) , (max-height: 800px) { :root { --system-scale: 1.25; } }
+@media (max-width: 900px) , (max-height: 700px) { :root { --system-scale: 0.85; } }
+@media (max-width: 700px) , (max-height: 550px) { :root { --system-scale: 0.75; } }
+@media (max-width: 450px) , (max-height: 400px) { :root { --system-scale: 0.45; } }
 
 /* --- 3. MODULAR UTILITIES --- */
 
@@ -72,7 +72,6 @@ h1 {
 
 #space-container {
     position: relative;
-    /* width: 100%; */
     height: 100vh;
     display: flex;
     justify-content: center;
@@ -136,7 +135,7 @@ h1 {
     animation-play-state: var(--play-state) !important;
 }
 
-/* The actual trailing tail */
+/* The trailing tail */
 .orbit-ring::before {
     content: "";
     position: absolute;
@@ -153,13 +152,6 @@ h1 {
 
     /* Initial render animation */
     animation: initial-fade-in 2.5s ease-in-out both;
-}
-
-/* Optional Tail Style Modifiers */
-.orbit-ring.dashed-tail::before {
-    border: none;
-    background-image: url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' overflow='visible' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='50%25' cy='50%25' r='50%25' fill='none' stroke='%23444444' stroke-width='1' stroke-dasharray='10 15' /%3E%3C/svg%3E");
-    opacity: 0.5;
 }
 
 .planet-btn {
