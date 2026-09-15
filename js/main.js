@@ -75,6 +75,10 @@ function resumePhysics() {
     solarSystem.style.marginLeft = '0px';
     solarSystem.style.marginTop = '0px';
 
+    const spaceContainer = document.getElementById('space-container');
+    spaceContainer.style.transition = 'transform 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
+    spaceContainer.style.transform = 'scale(1)';
+
     /* Trigger WAAPI acceleration */
     animateSpeed(1);
 }
@@ -190,6 +194,11 @@ planetBtns.forEach(planet => {
         
         solarSystem.style.marginLeft = (currentMarginLeft + dx) + 'px';
         solarSystem.style.marginTop = (currentMarginTop + dy) + 'px';
+
+        /* Apply a dramatic camera zoom to the root container */
+        const spaceContainer = document.getElementById('space-container');
+        spaceContainer.style.transition = 'transform 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
+        spaceContainer.style.transform = 'scale(1.5)';
 
         /* Update UI state for SPA content injection */
         document.body.classList.add('planet-focused');

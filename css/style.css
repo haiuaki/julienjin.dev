@@ -10,20 +10,11 @@ body {
     font-family: 'IBM Plex Mono', monospace;
     background-color: #1a1a1a;
     color: #fafafa;
-    overflow-x: hidden;
+    overflow: hidden;
     cursor: crosshair;
 }
 
-main, footer {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 20px;
-}
 
-h1 {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-}
 
 /* --- 2. GLOBAL VARIABLES --- */
 
@@ -113,10 +104,6 @@ h1 {
 #solar-system *::before,
 #solar-system *::after {
     animation-delay: var(--system-time, 0ms) !important;
-}
-
-#solar-system.paused {
-    /* (The JS will handle the progressive playbackRate slowdown) */
 }
 
 /* --- 5. ORBIT COMPONENTS --- */
@@ -237,3 +224,4 @@ h1 {
     0%, 99% { pointer-events: none; }
     100% { pointer-events: auto; }
 }
+
