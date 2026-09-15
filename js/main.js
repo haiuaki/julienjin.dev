@@ -69,6 +69,12 @@ function resumePhysics() {
     solarSystem.classList.remove('paused');
     isPhysicsPaused = false;
     
+    /* Reset camera pan if a planet was focused */
+    document.body.classList.remove('planet-focused');
+    solarSystem.style.transition = 'margin 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
+    solarSystem.style.marginLeft = '0px';
+    solarSystem.style.marginTop = '0px';
+
     /* Trigger WAAPI acceleration */
     animateSpeed(1);
 }
@@ -149,4 +155,43 @@ planetBtns.forEach(planet => {
     
     /* Permanently lock the tracking engine for this label */
     trackPosition();
+
+    /* --- 4. CAMERA FOCUS ENGINE --- */
+    planet.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        /* Instantly freeze the system to prevent orbital drift during focus */
+        isManuallyPaused = true;
+        sessionStorage.setItem('isManuallyPaused', 'true');
+        isPhysicsPaused = true;
+        solarSystem.classList.add('paused');
+        document.getAnimations().forEach(anim => {
+            if (anim.animationName === 'master-spin' || anim.animationName === 'master-anti-spin') {
+                anim.playbackRate = 0;
+            }
+        });
+
+        /* Calculate spatial translation offset to center the target element */
+        const rect = planet.getBoundingClientRect();
+        const planetX = rect.x + rect.width / 2;
+        const planetY = rect.y + rect.height / 2;
+        
+        const screenCenterX = window.innerWidth / 2;
+        const screenCenterY = window.innerHeight / 2;
+        
+        const dx = screenCenterX - planetX;
+        const dy = screenCenterY - planetY;
+        
+        /* Apply 2D margin translation to the 3D container */
+        solarSystem.style.transition = 'margin 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
+        
+        const currentMarginLeft = parseFloat(getComputedStyle(solarSystem).marginLeft) || 0;
+        const currentMarginTop = parseFloat(getComputedStyle(solarSystem).marginTop) || 0;
+        
+        solarSystem.style.marginLeft = (currentMarginLeft + dx) + 'px';
+        solarSystem.style.marginTop = (currentMarginTop + dy) + 'px';
+
+        /* Update UI state for SPA content injection */
+        document.body.classList.add('planet-focused');
+    });
 });
