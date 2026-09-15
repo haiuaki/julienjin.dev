@@ -162,6 +162,9 @@ h1 {
     left: calc(50% - (var(--planet-size) / 2));
     border-radius: 50%;
     display: block;
+    border: none;
+    outline: none;
+    cursor: pointer;
     text-decoration: none;
     pointer-events: auto;
     transition: box-shadow 0.3s ease-out;
