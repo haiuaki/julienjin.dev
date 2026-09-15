@@ -181,7 +181,7 @@ h1 {
 .planet-label {
     position: fixed;
     top: 0; left: 0;
-    color: #fafafa;
+    color: #888888;
     font-size: 0.8rem;
     font-weight: 500;
     letter-spacing: 1px;
@@ -192,16 +192,9 @@ h1 {
     transition: opacity 0.2s ease-out;
 }
 
-/* JS toggles this class when hovering */
 .planet-label.visible {
-    opacity: 0.7;
+    opacity: 1;
 }
-
-/* Quadrant Transforms (Pushes the label OUTWARD from the physical center) */
-.planet-label.top-left { transform: translate(calc(-100% - 15px), calc(-100% - 15px)); }
-.planet-label.top-right { transform: translate(15px, calc(-100% - 15px)); }
-.planet-label.bottom-left { transform: translate(calc(-100% - 15px), 15px); }
-.planet-label.bottom-right { transform: translate(15px, 15px); }
 
 /* --- 6. PLANET CONFIGURATIONS --- */
 
@@ -209,10 +202,10 @@ h1 {
 /* Note: --planet-color uniquely overrides the global theme set in `:root` */
 
 /* Main Planets */
-.planet-1 { --ring-size: 240px; --orbit-diag: 0deg; --orbit-tilt: 68deg; --start-angle: 0deg; --spin-duration: 10s; }
-.planet-2 { --ring-size: 460px; --orbit-diag: 12deg; --orbit-tilt: 72deg; --start-angle: 120deg; --spin-duration: 15s; }
-.planet-3 { --ring-size: 680px; --orbit-diag: -8deg; --orbit-tilt: 58deg; --start-angle: 240deg; --spin-duration: 20s; }
-.planet-4 { --ring-size: 900px; --orbit-diag: 10deg; --orbit-tilt: 75deg; --start-angle: 180deg; --spin-duration: 25s; }
+.planet-1 { --ring-size: 240px; --orbit-diag: 0deg; --orbit-tilt: 68deg; --start-angle: 80deg; --spin-duration: 10s; }
+.planet-2 { --ring-size: 460px; --orbit-diag: 12deg; --orbit-tilt: 72deg; --start-angle: 240deg; --spin-duration: 15s; }
+.planet-3 { --ring-size: 680px; --orbit-diag: -8deg; --orbit-tilt: 58deg; --start-angle: 160deg; --spin-duration: 20s; }
+.planet-4 { --ring-size: 900px; --orbit-diag: 10deg; --orbit-tilt: 75deg; --start-angle: 0deg; --spin-duration: 25s; }
 
 /* Empty Comet Trails */
 .comet-1 { --ring-size: 1120px; --orbit-diag: 37deg; --orbit-tilt: 80deg; --start-angle: 90deg; --spin-duration: 40s; --planet-color: #444444; }

@@ -101,46 +101,56 @@ sunBtn.addEventListener('click', function() {
 
 /* --- 3. DYNAMIC LABEL POSITIONING --- */
 const planetBtns = document.querySelectorAll('.planet-btn');
-const floatingLabel = document.getElementById('floating-label');
 
 planetBtns.forEach(planet => {
-    let trackingFrame;
+    /* Retrieve label string from dataset */
+    const labelText = planet.getAttribute('data-label');
+    if (!labelText) return;
 
-    planet.addEventListener('mouseenter', () => {
-        /* Retrieve label string from dataset */
-        const labelText = planet.getAttribute('data-label');
-        if (!labelText) return;
-
-        floatingLabel.textContent = labelText;
+    /* Generate a dedicated 2D screenspace label for this planet */
+    const floatingLabel = document.createElement('div');
+    floatingLabel.className = 'planet-label visible';
+    floatingLabel.textContent = labelText;
+    document.body.appendChild(floatingLabel);
+    
+    /* Sync 2D label coordinates with 3D planet bounding box */
+    const trackPosition = () => {
+        const rect = planet.getBoundingClientRect();
+        const planetX = rect.x + rect.width / 2;
+        const planetY = rect.y + rect.height / 2;
         
-        /* Sync 2D label coordinates with 3D planet bounding box */
-        const trackPosition = () => {
-            const rect = planet.getBoundingClientRect();
-            const centerX = window.innerWidth / 2;
-            const centerY = window.innerHeight / 2;
+        /* Calculate true physical center of the solar system (The Sun) */
+        const sunRect = sunBtn.getBoundingClientRect();
+        const centerX = sunRect.x + sunRect.width / 2;
+        const centerY = sunRect.y + sunRect.height / 2;
 
-            /* Center anchor point */
-            floatingLabel.style.left = (rect.x + rect.width / 2) + 'px';
-            floatingLabel.style.top = (rect.y + rect.height / 2) + 'px';
+        /* Calculate normalized vector from Sun to Planet */
+        let dx = planetX - centerX;
+        let dy = planetY - centerY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        
+        if (dist > 0) {
+            dx /= dist;
+            dy /= dist;
+        }
 
-            let quadrantClass = '';
-            if (rect.y < centerY) {
-                quadrantClass = (rect.x < centerX) ? 'top-left' : 'top-right';
-            } else {
-                quadrantClass = (rect.x < centerX) ? 'bottom-left' : 'bottom-right';
-            }
+        /* 
+           Mathematically morph the anchor point of the text box based on the angle.
+           If dx=1 (right), it anchors the left edge. If dx=-1 (left), it anchors the right edge!
+           This ensures the text box never overlaps the planet, regardless of word length.
+        */
+        const xPercent = (dx * 50) - 50;
+        const yPercent = (dy * 50) - 50;
+        
+        /* Push the label 15px outward along the vector */
+        const LABEL_OFFSET = 15;
+        floatingLabel.style.left = (planetX + dx * LABEL_OFFSET) + 'px';
+        floatingLabel.style.top = (planetY + dy * LABEL_OFFSET) + 'px';
+        floatingLabel.style.transform = `translate(${xPercent}%, ${yPercent}%)`;
 
-            /* Inject quadrant class and render visibility */
-            floatingLabel.className = `planet-label visible ${quadrantClass}`;
-
-            trackingFrame = requestAnimationFrame(trackPosition);
-        };
-        trackPosition();
-    });
-
-    planet.addEventListener('mouseleave', () => {
-        /* Terminate tracking loop and hide label */
-        cancelAnimationFrame(trackingFrame);
-        floatingLabel.classList.remove('visible');
-    });
+        requestAnimationFrame(trackPosition);
+    };
+    
+    /* Permanently lock the tracking engine for this label */
+    trackPosition();
 });
