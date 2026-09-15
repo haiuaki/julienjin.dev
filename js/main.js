@@ -71,6 +71,11 @@ function resumePhysics() {
     
     /* Reset camera pan if a planet was focused */
     document.body.classList.remove('planet-focused');
+    document.querySelectorAll('.active-planet').forEach(el => el.classList.remove('active-planet'));
+    
+    if (window.transitionTimer) clearTimeout(window.transitionTimer);
+    document.querySelectorAll('.void-transition').forEach(el => el.classList.remove('void-transition'));
+    
     solarSystem.style.transition = 'margin 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
     solarSystem.style.marginLeft = '0px';
     solarSystem.style.marginTop = '0px';
@@ -163,6 +168,16 @@ planetBtns.forEach(planet => {
     /* --- 4. CAMERA FOCUS ENGINE --- */
     planet.addEventListener('click', (e) => {
         e.preventDefault();
+        if (document.body.classList.contains('planet-focused')) return;
+
+        /* Isolate this specific planet and label for the CSS dimming effect */
+        planet.classList.add('active-planet');
+        floatingLabel.classList.add('active-planet');
+
+        /* Trigger the void transition state after camera panning completes (1.5s) */
+        window.transitionTimer = setTimeout(() => {
+            planet.classList.add('void-transition');
+        }, 1500);
 
         /* Instantly freeze the system to prevent orbital drift during focus */
         isManuallyPaused = true;
@@ -195,10 +210,10 @@ planetBtns.forEach(planet => {
         solarSystem.style.marginLeft = (currentMarginLeft + dx) + 'px';
         solarSystem.style.marginTop = (currentMarginTop + dy) + 'px';
 
-        /* Apply a dramatic camera zoom to the root container */
+        /* Apply a scale transformation to the root container */
         const spaceContainer = document.getElementById('space-container');
         spaceContainer.style.transition = 'transform 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
-        spaceContainer.style.transform = 'scale(1.5)';
+        spaceContainer.style.transform = 'scale(1.3)';
 
         /* Update UI state for SPA content injection */
         document.body.classList.add('planet-focused');

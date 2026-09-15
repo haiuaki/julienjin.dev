@@ -133,14 +133,14 @@ body {
 
     /* Base border masked into trailing effect */
     border: 1.5px solid var(--planet-color);
-    opacity: 0.1;
+    opacity: 1;
 
     /* Gradient mask (fades out along orbit trajectory) */
     -webkit-mask-image: conic-gradient(from 0deg, transparent 0%, transparent 3%, black 100%);
     mask-image: conic-gradient(from 0deg, transparent 0%, transparent 3%, black 100%);
 
     /* Initial render animation */
-    animation: initial-fade-in 2.5s ease-in-out both;
+    animation: initial-fade-in 2.5s ease-in-out;
 }
 
 .planet-btn {
@@ -157,10 +157,10 @@ body {
     transition: box-shadow 0.3s ease-out;
 
     /* Planet counter-spin animation assignment & Initial Fade-in */
-    animation: master-anti-spin var(--spin-duration) linear infinite, initial-fade-in 2.5s ease-in-out both;
+    animation: master-anti-spin var(--spin-duration) linear infinite, initial-fade-in 2.5s ease-in-out;
 }
 
-/* Atmospheric Glow Interaction */
+/* Hover Interaction */
 .planet-btn:hover,
 #sun-btn:hover {
     box-shadow: 0 0 10px 2px rgba(250, 250, 250, 0.5), 
@@ -180,7 +180,7 @@ body {
     pointer-events: none;
     
     /* Sync 2D label creation with 3D planet fade-in */
-    animation: initial-fade-in 2.5s ease-in-out both;
+    animation: initial-fade-in 2.5s ease-in-out;
 }
 
 /* --- 6. PLANET CONFIGURATIONS --- */
@@ -225,3 +225,38 @@ body {
     100% { pointer-events: auto; }
 }
 
+/* --- 8. CAMERA FOCUS DIMMING EFFECT --- */
+
+/* Base transition for smooth fading */
+.orbit-ring::before,
+.planet-btn,
+.planet-label,
+#sun-btn {
+    transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease-out;
+}
+
+/* Dim unselected elements when a planet is focused */
+body.planet-focused .orbit-ring::before,
+body.planet-focused #sun-btn,
+body.planet-focused .planet-btn:not(.active-planet),
+body.planet-focused .planet-label:not(.active-planet) {
+    opacity: 0 !important;
+}
+
+/* Fade out the active planet's label after the camera arrives (1.5s delay) */
+body.planet-focused .planet-label.active-planet {
+    opacity: 0 !important;
+    transition-duration: 0.8s !important;
+    transition-delay: 1.5s;
+}
+
+/* Void Transition: Expand shadow and fade out active planet */
+.planet-btn.void-transition {
+    /* Expand box-shadow */
+    box-shadow: 0 0 50px 20px rgba(250, 250, 250, 1), 0 0 100px 40px rgba(250, 250, 250, 0.5) !important;
+    /* Fade opacity to 0 */
+    opacity: 0 !important;
+    
+    /* Transition opacity and box-shadow */
+    transition: opacity 0.8s ease-out, box-shadow 0.8s ease-out !important;
+}
