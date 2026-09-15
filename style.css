@@ -8,8 +8,9 @@
 
 body {
     font-family: 'Inter', sans-serif;
-    background-color: #fafafa;
-    color: #333;
+    background-color: #1a1a1a;
+    color: #fafafa;
+    overflow-x: hidden;
 }
 
 main, footer {
@@ -29,12 +30,15 @@ h1 {
     /* System positioning and scale coordinates */
     --system-x: 50%;
     --system-y: 45%;
-    
+
     /* System scaling multiplier */
-    --system-scale: 1;
-    
+    --system-scale: 1.5;
+
     /* Physics engine state */
     --play-state: running;
+
+    /* Global theme color for planets and their tails */
+    --planet-color: #fafafa;
 }
 
 /* Responsive scaling rules */
@@ -46,12 +50,11 @@ h1 {
 /* --- 3. MODULAR UTILITIES --- */
 
 /* Modular Sizes */
-.size-small  { --planet-size: 30px;  width: var(--planet-size); height: var(--planet-size); }
-.size-medium { --planet-size: 65px;  width: var(--planet-size); height: var(--planet-size); }
-.size-large  { --planet-size: 100px; width: var(--planet-size); height: var(--planet-size); }
+.size-small  { --planet-size: 8px;  width: var(--planet-size); height: var(--planet-size); }
+.size-large  { --planet-size: 24px; width: var(--planet-size); height: var(--planet-size); }
 
 /* Modular Colors */
-.bg-dark { background-color: #333; color: white; }
+.bg-theme { background-color: var(--planet-color); color: #1a1a1a; }
 
 /* Base Button Shape */
 .circle-btn {
@@ -69,12 +72,13 @@ h1 {
 
 #space-container {
     position: relative;
+    /* width: 100%; */
     height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    
+
     perspective: 1500px;
     /* Align perspective origin with system coordinates */
     perspective-origin: var(--system-x) var(--system-y);
@@ -83,7 +87,7 @@ h1 {
 /* Main wrapper */
 #solar-system {
     position: absolute;
-    top: var(--system-y); 
+    top: var(--system-y);
     left: var(--system-x);
     transform-style: preserve-3d;
     transform: scale(var(--system-scale));
@@ -92,7 +96,7 @@ h1 {
 #start-btn {
     position: absolute;
     top: 0; left: 0;
-    transform: translate(-50%, -50%) translateZ(0); 
+    transform: translate(-50%, -50%) translateZ(0);
     animation: click-delay 2.5s forwards;
 }
 
@@ -119,44 +123,54 @@ h1 {
 .orbit-ring {
     position: absolute;
     top: 50%; left: 50%;
-    width: var(--ring-size); 
+    width: var(--ring-size);
     height: var(--ring-size);
     margin-top: calc(var(--ring-size) / -2);
     margin-left: calc(var(--ring-size) / -2);
     border-radius: 50%;
     transform-style: preserve-3d;
     pointer-events: none;
-    
+
     /* Spin animation assignment */
     animation: master-spin var(--spin-duration) linear infinite;
     animation-play-state: var(--play-state) !important;
 }
 
-/* The actual dotted line */
+/* The actual trailing tail */
 .orbit-ring::before {
     content: "";
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
     border-radius: 50%;
-    
-    /* Prevents SVG clipping at 50% radius */
-    background-image: url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' overflow='visible' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='50%25' cy='50%25' r='50%25' fill='none' stroke='black' stroke-opacity='0.5' stroke-width='3' stroke-dasharray='0 15' stroke-linecap='round' /%3E%3C/svg%3E");
-    
-    /* Counter-spin animation assignment & Initial Fade-in */
-    animation: master-static-dots var(--spin-duration) linear infinite, initial-fade-in 2.5s ease-in-out both;
-    /* Decoupled: Physics can pause, but the Fade-in ALWAYS runs! */
-    animation-play-state: var(--play-state), running !important;
+
+    /* Base border masked into trailing effect */
+    border: 1.5px solid var(--planet-color);
+    opacity: 0.1;
+
+    /* Gradient mask (fades out along orbit trajectory) */
+    -webkit-mask-image: conic-gradient(from 0deg, transparent 0%, transparent 3%, black 100%);
+    mask-image: conic-gradient(from 0deg, transparent 0%, transparent 3%, black 100%);
+
+    /* Initial render animation */
+    animation: initial-fade-in 2.5s ease-in-out both;
+}
+
+/* Optional Tail Style Modifiers */
+.orbit-ring.dashed-tail::before {
+    border: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' overflow='visible' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='50%25' cy='50%25' r='50%25' fill='none' stroke='%23444444' stroke-width='1' stroke-dasharray='10 15' /%3E%3C/svg%3E");
+    opacity: 0.5;
 }
 
 .planet-btn {
     position: absolute;
-    top: calc(var(--planet-size) / -2); 
+    top: calc(var(--planet-size) / -2);
     left: calc(50% - (var(--planet-size) / 2));
     border-radius: 50%;
-    display: block; 
+    display: block;
     text-decoration: none;
-    pointer-events: auto; 
-    
+    pointer-events: auto;
+
     /* Planet counter-spin animation assignment & Initial Fade-in */
     animation: master-anti-spin var(--spin-duration) linear infinite, initial-fade-in 2.5s ease-in-out both;
     animation-play-state: var(--play-state), running !important;
@@ -165,10 +179,18 @@ h1 {
 /* --- 6. PLANET CONFIGURATIONS --- */
 
 /* --orbit-diag defines Z-axis rotation; --orbit-tilt defines X-axis pitch */
-.ring-1 { --ring-size: 360px;  --orbit-diag: 0deg;   --orbit-tilt: 70deg; --start-angle: 0deg;   --spin-duration: 10s; }
-.ring-2 { --ring-size: 580px;  --orbit-diag: 15deg;  --orbit-tilt: 60deg; --start-angle: 120deg; --spin-duration: 15s; }
-.ring-3 { --ring-size: 800px;  --orbit-diag: -5deg;  --orbit-tilt: 75deg; --start-angle: 240deg; --spin-duration: 20s; }
-.ring-4 { --ring-size: 1000px; --orbit-diag: 5deg;  --orbit-tilt: 70deg; --start-angle: 180deg; --spin-duration: 25s; }
+/* Note: --planet-color uniquely overrides the global theme set in `:root` */
+
+/* Main Planets */
+.planet-1 { --ring-size: 240px; --orbit-diag: 0deg; --orbit-tilt: 68deg; --start-angle: 0deg; --spin-duration: 10s; }
+.planet-2 { --ring-size: 460px; --orbit-diag: 12deg; --orbit-tilt: 72deg; --start-angle: 120deg; --spin-duration: 15s; }
+.planet-3 { --ring-size: 680px; --orbit-diag: -8deg; --orbit-tilt: 58deg; --start-angle: 240deg; --spin-duration: 20s; }
+.planet-4 { --ring-size: 780px; --orbit-diag: 10deg; --orbit-tilt: 63deg; --start-angle: 180deg; --spin-duration: 25s; }
+
+/* Empty Comet Trails */
+.comet-1 { --ring-size: 1120px; --orbit-diag: 37deg; --orbit-tilt: 80deg; --start-angle: 90deg; --spin-duration: 40s; --planet-color: #444444; }
+.comet-2 { --ring-size: 1340px; --orbit-diag: -25deg; --orbit-tilt: 60deg; --start-angle: 300deg; --spin-duration: 60s; --planet-color: #444444; }
+.comet-3 { --ring-size: 1560px; --orbit-diag: 8deg; --orbit-tilt: 75deg; --start-angle: 150deg; --spin-duration: 80s; --planet-color: #444444; }
 
 /* --- 7. PHYSICS ENGINE (KEYFRAMES) --- */
 
@@ -178,25 +200,19 @@ h1 {
     to { transform: rotateZ(var(--orbit-diag)) rotateX(var(--orbit-tilt)) rotateZ(calc(var(--start-angle) + 360deg)); }
 }
 
-/* 2. Orbit line counter-spin */
-@keyframes master-static-dots {
-    from { transform: rotateZ(calc(var(--start-angle) * -1)); }
-    to { transform: rotateZ(calc((var(--start-angle) + 360deg) * -1)); }
-}
-
-/* 3. Planet counter-spin */
+/* 2. Planet counter-spin */
 @keyframes master-anti-spin {
     from { transform: rotateZ(calc(var(--start-angle) * -1)) rotateX(calc(var(--orbit-tilt) * -1)) rotateZ(calc(var(--orbit-diag) * -1)); }
     to { transform: rotateZ(calc((var(--start-angle) + 360deg) * -1)) rotateX(calc(var(--orbit-tilt) * -1)) rotateZ(calc(var(--orbit-diag) * -1)); }
 }
 
-/* 4. Initial page load fade-in */
+/* 3. Initial page load fade-in */
 @keyframes initial-fade-in {
     from { opacity: 0; }
     to { opacity: 1; }
 }
 
-/* 5. Click delay to prevent fade-in glitches */
+/* 4. Click delay to prevent fade-in glitches */
 @keyframes click-delay {
     0%, 99% { pointer-events: none; }
     100% { pointer-events: auto; }
