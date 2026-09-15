@@ -15,7 +15,6 @@ body {
 }
 
 
-
 /* --- 2. GLOBAL VARIABLES --- */
 
 :root {
@@ -39,6 +38,7 @@ body {
 @media (max-width: 700px) , (max-height: 550px) { :root { --system-scale: 0.75; } }
 @media (max-width: 450px) , (max-height: 400px) { :root { --system-scale: 0.45; } }
 
+
 /* --- 3. MODULAR UTILITIES --- */
 
 /* Modular Sizes */
@@ -61,7 +61,36 @@ body {
     transition: box-shadow 0.3s ease-out;
 }
 
-/* --- 4. 3D SOLAR SYSTEM LAYOUT --- */
+
+/* --- 4. GLOBAL UI LAYER --- */
+#brand-logo {
+    position: fixed;
+    top: 30px;
+    left: 20px;
+    z-index: 100;
+    font-size: 1.0rem;
+    font-weight: 350;
+    letter-spacing: 1px;
+    color: #888888;
+    pointer-events: none;
+    animation: initial-fade-in 2.5s ease-in-out;
+}
+
+
+/* --- 5. TYPEWRITER EFFECT --- */
+.terminal-cursor {
+    display: inline-block;
+    vertical-align: baseline;
+    animation: terminal-blink 1s step-end infinite;
+}
+
+@keyframes terminal-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+
+/* --- 6. 3D SOLAR SYSTEM LAYOUT --- */
 
 #space-container {
     position: relative;
@@ -106,7 +135,8 @@ body {
     animation-delay: var(--system-time, 0ms) !important;
 }
 
-/* --- 5. ORBIT COMPONENTS --- */
+
+/* --- 7. ORBIT COMPONENTS --- */
 
 /* Orbit ring containers */
 .orbit-ring {
@@ -183,7 +213,8 @@ body {
     animation: initial-fade-in 2.5s ease-in-out;
 }
 
-/* --- 6. PLANET CONFIGURATIONS --- */
+
+/* --- 8. PLANET CONFIGURATIONS --- */
 
 /* --orbit-diag defines Z-axis rotation; --orbit-tilt defines X-axis pitch */
 /* Note: --planet-color uniquely overrides the global theme set in `:root` */
@@ -199,7 +230,8 @@ body {
 .comet-2 { --ring-size: 1340px; --orbit-diag: -25deg; --orbit-tilt: 60deg; --start-angle: 300deg; --spin-duration: 60s; --planet-color: #444444; }
 .comet-3 { --ring-size: 1560px; --orbit-diag: 8deg; --orbit-tilt: 75deg; --start-angle: 150deg; --spin-duration: 80s; --planet-color: #444444; }
 
-/* --- 7. PHYSICS ENGINE (KEYFRAMES) --- */
+
+/* --- 9. PHYSICS ENGINE (KEYFRAMES) --- */
 
 /* 1. Primary spin animation */
 @keyframes master-spin {
@@ -225,12 +257,14 @@ body {
     100% { pointer-events: auto; }
 }
 
-/* --- 8. CAMERA FOCUS DIMMING EFFECT --- */
+
+/* --- 10. CAMERA FOCUS DIMMING EFFECT --- */
 
 /* Base transition for smooth fading */
 .orbit-ring::before,
 .planet-btn,
 .planet-label,
+#brand-logo,
 #sun-btn {
     transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease-out;
 }
@@ -238,6 +272,7 @@ body {
 /* Dim unselected elements when a planet is focused */
 body.planet-focused .orbit-ring::before,
 body.planet-focused #sun-btn,
+body.planet-focused #brand-logo,
 body.planet-focused .planet-btn:not(.active-planet),
 body.planet-focused .planet-label:not(.active-planet) {
     opacity: 0 !important;

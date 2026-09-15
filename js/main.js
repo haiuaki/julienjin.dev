@@ -16,7 +16,36 @@ if (isNaN(systemEpoch)) {
     sessionStorage.setItem('systemEpoch', systemEpoch);
 }
 
-/* --- 2. PROGRESSIVE BRAKING ENGINE (WAAPI) --- */
+
+/* --- 2. TYPEWRITER EFFECT --- */
+const brandLogo = document.getElementById('brand-logo');
+if (brandLogo) {
+    const textToType = brandLogo.getAttribute('data-text');
+    const cursorChar = brandLogo.getAttribute('data-cursor') || '_';
+    
+    if (textToType) {
+        let typeIndex = 0;
+        
+        /* Initialize empty bracket state with cursor */
+        brandLogo.innerHTML = `[<span class="terminal-cursor">${cursorChar}</span>]`;
+        
+        /* Delay typing to align with initial load transition */
+        setTimeout(() => {
+            const typingInterval = setInterval(() => {
+                if (typeIndex < textToType.length) {
+                    /* Slice string and append cursor within brackets */
+                    brandLogo.innerHTML = `[${textToType.substring(0, typeIndex + 1)}<span class="terminal-cursor">${cursorChar}</span>]`;
+                    typeIndex++;
+                } else {
+                    clearInterval(typingInterval);
+                }
+            }, 60); /* Keystroke interval */
+        }, 1500); /* Initial delay */
+    }
+}
+
+
+/* --- 3. PROGRESSIVE BRAKING ENGINE (WAAPI) --- */
 let speedTransition;
 function animateSpeed(targetSpeed) {
     cancelAnimationFrame(speedTransition);
@@ -114,7 +143,8 @@ sunBtn.addEventListener('click', function() {
     else resumePhysics();
 });
 
-/* --- 3. DYNAMIC LABEL POSITIONING --- */
+
+/* --- 4. DYNAMIC LABEL POSITIONING --- */
 const planetBtns = document.querySelectorAll('.planet-btn');
 
 planetBtns.forEach(planet => {
@@ -165,7 +195,8 @@ planetBtns.forEach(planet => {
     /* Permanently lock the tracking engine for this label */
     trackPosition();
 
-    /* --- 4. CAMERA FOCUS ENGINE --- */
+    
+/* --- 5. CAMERA FOCUS ENGINE --- */
     planet.addEventListener('click', (e) => {
         e.preventDefault();
         if (document.body.classList.contains('planet-focused')) return;
