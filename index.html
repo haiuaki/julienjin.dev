@@ -7,6 +7,12 @@
     <meta name="author" content="Julien Jin">
 
     <title>Julien Jin</title>
+    
+    <!-- Google Fonts: IBM Plex Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -25,19 +31,19 @@
                 
                 <!-- Main Navigation Planets -->
                 <div class="orbit-ring planet-1">
-                    <a href="" class="planet-btn size-small bg-theme"></a>
+                    <a href="" class="planet-btn size-small bg-theme" data-label="[about]"></a>
                 </div>
                 
                 <div class="orbit-ring planet-2">
-                    <a href="" class="planet-btn size-small bg-theme"></a>
+                    <a href="" class="planet-btn size-small bg-theme" data-label="[projects]"></a>
                 </div>
                 
                 <div class="orbit-ring planet-3">
-                    <a href="" class="planet-btn size-small bg-theme"></a>
+                    <a class="planet-btn size-small bg-theme" data-label="[coming soon..]"></a>
                 </div>
 
                 <div class="orbit-ring planet-4">
-                    <a href="" class="planet-btn size-small bg-theme"></a>
+                    <a class="planet-btn size-small bg-theme" data-label="[coming soon..]"></a>
                 </div>
 
                 <!-- Decorative Comet Trails -->
@@ -48,6 +54,9 @@
             </nav>
         </div>
     </header>
+
+    <!-- Global UI Layer (Pure 2D Screenspace) -->
+    <div id="floating-label" class="planet-label"></div>
 
     <!-- --- MAIN CONTENT --- -->
     <!-- <main> -->
