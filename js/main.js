@@ -109,7 +109,7 @@ planetBtns.forEach(planet => {
 
     /* Generate a dedicated 2D screenspace label for this planet */
     const floatingLabel = document.createElement('div');
-    floatingLabel.className = 'planet-label visible';
+    floatingLabel.className = 'planet-label';
     floatingLabel.textContent = labelText;
     document.body.appendChild(floatingLabel);
     
@@ -134,11 +134,7 @@ planetBtns.forEach(planet => {
             dy /= dist;
         }
 
-        /* 
-           Mathematically morph the anchor point of the text box based on the angle.
-           If dx=1 (right), it anchors the left edge. If dx=-1 (left), it anchors the right edge!
-           This ensures the text box never overlaps the planet, regardless of word length.
-        */
+        /* Dynamically shift text bounding box anchor based on orbital vector to prevent collision */
         const xPercent = (dx * 50) - 50;
         const yPercent = (dy * 50) - 50;
         

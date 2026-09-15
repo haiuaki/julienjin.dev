@@ -188,12 +188,9 @@ h1 {
     text-transform: lowercase;
     white-space: nowrap;
     pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.2s ease-out;
-}
-
-.planet-label.visible {
-    opacity: 1;
+    
+    /* Sync 2D label creation with 3D planet fade-in */
+    animation: initial-fade-in 2.5s ease-in-out both;
 }
 
 /* --- 6. PLANET CONFIGURATIONS --- */
