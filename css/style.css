@@ -82,7 +82,7 @@ body {
 #brand-logo {
     position: fixed;
     top: 30px;
-    left: 20px;
+    left: 45px;
     z-index: 100;
     font-size: 1.0rem;
     font-weight: 350;
@@ -296,36 +296,34 @@ body {
 
 /* Base transition for smooth fading */
 .orbit-ring::before,
-.planet-btn,
 .planet-label,
 #brand-logo,
 #sun-btn {
     transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease-out;
 }
 
-/* Fade unselected elements during target focus */
-body.planet-focused #starfield {
-    transform: scale(1.15);
+.planet-btn {
+    transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1), 
+                width 1.5s cubic-bezier(0.25, 1, 0.5, 1), 
+                height 1.5s cubic-bezier(0.25, 1, 0.5, 1), 
+                top 1.5s cubic-bezier(0.25, 1, 0.5, 1), 
+                left 1.5s cubic-bezier(0.25, 1, 0.5, 1), 
+                box-shadow 0.3s ease-out;
 }
 
+/* Fade unselected elements during target focus */
 body.planet-focused .orbit-ring::before,
 body.planet-focused #sun-btn,
 body.planet-focused #brand-logo,
 body.planet-focused .planet-btn:not(.active-planet),
-body.planet-focused .planet-label:not(.active-planet) {
+body.planet-focused .planet-label {
     opacity: 0 !important;
+    pointer-events: none !important;
     transition-delay: 0.3s;
     transition-duration: 1.2s;
 }
 
 /* Fade out the active planet's label after the camera arrives (1.5s delay) */
-body.planet-focused .planet-label.active-planet {
-    opacity: 0 !important;
-    transition-delay: 0.3s;
-    transition-duration: 1.2s;
-    transition-duration: 0.8s !important;
-    transition-delay: 1.5s;
-}
 
 /* Void Transition: Expand shadow and fade out active planet */
 .planet-btn.void-transition {
@@ -333,6 +331,7 @@ body.planet-focused .planet-label.active-planet {
     box-shadow: 0 0 50px 20px rgba(250, 250, 250, 1), 0 0 100px 40px rgba(250, 250, 250, 0.5) !important;
     /* Fade opacity to 0 */
     opacity: 0 !important;
+    pointer-events: none !important;
     transition-delay: 0.3s;
     transition-duration: 1.2s;
     
@@ -340,48 +339,10 @@ body.planet-focused .planet-label.active-planet {
     transition: opacity 0.8s ease-out, box-shadow 0.8s ease-out !important;
 }
 
-/* --- 11. RETURN HOME BUTTON --- */
-#return-home-container {
-    position: fixed;
-    top: 30px;
-    left: 20px;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1);
-    cursor: pointer;
-}
 
-#return-home-label {
-    font-size: 0.8rem;
-    font-weight: 500;
-    letter-spacing: 1px;
-    color: #888888;
-    transition: color 0.3s ease;
+body.planet-focused .planet-btn.active-planet {
+    width: var(--active-planet-size) !important;
+    height: var(--active-planet-size) !important;
+    top: var(--active-planet-offset) !important;
+    left: calc(50% + var(--active-planet-offset)) !important;
 }
-
-#return-home-btn {
-    box-shadow: 0 0 8px 1px rgba(250, 250, 250, 0.3);
-    transition: box-shadow 0.3s ease-out;
-}
-
-#return-home-container:hover #return-home-btn {
-    box-shadow: 0 0 10px 2px rgba(250, 250, 250, 0.5), 
-                0 0 25px 6px rgba(250, 250, 250, 0.2);
-}
-
-#return-home-container:hover #return-home-label {
-    color: #fafafa;
-}
-
-body.planet-focused #return-home-container {
-    opacity: 1;
-    pointer-events: auto;
-    /* Appear after the 1.5s camera transition finishes */
-    transition-delay: 1.5s;
-    transition-duration: 0.8s; 
-}
-

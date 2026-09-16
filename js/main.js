@@ -195,16 +195,17 @@ function resetCamera() {
     document.body.classList.remove('planet-focused');
     document.querySelectorAll('.active-planet').forEach(el => el.classList.remove('active-planet'));
     
-    if (window.transitionTimer) clearTimeout(window.transitionTimer);
-    document.querySelectorAll('.void-transition').forEach(el => el.classList.remove('void-transition'));
-    
     solarSystem.style.transition = 'margin 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
     solarSystem.style.marginLeft = '0px';
     solarSystem.style.marginTop = '0px';
 
     const spaceContainer = document.getElementById('space-container');
-    spaceContainer.style.transition = 'transform 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
-    spaceContainer.style.transform = 'scale(1)';
+    spaceContainer.style.transform = 'translate(0px, 0px) scale(1)';
+
+    const starfield = document.getElementById('starfield');
+    if (starfield) {
+        starfield.style.transform = 'translate(0px, 0px) scale(1)';
+    }
 }
 
 function resumePhysics() {
@@ -303,16 +304,17 @@ planetBtns.forEach(planet => {
 /* --- 6. CAMERA FOCUS ENGINE --- */
     planet.addEventListener('click', (e) => {
         e.preventDefault();
-        if (document.body.classList.contains('planet-focused')) return;
+        
+        if (document.body.classList.contains('planet-focused')) {
+            if (planet.classList.contains('active-planet')) {
+                resetCamera();
+            }
+            return;
+        }
 
         /* Isolate this specific planet and label for the CSS dimming effect */
         planet.classList.add('active-planet');
         floatingLabel.classList.add('active-planet');
-
-        /* Trigger the void transition state after camera panning completes (1.5s) */
-        window.transitionTimer = setTimeout(() => {
-            planet.classList.add('void-transition');
-        }, 1500);
 
         /* Instantly freeze the system to prevent orbital drift during focus */
         isManuallyPaused = true;
@@ -325,38 +327,51 @@ planetBtns.forEach(planet => {
             }
         });
 
-        /* Calculate spatial translation offset to center the target element */
+        /* Compute depth-aware perspective scaling matrix for uniform visual geometry */
         const rect = planet.getBoundingClientRect();
+        const perspectiveScale = rect.width / planet.offsetWidth;
+        const targetPhysicalSize = 24 / (perspectiveScale * 1.3);
+        
+        planet.style.setProperty('--active-planet-size', `${targetPhysicalSize}px`);
+        planet.style.setProperty('--active-planet-offset', `-${targetPhysicalSize / 2}px`);
+
+        /* Compute translation vectors for screen bounds alignment */
         const planetX = rect.x + rect.width / 2;
         const planetY = rect.y + rect.height / 2;
         
         const screenCenterX = window.innerWidth / 2;
         const screenCenterY = window.innerHeight / 2;
         
-        const dx = screenCenterX - planetX;
-        const dy = screenCenterY - planetY;
-        
-        /* Apply 2D margin translation to the 3D container */
-        solarSystem.style.transition = 'margin 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
-        
-        const currentMarginLeft = parseFloat(getComputedStyle(solarSystem).marginLeft) || 0;
-        const currentMarginTop = parseFloat(getComputedStyle(solarSystem).marginTop) || 0;
-        
-        solarSystem.style.marginLeft = (currentMarginLeft + dx) + 'px';
-        solarSystem.style.marginTop = (currentMarginTop + dy) + 'px';
+        /* Define absolute target screenspace coordinates */
+        const targetX = 68; 
+        const targetY = 58;
 
-        /* Apply a scale transformation to the root container */
+        /* Calculate scalar transformation offsets */
+        const scaledPlanetX = (planetX - screenCenterX) * 1.3 + screenCenterX;
+        const scaledPlanetY = (planetY - screenCenterY) * 1.3 + screenCenterY;
+
+        /* Compute 2D delta vector */
+        const dx = targetX - scaledPlanetX;
+        const dy = targetY - scaledPlanetY;
+
+        /* Reset nested container coordinate offsets */
+        solarSystem.style.transition = 'margin 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
+        solarSystem.style.marginLeft = '0px';
+        solarSystem.style.marginTop = '0px';
+
+        /* Apply primary scalar and translation transforms to root container to override nested 3D projections */
         const spaceContainer = document.getElementById('space-container');
         spaceContainer.style.transition = 'transform 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
-        spaceContainer.style.transform = 'scale(1.3)';
+        spaceContainer.style.transform = `translate(${dx}px, ${dy}px) scale(1.3)`;
+
+        /* Apply a fractional translation to the background to simulate deep-space parallax panning */
+        const starfield = document.getElementById('starfield');
+        if (starfield) {
+            starfield.style.transform = `translate(${dx * 0.15}px, ${dy * 0.15}px) scale(1.2)`;
+        }
 
         /* Update UI state for SPA content injection */
         document.body.classList.add('planet-focused');
     });
 });
 
-/* --- 7. RETURN HOME BUTTON --- */
-const returnHomeContainer = document.getElementById('return-home-container');
-returnHomeContainer.addEventListener('click', () => {
-    resetCamera();
-});
