@@ -12,6 +12,7 @@ body {
     color: #fafafa;
     overflow: hidden;
     cursor: crosshair;
+    box-shadow: inset 0 0 200px 50px rgba(0, 0, 0, 0.9);
 }
 
 
@@ -63,6 +64,18 @@ body {
 
 
 /* --- 4. GLOBAL UI LAYER --- */
+
+#starfield {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    z-index: -1;
+    pointer-events: none;
+    background-color: transparent;
+    transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+    animation: initial-fade-in 2.5s ease-in-out;
+}
+
 #brand-logo {
     position: fixed;
     top: 30px;
@@ -119,7 +132,7 @@ body {
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%) translateZ(0);
-    animation: click-delay 2.5s forwards;
+    animation: click-delay 2.5s forwards, sun-pulse 4s ease-in-out infinite;
 }
 
 #main-nav {
@@ -191,10 +204,15 @@ body {
 }
 
 /* Hover Interaction */
-.planet-btn:hover,
-#sun-btn:hover {
+.planet-btn:hover {
     box-shadow: 0 0 10px 2px rgba(250, 250, 250, 0.5), 
                 0 0 25px 6px rgba(250, 250, 250, 0.2);
+}
+
+#sun-btn:hover {
+    animation: none;
+    box-shadow: 0 0 15px 3px rgba(250, 250, 250, 0.8), 
+                0 0 30px 8px rgba(250, 250, 250, 0.4);
 }
 
 /* Base Floating Label (Pure 2D Screenspace) */
@@ -257,6 +275,18 @@ body {
     100% { pointer-events: auto; }
 }
 
+/* 5. Center node idle animation */
+@keyframes sun-pulse {
+    0%, 100% {
+        box-shadow: 0 0 5px 1px rgba(250, 250, 250, 0.2), 
+                    0 0 10px 2px rgba(250, 250, 250, 0.1);
+    }
+    50% {
+        box-shadow: 0 0 15px 3px rgba(250, 250, 250, 0.6), 
+                    0 0 30px 8px rgba(250, 250, 250, 0.3);
+    }
+}
+
 
 /* --- 10. CAMERA FOCUS DIMMING EFFECT --- */
 
@@ -269,18 +299,22 @@ body {
     transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease-out;
 }
 
-/* Dim unselected elements when a planet is focused */
+/* Fade unselected elements during target focus */
 body.planet-focused .orbit-ring::before,
 body.planet-focused #sun-btn,
 body.planet-focused #brand-logo,
 body.planet-focused .planet-btn:not(.active-planet),
 body.planet-focused .planet-label:not(.active-planet) {
     opacity: 0 !important;
+    transition-delay: 0.3s;
+    transition-duration: 1.2s;
 }
 
 /* Fade out the active planet's label after the camera arrives (1.5s delay) */
 body.planet-focused .planet-label.active-planet {
     opacity: 0 !important;
+    transition-delay: 0.3s;
+    transition-duration: 1.2s;
     transition-duration: 0.8s !important;
     transition-delay: 1.5s;
 }
@@ -291,6 +325,8 @@ body.planet-focused .planet-label.active-planet {
     box-shadow: 0 0 50px 20px rgba(250, 250, 250, 1), 0 0 100px 40px rgba(250, 250, 250, 0.5) !important;
     /* Fade opacity to 0 */
     opacity: 0 !important;
+    transition-delay: 0.3s;
+    transition-duration: 1.2s;
     
     /* Transition opacity and box-shadow */
     transition: opacity 0.8s ease-out, box-shadow 0.8s ease-out !important;
