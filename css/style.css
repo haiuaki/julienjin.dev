@@ -72,7 +72,8 @@ body {
     z-index: -1;
     pointer-events: none;
     background-color: transparent;
-    transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1), transform 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+    transform: scale(1);
     animation: initial-fade-in 2.5s ease-in-out;
 }
 
@@ -300,6 +301,10 @@ body {
 }
 
 /* Fade unselected elements during target focus */
+body.planet-focused #starfield {
+    transform: scale(1.15);
+}
+
 body.planet-focused .orbit-ring::before,
 body.planet-focused #sun-btn,
 body.planet-focused #brand-logo,
