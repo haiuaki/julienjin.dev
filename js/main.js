@@ -190,14 +190,7 @@ function pausePhysics() {
     animateSpeed(0);
 }
 
-function resumePhysics() {
-    if (!isPhysicsPaused) return;
-    let pauseDuration = Date.now() - pauseTimestamp;
-    systemEpoch += pauseDuration;
-    sessionStorage.setItem('systemEpoch', systemEpoch);
-    solarSystem.classList.remove('paused');
-    isPhysicsPaused = false;
-    
+function resetCamera() {
     /* Reset camera pan if a planet was focused */
     document.body.classList.remove('planet-focused');
     document.querySelectorAll('.active-planet').forEach(el => el.classList.remove('active-planet'));
@@ -212,6 +205,17 @@ function resumePhysics() {
     const spaceContainer = document.getElementById('space-container');
     spaceContainer.style.transition = 'transform 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
     spaceContainer.style.transform = 'scale(1)';
+}
+
+function resumePhysics() {
+    if (!isPhysicsPaused) return;
+    let pauseDuration = Date.now() - pauseTimestamp;
+    systemEpoch += pauseDuration;
+    sessionStorage.setItem('systemEpoch', systemEpoch);
+    solarSystem.classList.remove('paused');
+    isPhysicsPaused = false;
+    
+    resetCamera();
 
     /* Trigger WAAPI acceleration */
     animateSpeed(1);
@@ -349,4 +353,10 @@ planetBtns.forEach(planet => {
         /* Update UI state for SPA content injection */
         document.body.classList.add('planet-focused');
     });
+});
+
+/* --- 7. RETURN HOME BUTTON --- */
+const returnHomeContainer = document.getElementById('return-home-container');
+returnHomeContainer.addEventListener('click', () => {
+    resetCamera();
 });

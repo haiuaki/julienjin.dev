@@ -45,6 +45,7 @@ body {
 
 /* Modular Sizes */
 .size-small  { --planet-size: 8px;  width: var(--planet-size); height: var(--planet-size); }
+.size-medium { --planet-size: 16px; width: var(--planet-size); height: var(--planet-size); }
 .size-large  { --planet-size: 24px; width: var(--planet-size); height: var(--planet-size); }
 
 /* Modular Colors */
@@ -135,7 +136,7 @@ body {
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%) translateZ(0);
-    animation: click-delay 2.5s forwards, sun-pulse 4s ease-in-out infinite;
+    animation: sun-pulse 4s ease-in-out infinite;
 }
 
 #main-nav {
@@ -338,3 +339,49 @@ body.planet-focused .planet-label.active-planet {
     /* Transition opacity and box-shadow */
     transition: opacity 0.8s ease-out, box-shadow 0.8s ease-out !important;
 }
+
+/* --- 11. RETURN HOME BUTTON --- */
+#return-home-container {
+    position: fixed;
+    top: 30px;
+    left: 20px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+    cursor: pointer;
+}
+
+#return-home-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+    color: #888888;
+    transition: color 0.3s ease;
+}
+
+#return-home-btn {
+    box-shadow: 0 0 8px 1px rgba(250, 250, 250, 0.3);
+    transition: box-shadow 0.3s ease-out;
+}
+
+#return-home-container:hover #return-home-btn {
+    box-shadow: 0 0 10px 2px rgba(250, 250, 250, 0.5), 
+                0 0 25px 6px rgba(250, 250, 250, 0.2);
+}
+
+#return-home-container:hover #return-home-label {
+    color: #fafafa;
+}
+
+body.planet-focused #return-home-container {
+    opacity: 1;
+    pointer-events: auto;
+    /* Appear after the 1.5s camera transition finishes */
+    transition-delay: 1.5s;
+    transition-duration: 0.8s; 
+}
+
