@@ -86,8 +86,8 @@ canvas.style.backgroundSize = 'auto, cover';
 
 const ctx = canvas.getContext('2d');
 let stars = [];
-let mouseX = -1000;
-let mouseY = -1000;
+let clientMouseX = -1000;
+let clientMouseY = -1000;
 
 function initStars() {
     canvas.width = window.innerWidth;
@@ -108,6 +108,11 @@ function initStars() {
 
 function drawStars() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    /* Dynamically map screenspace to canvas space every frame to account for camera movement */
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = clientMouseX === -1000 ? -1000 : (clientMouseX - rect.left) * (canvas.width / rect.width);
+    const mouseY = clientMouseY === -1000 ? -1000 : (clientMouseY - rect.top) * (canvas.height / rect.height);
     
     stars.forEach(star => {
         let dx = mouseX - star.x;
@@ -133,12 +138,13 @@ function drawStars() {
 
 window.addEventListener('resize', initStars);
 window.addEventListener('mousemove', (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
+    /* Store raw screen coordinates, matrix transformation occurs in the render loop */
+    clientMouseX = e.clientX;
+    clientMouseY = e.clientY;
 });
 window.addEventListener('mouseout', () => {
-    mouseX = -1000;
-    mouseY = -1000;
+    clientMouseX = -1000;
+    clientMouseY = -1000;
 });
 
 initStars();
