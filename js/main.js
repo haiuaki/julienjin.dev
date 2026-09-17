@@ -1,10 +1,10 @@
-/* --- 0. PREVENT NATIVE ZOOM & GESTURES --- */
+/* --- 1. PREVENT NATIVE ZOOM & GESTURES --- */
 document.addEventListener('wheel', (e) => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
 document.addEventListener('gesturestart', (e) => e.preventDefault());
 document.addEventListener('gesturechange', (e) => e.preventDefault());
 document.addEventListener('gestureend', (e) => e.preventDefault());
 
-/* --- 1. PHYSICS ENGINE INITIALIZATION --- */
+/* --- 2. PHYSICS ENGINE INITIALIZATION --- */
 const sunBtn = document.getElementById('sun-btn');
 const solarSystem = document.getElementById('solar-system');
 
@@ -23,7 +23,7 @@ if (isNaN(systemEpoch)) {
 }
 
 
-/* --- 2. TYPEWRITER EFFECT --- */
+/* --- 3. TYPEWRITER EFFECT --- */
 const brandLogo = document.getElementById('brand-logo');
 if (brandLogo) {
     const textToType = brandLogo.getAttribute('data-text');
@@ -51,7 +51,7 @@ if (brandLogo) {
 }
 
 
-/* --- 3. BACKGROUND CANVAS --- */
+/* --- 4. BACKGROUND CANVAS --- */
 const canvas = document.createElement('canvas');
 canvas.id = 'starfield';
 document.body.insertBefore(canvas, document.body.firstChild);
@@ -145,7 +145,7 @@ initStars();
 drawStars();
 
 
-/* --- 4. PROGRESSIVE BRAKING ENGINE (WAAPI) --- */
+/* --- 5. PROGRESSIVE BRAKING ENGINE (WAAPI) --- */
 let speedTransition;
 function animateSpeed(targetSpeed) {
     cancelAnimationFrame(speedTransition);
@@ -206,6 +206,18 @@ function resetCamera() {
     if (starfield) {
         starfield.style.transform = 'translate(0px, 0px) scale(1)';
     }
+
+    /* Disengage targeting crosshairs and sweep them back to origin */
+    const crossX = document.getElementById('crosshair-x');
+    const crossY = document.getElementById('crosshair-y');
+    if (crossX && crossY && crossX.dataset.originY && crossY.dataset.originX) {
+        /* Use a 1s delay on opacity so it fades out exactly as it arrives */
+        crossX.style.transition = 'transform 1.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease-out 1s';
+        crossY.style.transition = 'transform 1.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease-out 1s';
+        
+        crossX.style.transform = `translate3d(0, ${crossX.dataset.originY}px, 0)`;
+        crossY.style.transform = `translate3d(${crossY.dataset.originX}px, 0, 0)`;
+    }
 }
 
 function resumePhysics() {
@@ -249,7 +261,7 @@ sunBtn.addEventListener('click', function() {
 });
 
 
-/* --- 5. DYNAMIC LABEL POSITIONING --- */
+/* --- 6. DYNAMIC LABEL POSITIONING --- */
 const planetBtns = document.querySelectorAll('.planet-btn');
 
 planetBtns.forEach(planet => {
@@ -301,7 +313,7 @@ planetBtns.forEach(planet => {
     trackPosition();
 
     
-/* --- 6. CAMERA FOCUS ENGINE --- */
+/* --- 7. CAMERA FOCUS ENGINE --- */
     planet.addEventListener('click', (e) => {
         e.preventDefault();
         
@@ -368,6 +380,27 @@ planetBtns.forEach(planet => {
         const starfield = document.getElementById('starfield');
         if (starfield) {
             starfield.style.transform = `translate(${dx * 0.15}px, ${dy * 0.15}px) scale(1.2)`;
+        }
+
+        /* Dynamically lock targeting crosshairs to the planet and sweep them into the corner */
+        const crossX = document.getElementById('crosshair-x');
+        const crossY = document.getElementById('crosshair-y');
+        if (crossX && crossY) {
+            /* Store origin coordinates to allow crosshairs to return home */
+            crossX.dataset.originY = planetY;
+            crossY.dataset.originX = planetX;
+
+            crossX.style.transition = 'none';
+            crossY.style.transition = 'none';
+            crossX.style.transform = `translate3d(0, ${planetY}px, 0)`;
+            crossY.style.transform = `translate3d(${planetX}px, 0, 0)`;
+            
+            void crossX.offsetWidth; /* Force browser reflow to snap instantly */
+            
+            crossX.style.transition = 'transform 1.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease-out';
+            crossY.style.transition = 'transform 1.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease-out';
+            crossX.style.transform = `translate3d(0, ${targetY}px, 0)`;
+            crossY.style.transform = `translate3d(${targetX}px, 0, 0)`;
         }
 
         /* Update UI state for SPA content injection */

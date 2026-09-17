@@ -346,3 +346,35 @@ body.planet-focused .planet-btn.active-planet {
     top: var(--active-planet-offset) !important;
     left: calc(50% + var(--active-planet-offset)) !important;
 }
+
+/* --- 11. TARGETING CROSSHAIRS --- */
+#crosshair-x, #crosshair-y {
+    position: fixed;
+    background-color: rgba(255, 255, 255, 0.15); /* Faint, barely visible grey */
+    opacity: 0;
+    pointer-events: none;
+    z-index: 50; /* Place behind the planet but above the void */
+    transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Horizontal line */
+#crosshair-x {
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 1px;
+}
+
+/* Vertical line */
+#crosshair-y {
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 100vh;
+}
+
+/* Fade in the crosshairs when the camera locks on */
+body.planet-focused #crosshair-x,
+body.planet-focused #crosshair-y {
+    opacity: 1;
+}
