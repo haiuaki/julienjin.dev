@@ -207,6 +207,10 @@ function resetCamera() {
         starfield.style.transform = 'translate(0px, 0px) scale(1)';
     }
 
+    /* Force clear hover states to prevent trackPosition from overwriting the return animation */
+    document.querySelectorAll('.is-hovered').forEach(el => el.classList.remove('is-hovered'));
+    document.body.classList.remove('crosshairs-active');
+
     /* Disengage targeting crosshairs and sweep them back to origin */
     const crossX = document.getElementById('crosshair-x');
     const crossY = document.getElementById('crosshair-y');
@@ -275,6 +279,52 @@ planetBtns.forEach(planet => {
     floatingLabel.textContent = labelText;
     document.body.appendChild(floatingLabel);
     
+    /* Hover triggers for dynamic crosshair tracking */
+    planet.addEventListener('mouseenter', () => {
+        if (!document.body.classList.contains('planet-focused')) {
+            planet.classList.add('is-hovered');
+            document.body.classList.add('crosshairs-active');
+            
+            /* Assign transition matrix precisely once to prevent render engine timer resets */
+            const crossX = document.getElementById('crosshair-x');
+            const crossY = document.getElementById('crosshair-y');
+            if (crossX && crossY) {
+                crossX.style.transition = 'opacity 0.2s ease-out';
+                crossY.style.transition = 'opacity 0.2s ease-out';
+            }
+        }
+    });
+
+    planet.addEventListener('mouseleave', () => {
+        planet.classList.remove('is-hovered');
+        if (!document.body.classList.contains('planet-focused')) {
+            document.body.classList.remove('crosshairs-active');
+        }
+    });
+
+    /* Hover triggers for dynamic crosshair tracking */
+    planet.addEventListener('mouseenter', () => {
+        if (!document.body.classList.contains('planet-focused')) {
+            planet.classList.add('is-hovered');
+            document.body.classList.add('crosshairs-active');
+            
+            /* Assign transition matrix precisely once to prevent render engine timer resets */
+            const crossX = document.getElementById('crosshair-x');
+            const crossY = document.getElementById('crosshair-y');
+            if (crossX && crossY) {
+                crossX.style.transition = 'opacity 0.2s ease-out';
+                crossY.style.transition = 'opacity 0.2s ease-out';
+            }
+        }
+    });
+
+    planet.addEventListener('mouseleave', () => {
+        planet.classList.remove('is-hovered');
+        if (!document.body.classList.contains('planet-focused')) {
+            document.body.classList.remove('crosshairs-active');
+        }
+    });
+
     /* Sync 2D label coordinates with 3D planet bounding box */
     const trackPosition = () => {
         const rect = planet.getBoundingClientRect();
@@ -306,6 +356,16 @@ planetBtns.forEach(planet => {
         floatingLabel.style.top = (planetY + dy * LABEL_OFFSET) + 'px';
         floatingLabel.style.transform = `translate(${xPercent}%, ${yPercent}%)`;
 
+
+        /* Dynamically update crosshairs if hovered */
+        if (planet.classList.contains('is-hovered') && !document.body.classList.contains('planet-focused')) {
+            const crossX = document.getElementById('crosshair-x');
+            const crossY = document.getElementById('crosshair-y');
+            if (crossX && crossY) {
+                crossX.style.transform = `translate3d(0, ${planetY}px, 0)`;
+                crossY.style.transform = `translate3d(${planetX}px, 0, 0)`;
+            }
+        }
         requestAnimationFrame(trackPosition);
     };
     
@@ -390,12 +450,13 @@ planetBtns.forEach(planet => {
             crossX.dataset.originY = planetY;
             crossY.dataset.originX = planetX;
 
-            crossX.style.transition = 'none';
-            crossY.style.transition = 'none';
+            /* Disable crosshair active class (opacity is inherited by planet-focused) */
+            document.body.classList.remove('crosshairs-active');
+
             crossX.style.transform = `translate3d(0, ${planetY}px, 0)`;
             crossY.style.transform = `translate3d(${planetX}px, 0, 0)`;
             
-            void crossX.offsetWidth; /* Force browser reflow to snap instantly */
+            void crossX.offsetWidth; /* Force synchronous layout recalculation */
             
             crossX.style.transition = 'transform 1.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease-out';
             crossY.style.transition = 'transform 1.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease-out';

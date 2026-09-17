@@ -354,7 +354,7 @@ body.planet-focused .planet-btn.active-planet {
     opacity: 0;
     pointer-events: none;
     z-index: 50; /* Place behind the planet but above the void */
-    transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: opacity 0.2s ease-out;
 }
 
 /* Horizontal line */
@@ -373,7 +373,9 @@ body.planet-focused .planet-btn.active-planet {
     height: 100vh;
 }
 
-/* Fade in the crosshairs when the camera locks on */
+/* Fade in the crosshairs when hovering or locked on */
+body.crosshairs-active #crosshair-x,
+body.crosshairs-active #crosshair-y,
 body.planet-focused #crosshair-x,
 body.planet-focused #crosshair-y {
     opacity: 1;
