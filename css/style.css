@@ -319,6 +319,7 @@ body.planet-focused .planet-btn:not(.active-planet),
 body.planet-focused .planet-label {
     opacity: 0 !important;
     pointer-events: none !important;
+    transition-property: opacity !important;
     transition-delay: 0.3s;
     transition-duration: 1.2s;
 }
