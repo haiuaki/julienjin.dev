@@ -355,7 +355,7 @@ planetBtns.forEach(planet => {
         const screenCenterY = window.innerHeight / 2;
         
         /* Define absolute target screenspace coordinates */
-        const targetX = 68; 
+        const targetX = 64; 
         const targetY = 58;
 
         /* Calculate scalar transformation offsets */
