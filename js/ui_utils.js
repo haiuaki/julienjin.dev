@@ -23,5 +23,3 @@ if (brandLogo) {
         }, 1500); /* Initial delay */
     }
 }
-
-

@@ -198,8 +198,57 @@ planetBtns.forEach(planet => {
             crossY.style.transform = `translate3d(${targetX}px, 0, 0)`;
         }
 
+
         /* Update body class for focus state */
         document.body.classList.add('planet-focused');
+
+        /* Typewriter to Bounding-Box Sequence */
+        const windowHeader = document.getElementById('window-header');
+        if (windowHeader) {
+            windowHeader.innerHTML = '';
+            document.body.classList.remove('panel-opening');
+            
+            const rawLabel = planet.getAttribute('data-label') || 'DATA';
+            const labelText = rawLabel.toUpperCase();
+            
+            /* Clear any existing timers from previous clicks */
+            if (typeof uiTimeouts !== 'undefined') {
+                uiTimeouts.forEach(clearTimeout);
+                uiTimeouts = [];
+            }
+            if (typeof uiIntervals !== 'undefined') {
+                uiIntervals.forEach(clearInterval);
+                uiIntervals = [];
+            }
+
+            /* Wait for camera sweep (1.5s) */
+            let t1 = setTimeout(() => {
+                let typeIndex = 0;
+                const typingInterval = setInterval(() => {
+                    if (typeIndex < labelText.length) {
+                        windowHeader.innerHTML = `${labelText.substring(0, typeIndex + 1)}█`;
+                        typeIndex++;
+                    } else {
+                        clearInterval(typingInterval);
+                        /* Hold for a split second */
+                        let t2 = setTimeout(() => {
+                            /* Drop cursor to new line */
+                            windowHeader.innerHTML = `${labelText}<br>█`;
+                            /* Split cursor into bounding box corners */
+                            let t3 = setTimeout(() => {
+                                windowHeader.innerHTML = `${labelText}<br>&nbsp;`;
+                                document.body.classList.add('panel-opening');
+                            }, 300);
+                            uiTimeouts.push(t3);
+                        }, 300);
+                        uiTimeouts.push(t2);
+                    }
+                }, 60);
+                uiIntervals.push(typingInterval);
+            }, 1500);
+            uiTimeouts.push(t1);
+        }
+
     });
 });
 

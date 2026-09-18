@@ -45,6 +45,22 @@ function pausePhysics() {
 function resetCamera() {
     /* Reset camera pan if a planet was focused */
     document.body.classList.remove('planet-focused');
+    document.body.classList.remove('panel-opening');
+
+    /* Kill any running typewriter animations to prevent ghosting */
+    if (typeof uiTimeouts !== 'undefined') {
+        uiTimeouts.forEach(clearTimeout);
+        uiTimeouts = [];
+    }
+    if (typeof uiIntervals !== 'undefined') {
+        uiIntervals.forEach(clearInterval);
+        uiIntervals = [];
+    }
+    
+    /* Clear the header text */
+    const windowHeader = document.getElementById('window-header');
+    if (windowHeader) windowHeader.innerHTML = '';
+
     document.querySelectorAll('.active-planet').forEach(el => el.classList.remove('active-planet'));
     
     solarSystem.style.transition = 'margin 1.5s cubic-bezier(0.25, 1, 0.5, 1)';

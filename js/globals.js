@@ -20,4 +20,6 @@ if (isNaN(systemEpoch)) {
     sessionStorage.setItem('systemEpoch', systemEpoch);
 }
 
-
+/* UI Animation Trackers */
+let uiTimeouts = [];
+let uiIntervals = [];

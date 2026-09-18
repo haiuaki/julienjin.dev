@@ -283,11 +283,11 @@ body {
 @keyframes sun-pulse {
     0%, 100% {
         box-shadow: 0 0 5px 1px rgba(250, 250, 250, 0.2), 
-                    0 0 10px 2px rgba(250, 250, 250, 0.1);
+                    0 0 10px 2px rgba(120, 120, 120, 0.4);
     }
     50% {
         box-shadow: 0 0 15px 3px rgba(250, 250, 250, 0.6), 
-                    0 0 30px 8px rgba(250, 250, 250, 0.3);
+                    0 0 30px 8px rgba(120, 120, 120, 0.4);
     }
 }
 
@@ -380,4 +380,109 @@ body.crosshairs-active #crosshair-y,
 body.planet-focused #crosshair-x,
 body.planet-focused #crosshair-y {
     opacity: 1;
+}
+
+/* --- CONTENT WINDOW & CORNER ANIMATION --- */
+#content-window {
+    --corner-w: 4.3px;
+    --corner-h: 7.3px;
+    --cursor-y: 25px;
+
+    /* Animation Timings */
+    --anim-speed: 0.5s;
+    --delay-x: 0.05s;
+    --delay-y: calc(var(--delay-x) + var(--anim-speed));
+    
+    /* Panel Aesthetics */
+    --panel-bg: rgba(120, 120, 120, 0.15);
+    --panel-border: rgba(120, 120, 120, 0.4);
+
+    position: absolute;
+    top: 70px;
+    left: 110px;
+    right: 40px;
+    bottom: 40px;
+    pointer-events: none;
+    z-index: 40;
+}
+
+#window-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-family: 'IBM Plex Mono', monospace;
+    color: #fafafa;
+    font-size: 14px;
+    letter-spacing: 2px;
+    line-height: 1.5;
+    opacity: 0;
+    transition: opacity 0.2s ease-out;
+}
+
+body.planet-focused #window-header {
+    opacity: 1;
+}
+
+.corner {
+    position: absolute;
+    width: var(--corner-w);
+    height: var(--corner-h);
+    background: #fafafa;
+    opacity: 0;
+}
+
+/* Explicit starting geometry to form the cursor block */
+.corner-tl { top: var(--cursor-y); left: 0px; }
+.corner-tr { top: var(--cursor-y); left: var(--corner-w); }
+.corner-bl { top: calc(var(--cursor-y) + var(--corner-h)); left: 0px; }
+.corner-br { top: calc(var(--cursor-y) + var(--corner-h)); left: var(--corner-w); }
+
+/* Dynamic Animation: The cursor block shatters */
+body.panel-opening .corner-tl {
+    opacity: 1;
+    transition: opacity 0.05s ease-out;
+}
+
+body.panel-opening .corner-tr {
+    opacity: 1;
+    left: calc(100% - var(--corner-w));
+    transition: opacity 0.05s ease-out, 
+                left var(--anim-speed) cubic-bezier(0.25, 1, 0.5, 1) var(--delay-x);
+}
+
+body.panel-opening .corner-bl {
+    opacity: 1;
+    top: calc(100% - var(--corner-h));
+    transition: opacity 0.05s ease-out, 
+                top var(--anim-speed) cubic-bezier(0.25, 1, 0.5, 1) var(--delay-y);
+}
+
+body.panel-opening .corner-br {
+    opacity: 1;
+    left: calc(100% - var(--corner-w));
+    top: calc(100% - var(--corner-h));
+    transition: opacity 0.05s ease-out, 
+                left var(--anim-speed) cubic-bezier(0.25, 1, 0.5, 1) var(--delay-x), 
+                top var(--anim-speed) cubic-bezier(0.25, 1, 0.5, 1) var(--delay-y);
+}
+
+/* The dynamic semi-transparent background drawn by the corners */
+.panel-bg {
+    position: absolute;
+    top: calc(var(--cursor-y) + var(--corner-h));
+    left: var(--corner-w);
+    width: 0px;
+    height: 0px;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    opacity: 0;
+}
+
+body.panel-opening .panel-bg {
+    opacity: 1;
+    width: calc(100% - (var(--corner-w) * 2));
+    height: calc(100% - var(--cursor-y) - (var(--corner-h) * 2));
+    transition: opacity 0.05s ease-out,
+                width var(--anim-speed) cubic-bezier(0.25, 1, 0.5, 1) var(--delay-x),
+                height var(--anim-speed) cubic-bezier(0.25, 1, 0.5, 1) var(--delay-y);
 }
