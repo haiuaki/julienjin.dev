@@ -159,13 +159,13 @@ planetBtns.forEach(planet => {
         const dy = targetY - scaledPlanetY;
 
         /* Reset container margins */
-        solarSystem.style.transition = 'margin 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
+        solarSystem.style.transition = 'margin 1.0s cubic-bezier(0.25, 1, 0.5, 1)';
         solarSystem.style.marginLeft = '0px';
         solarSystem.style.marginTop = '0px';
 
         /* Apply transforms to space container */
         const spaceContainer = document.getElementById('space-container');
-        spaceContainer.style.transition = 'transform 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
+        spaceContainer.style.transition = 'transform 1.0s cubic-bezier(0.25, 1, 0.5, 1)';
         spaceContainer.style.transform = `translate(${dx}px, ${dy}px) scale(1.3)`;
 
         /* Apply fractional translation to starfield for parallax effect */
@@ -192,8 +192,8 @@ planetBtns.forEach(planet => {
             
             void crossX.offsetWidth; /* Force synchronous layout recalculation */
             
-            crossX.style.transition = 'transform 1.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease-out';
-            crossY.style.transition = 'transform 1.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease-out';
+            crossX.style.transition = 'transform 1.0s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease-out';
+            crossY.style.transition = 'transform 1.0s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease-out';
             crossX.style.transform = `translate3d(0, ${targetY}px, 0)`;
             crossY.style.transform = `translate3d(${targetX}px, 0, 0)`;
         }
@@ -245,7 +245,7 @@ planetBtns.forEach(planet => {
                     }
                 }, 60);
                 uiIntervals.push(typingInterval);
-            }, 1500);
+            }, 1000);
             uiTimeouts.push(t1);
         }
 

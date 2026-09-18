@@ -84,8 +84,8 @@ function resetCamera() {
     const crossY = document.getElementById('crosshair-y');
     if (crossX && crossY && crossX.dataset.originY && crossY.dataset.originX) {
         /* Use a 1s delay on opacity so it fades out exactly as it arrives */
-        crossX.style.transition = 'transform 1.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease-out 1s';
-        crossY.style.transition = 'transform 1.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease-out 1s';
+        crossX.style.transition = 'transform 1.0s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease-out 1s';
+        crossY.style.transition = 'transform 1.0s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease-out 1s';
         
         crossX.style.transform = `translate3d(0, ${crossX.dataset.originY}px, 0)`;
         crossY.style.transform = `translate3d(${crossY.dataset.originX}px, 0, 0)`;
