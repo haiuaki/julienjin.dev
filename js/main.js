@@ -94,7 +94,7 @@ function initStars() {
     canvas.height = window.innerHeight;
     stars = [];
     /* Calculate coordinate density */
-    const numStars = Math.floor((canvas.width * canvas.height) / 6000); 
+    const numStars = Math.floor((canvas.width * canvas.height) / 4500); 
     
     for (let i = 0; i < numStars; i++) {
         stars.push({
@@ -128,15 +128,67 @@ function drawStars() {
         }
         
         ctx.fillStyle = `rgba(250, 250, 250, ${alpha})`;
-        ctx.beginPath();
-        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-        ctx.fill();
+        /* Architectural Optimization: fillRect is massively faster for the CPU to rasterize than mathematically drawing circular arcs per frame */
+        ctx.fillRect(star.x - star.size, star.y - star.size, star.size * 2, star.size * 2);
     });
     
     requestAnimationFrame(drawStars);
 }
 
-window.addEventListener('resize', initStars);
+window.addEventListener('resize', () => {
+    initStars();
+    recalculateCameraFocus();
+});
+
+function recalculateCameraFocus() {
+    const activePlanet = document.querySelector('.active-planet');
+    if (!activePlanet) return;
+    
+    const spaceContainer = document.getElementById('space-container');
+    const starfield = document.getElementById('starfield');
+
+    /* Disable transitions for instantaneous math application */
+    spaceContainer.style.transition = 'none';
+    if (starfield) starfield.style.transition = 'none';
+
+    /* Strip camera transform to force CSS engine to evaluate raw media query states */
+    spaceContainer.style.transform = 'none';
+    void spaceContainer.offsetWidth; /* Force synchronous layout reflow */
+
+    /* Dynamically read true physical coordinates accounting for CSS viewport breakpoints */
+    const rect = activePlanet.getBoundingClientRect();
+    const planetX = rect.x + rect.width / 2;
+    const planetY = rect.y + rect.height / 2;
+
+    const screenCenterX = window.innerWidth / 2;
+    const screenCenterY = window.innerHeight / 2;
+
+    const scaledPlanetX = (planetX - screenCenterX) * 1.3 + screenCenterX;
+    const scaledPlanetY = (planetY - screenCenterY) * 1.3 + screenCenterY;
+
+    const targetX = 64;
+    const targetY = 58;
+
+    const dx = targetX - scaledPlanetX;
+    const dy = targetY - scaledPlanetY;
+
+    /* Reapply newly calculated physics coordinates */
+    spaceContainer.style.transform = `translate(${dx}px, ${dy}px) scale(1.3)`;
+    if (starfield) starfield.style.transform = `translate(${dx * 0.15}px, ${dy * 0.15}px) scale(1.2)`;
+    void spaceContainer.offsetWidth; /* Force reflow */
+
+    /* Restore cinematic transitions to preserve return-home animations */
+    spaceContainer.style.transition = 'transform 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
+    if (starfield) starfield.style.transition = 'transform 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
+
+    /* Update the crosshair origins so they return to the correctly resized center */
+    const crossX = document.getElementById('crosshair-x');
+    const crossY = document.getElementById('crosshair-y');
+    if (crossX && crossY) {
+        crossX.dataset.originY = planetY;
+        crossY.dataset.originX = planetX;
+    }
+}
 window.addEventListener('mousemove', (e) => {
     /* Store raw screen coordinates, matrix transformation occurs in the render loop */
     clientMouseX = e.clientX;
@@ -358,9 +410,10 @@ planetBtns.forEach(planet => {
         
         /* Push the label 15px outward along the vector */
         const LABEL_OFFSET = 15;
-        floatingLabel.style.left = (planetX + dx * LABEL_OFFSET) + 'px';
-        floatingLabel.style.top = (planetY + dy * LABEL_OFFSET) + 'px';
-        floatingLabel.style.transform = `translate(${xPercent}%, ${yPercent}%)`;
+        /* Hardware accelerate the tracking by using translate3d on the GPU instead of CPU layout reflows (top/left) */
+        floatingLabel.style.left = '0px';
+        floatingLabel.style.top = '0px';
+        floatingLabel.style.transform = `translate3d(${planetX + dx * LABEL_OFFSET}px, ${planetY + dy * LABEL_OFFSET}px, 0) translate(${xPercent}%, ${yPercent}%)`;
 
 
         /* Dynamically update crosshairs if hovered */
@@ -455,6 +508,8 @@ planetBtns.forEach(planet => {
             /* Store origin coordinates to allow crosshairs to return home */
             crossX.dataset.originY = planetY;
             crossY.dataset.originX = planetX;
+            crossX.dataset.baseOriginY = planetY;
+            crossY.dataset.baseOriginX = planetX;
 
             /* Disable crosshair active class (opacity is inherited by planet-focused) */
             document.body.classList.remove('crosshairs-active');
