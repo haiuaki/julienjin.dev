@@ -34,30 +34,6 @@ planetBtns.forEach(planet => {
         }
     });
 
-    /* Hover triggers for dynamic crosshair tracking */
-    planet.addEventListener('mouseenter', () => {
-        if (!document.body.classList.contains('planet-focused')) {
-            planet.classList.add('is-hovered');
-            document.body.classList.add('crosshairs-active');
-            
-            /* Set transition styles once on hover */
-            const crossX = document.getElementById('crosshair-x');
-            const crossY = document.getElementById('crosshair-y');
-            if (crossX && crossY) {
-                crossX.style.transition = 'opacity 0.2s ease-out';
-                crossY.style.transition = 'opacity 0.2s ease-out';
-            }
-        }
-    });
-
-    planet.addEventListener('mouseleave', () => {
-        planet.classList.remove('is-hovered');
-        if (!document.body.classList.contains('planet-focused')) {
-            document.body.classList.remove('crosshairs-active');
-        }
-    });
-
-    /* Update 2D label coordinates to track 3D planet */
     const trackPosition = () => {
         const rect = planet.getBoundingClientRect();
         const planetX = rect.x + rect.width / 2;
@@ -91,7 +67,7 @@ planetBtns.forEach(planet => {
 
 
         /* Dynamically update crosshairs if hovered */
-        if (planet.classList.contains('is-hovered') || planet.classList.contains('active-planet')) {
+        if (planet.classList.contains('is-hovered') && !document.body.classList.contains('planet-focused')) {
             const crossX = document.getElementById('crosshair-x');
             const crossY = document.getElementById('crosshair-y');
             if (crossX && crossY) {
@@ -147,20 +123,13 @@ planetBtns.forEach(planet => {
         const planetX = rect.x + rect.width / 2;
         const planetY = rect.y + rect.height / 2;
         
-        const screenCenterX = window.innerWidth / 2;
-        const screenCenterY = window.innerHeight / 2;
-        
         /* Define target screen coordinates */
         const targetX = 64; 
         const targetY = 58;
 
-        /* Calculate scaled offsets */
-        const scaledPlanetX = (planetX - screenCenterX) * 1.3 + screenCenterX;
-        const scaledPlanetY = (planetY - screenCenterY) * 1.3 + screenCenterY;
-
         /* Calculate delta vector */
-        const dx = targetX - scaledPlanetX;
-        const dy = targetY - scaledPlanetY;
+        const dx = targetX - planetX;
+        const dy = targetY - planetY;
 
         /* Reset container margins */
         solarSystem.style.transition = 'margin 1.0s cubic-bezier(0.25, 1, 0.5, 1)';
@@ -170,12 +139,12 @@ planetBtns.forEach(planet => {
         /* Apply transforms to space container */
         const spaceContainer = document.getElementById('space-container');
         spaceContainer.style.transition = 'transform 1.0s cubic-bezier(0.25, 1, 0.5, 1)';
-        spaceContainer.style.transform = `translate(${dx}px, ${dy}px) scale(1.3)`;
+        spaceContainer.style.transform = `translate(${dx}px, ${dy}px) scale(1)`;
 
         /* Apply fractional translation to starfield for parallax effect */
         const starfield = document.getElementById('starfield');
         if (starfield) {
-            starfield.style.transform = `translate(${dx * 0.15}px, ${dy * 0.15}px) scale(1.2)`;
+            starfield.style.transform = `translate(${dx * 0.15}px, ${dy * 0.15}px) scale(1)`;
         }
 
         /* Set crosshair positions and sweep them to the target coordinates */
@@ -196,10 +165,10 @@ planetBtns.forEach(planet => {
             
             void crossX.offsetWidth; /* Force synchronous layout recalculation */
             
-            crossX.style.transition = 'opacity 0.2s ease-out';
-            crossY.style.transition = 'opacity 0.2s ease-out';
-            /* crossX tracked dynamically */
-            /* crossY tracked dynamically */
+            crossX.style.transition = 'transform 1.0s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease-out';
+            crossY.style.transition = 'transform 1.0s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease-out';
+            crossX.style.transform = `translate3d(0, ${targetY}px, 0)`;
+            crossY.style.transform = `translate3d(${targetX}px, 0, 0)`;
         }
 
 

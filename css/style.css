@@ -209,14 +209,6 @@ body {
     animation: master-anti-spin var(--spin-duration) linear infinite, initial-fade-in 2.5s ease-in-out;
 }
 
-.planet-btn {
-    transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1), 
-                width 1.5s cubic-bezier(0.25, 1, 0.5, 1), 
-                height 1.5s cubic-bezier(0.25, 1, 0.5, 1), 
-                top 1.5s cubic-bezier(0.25, 1, 0.5, 1), 
-                left 1.5s cubic-bezier(0.25, 1, 0.5, 1), 
-                box-shadow 0.3s ease-out;
-}
 
 /* Hover Interaction */
 .planet-btn:hover {
@@ -473,8 +465,6 @@ body.panel-opening .corner-br {
                 left var(--anim-speed) cubic-bezier(0.25, 1, 0.5, 1) var(--delay-x), 
                 top var(--anim-speed) cubic-bezier(0.25, 1, 0.5, 1) var(--delay-y);
 }
-
-body.panel-opening 
 
 /* Hardware Accelerated Panel Background */
 .panel-clip-x {

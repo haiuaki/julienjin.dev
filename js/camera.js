@@ -42,6 +42,9 @@ function recalculateCameraFocus() {
     if (crossX && crossY) {
         crossX.dataset.originY = planetY;
         crossY.dataset.originX = planetX;
+        /* Snap crosshairs to the target position after camera recalculation */
+        crossX.style.transform = `translate3d(0, ${targetY}px, 0)`;
+        crossY.style.transform = `translate3d(${targetX}px, 0, 0)`;
     }
 }
 window.addEventListener('mousemove', (e) => {
