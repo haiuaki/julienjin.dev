@@ -63,9 +63,7 @@ planetBtns.forEach(planet => {
            visually bigger, so the offset grows with them and never overlaps. */
         const screenRadius = Math.max(rect.width, rect.height) / 2;
         const LABEL_OFFSET = screenRadius + 8;
-        /* Use translate3d for hardware-accelerated label positioning */
-        floatingLabel.style.left = '0px';
-        floatingLabel.style.top = '0px';
+        /* Drive position exclusively via transform — no left/top writes (same as crosshairs) */
         floatingLabel.style.transform = `translate3d(${planetX + dx * LABEL_OFFSET}px, ${planetY + dy * LABEL_OFFSET}px, 0) translate(${xPercent}%, ${yPercent}%)`;
 
 
@@ -113,7 +111,9 @@ planetBtns.forEach(planet => {
         /* Calculate perspective scale to maintain uniform visual size */
         const rect = planet.getBoundingClientRect();
         const perspectiveScale = rect.width / planet.offsetWidth;
-        /* Calculate 2.2vmin in actual pixels dynamically */
+
+        /* Calculate 2.2vmin in actual pixels — planet's focused visual size,
+           independent of the cursor block (corner elements) geometry. */
         const vminPx = Math.min(window.innerWidth, window.innerHeight) / 100;
         const visualTarget = 2.2 * vminPx;
         

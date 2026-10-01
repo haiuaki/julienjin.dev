@@ -229,7 +229,9 @@ body {
 /* Base Floating Label (Pure 2D Screenspace) */
 .planet-label {
     position: fixed;
-    top: 0; left: 0;
+    /* Permanently pinned to origin — only transform drives position (same as crosshairs) */
+    top: 0;
+    left: 0;
     color: #888888;
     font-size: 0.8rem;
     font-weight: 500;
@@ -237,6 +239,8 @@ body {
     text-transform: lowercase;
     white-space: nowrap;
     pointer-events: none;
+    /* Promote to own compositing layer for tear-free sub-pixel tracking */
+    will-change: transform;
     
     /* Sync 2D label creation with 3D planet fade-in */
     animation: initial-fade-in 2.5s ease-in-out;
@@ -388,9 +392,18 @@ body.planet-focused #crosshair-y {
 
 /* --- CONTENT WINDOW & CORNER ANIMATION --- */
 #content-window {
-    --corner-w: 4.3px;
-    --corner-h: 7.3px;
-    --cursor-y: 25px;
+    /* Cursor block geometry — scales with the font size so the split animation
+       always starts from exactly one line below the typewriter text.
+       Uses the same clamp() as #window-header (1.2vmin, 12–20px).
+       × 1.75 = line-height (1.5) + half-leading (0.25) above the glyph on line 2,
+       placing the corner block flush with the top of the █ character. */
+    --header-font-size: clamp(12px, 1.2vmin, 20px);
+    --cursor-y: calc(var(--header-font-size) * 1.85);
+
+    /* Corner tick dimensions — reverse-engineered from the original hardcoded values
+       at the 14px baseline: corner-w = 4.3/14 = 0.307, corner-h = 7.3/14 = 0.521 */
+    --corner-w: calc(var(--header-font-size) * 0.307);
+    --corner-h: calc(var(--header-font-size) * 0.521);
 
     /* Animation Timings */
     --anim-speed: 0.5s;
@@ -416,7 +429,8 @@ body.planet-focused #crosshair-y {
     left: 0;
     font-family: 'IBM Plex Mono', monospace;
     color: #fafafa;
-    font-size: 14px;
+    /* Scales with the viewport so text stays readable on 4K without being overwhelming on small screens */
+    font-size: clamp(12px, 1.2vmin, 20px);
     letter-spacing: 2px;
     line-height: 1.5;
     opacity: 0;
