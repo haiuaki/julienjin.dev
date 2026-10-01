@@ -203,11 +203,15 @@ body {
     text-decoration: none;
     pointer-events: auto;
     
-    /* Force GPU rasterization */
-    transform: translateZ(0); 
+    /* Force an independent compositing layer so the browser rasterizes at screen
+       resolution rather than at the CSS pixel size before the 3D perspective upscales it.
+       filter: blur(0) is the most cross-browser reliable trigger for this. */
+    filter: blur(0);
+    will-change: transform;
     /* Spin counter to the orbit to keep the text/gradient facing up */
     animation: master-anti-spin var(--spin-duration) linear infinite, initial-fade-in 2.5s ease-in-out;
 }
+
 
 
 /* Hover Interaction */

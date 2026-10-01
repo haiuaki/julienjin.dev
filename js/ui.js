@@ -58,8 +58,11 @@ planetBtns.forEach(planet => {
         const xPercent = (dx * 50) - 50;
         const yPercent = (dy * 50) - 50;
         
-        /* Push the label 15px outward along the vector */
-        const LABEL_OFFSET = 15;
+        /* Derive offset from the planet's actual rendered screen-space radius.
+           On large/4K displays the perspective depth effect makes near-planets
+           visually bigger, so the offset grows with them and never overlaps. */
+        const screenRadius = Math.max(rect.width, rect.height) / 2;
+        const LABEL_OFFSET = screenRadius + 8;
         /* Use translate3d for hardware-accelerated label positioning */
         floatingLabel.style.left = '0px';
         floatingLabel.style.top = '0px';
@@ -224,4 +227,3 @@ planetBtns.forEach(planet => {
 
     });
 });
-
