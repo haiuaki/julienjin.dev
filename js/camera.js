@@ -21,18 +21,15 @@ function recalculateCameraFocus() {
     const screenCenterX = window.innerWidth / 2;
     const screenCenterY = window.innerHeight / 2;
 
-    const scaledPlanetX = (planetX - screenCenterX) * 1.3 + screenCenterX;
-    const scaledPlanetY = (planetY - screenCenterY) * 1.3 + screenCenterY;
-
     const targetX = 64;
     const targetY = 58;
 
-    const dx = targetX - scaledPlanetX;
-    const dy = targetY - scaledPlanetY;
+    const dx = targetX - planetX;
+    const dy = targetY - planetY;
 
-    /* Apply new translation coordinates */
-    spaceContainer.style.transform = `translate(${dx}px, ${dy}px) scale(1.3)`;
-    if (starfield) starfield.style.transform = `translate(${dx * 0.15}px, ${dy * 0.15}px) scale(1.2)`;
+    /* Apply new translation coordinates without scaling */
+    spaceContainer.style.transform = `translate(${dx}px, ${dy}px) scale(1)`;
+    if (starfield) starfield.style.transform = `translate(${dx * 0.15}px, ${dy * 0.15}px) scale(1)`;
     void spaceContainer.offsetWidth; /* Force reflow */
 
     /* Restore camera transition styles */

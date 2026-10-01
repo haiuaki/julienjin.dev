@@ -47,7 +47,7 @@ function resetCamera() {
     document.body.classList.remove('planet-focused');
     document.body.classList.remove('panel-opening');
 
-    /* Kill any running typewriter animations to prevent ghosting */
+    /* Clear sequence timers */
     if (typeof uiTimeouts !== 'undefined') {
         uiTimeouts.forEach(clearTimeout);
         uiTimeouts = [];

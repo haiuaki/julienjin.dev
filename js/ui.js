@@ -91,7 +91,7 @@ planetBtns.forEach(planet => {
 
 
         /* Dynamically update crosshairs if hovered */
-        if (planet.classList.contains('is-hovered') && !document.body.classList.contains('planet-focused')) {
+        if (planet.classList.contains('is-hovered') || planet.classList.contains('active-planet')) {
             const crossX = document.getElementById('crosshair-x');
             const crossY = document.getElementById('crosshair-y');
             if (crossX && crossY) {
@@ -134,7 +134,11 @@ planetBtns.forEach(planet => {
         /* Calculate perspective scale to maintain uniform visual size */
         const rect = planet.getBoundingClientRect();
         const perspectiveScale = rect.width / planet.offsetWidth;
-        const targetPhysicalSize = 24 / (perspectiveScale * 1.3);
+        /* Calculate 2.2vmin in actual pixels dynamically */
+        const vminPx = Math.min(window.innerWidth, window.innerHeight) / 100;
+        const visualTarget = 2.2 * vminPx;
+        
+        const targetPhysicalSize = visualTarget / perspectiveScale;
         
         planet.style.setProperty('--active-planet-size', `${targetPhysicalSize}px`);
         planet.style.setProperty('--active-planet-offset', `-${targetPhysicalSize / 2}px`);
@@ -192,17 +196,17 @@ planetBtns.forEach(planet => {
             
             void crossX.offsetWidth; /* Force synchronous layout recalculation */
             
-            crossX.style.transition = 'transform 1.0s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease-out';
-            crossY.style.transition = 'transform 1.0s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease-out';
-            crossX.style.transform = `translate3d(0, ${targetY}px, 0)`;
-            crossY.style.transform = `translate3d(${targetX}px, 0, 0)`;
+            crossX.style.transition = 'opacity 0.2s ease-out';
+            crossY.style.transition = 'opacity 0.2s ease-out';
+            /* crossX tracked dynamically */
+            /* crossY tracked dynamically */
         }
 
 
         /* Update body class for focus state */
         document.body.classList.add('planet-focused');
 
-        /* Typewriter to Bounding-Box Sequence */
+        /* Typewriter sequence */
         const windowHeader = document.getElementById('window-header');
         if (windowHeader) {
             windowHeader.innerHTML = '';
@@ -211,7 +215,7 @@ planetBtns.forEach(planet => {
             const rawLabel = planet.getAttribute('data-label') || 'DATA';
             const labelText = rawLabel.toUpperCase();
             
-            /* Clear any existing timers from previous clicks */
+            /* Clear existing sequence timers */
             if (typeof uiTimeouts !== 'undefined') {
                 uiTimeouts.forEach(clearTimeout);
                 uiTimeouts = [];
@@ -234,7 +238,7 @@ planetBtns.forEach(planet => {
                         let t2 = setTimeout(() => {
                             /* Drop cursor to new line */
                             windowHeader.innerHTML = `${labelText}<br>█`;
-                            /* Split cursor into bounding box corners */
+                            /* Trigger panel opening animation */
                             let t3 = setTimeout(() => {
                                 windowHeader.innerHTML = `${labelText}<br>&nbsp;`;
                                 document.body.classList.add('panel-opening');

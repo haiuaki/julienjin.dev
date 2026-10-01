@@ -26,9 +26,11 @@ noiseCtx.putImageData(idata, 0, 0);
 const svgNebula = `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.005' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.10'/%3E%3C/svg%3E")`;
 
 /* Assign composite background rendering properties */
-canvas.style.backgroundImage = `url(${noiseCanvas.toDataURL()}), ${svgNebula}`;
-canvas.style.backgroundBlendMode = 'normal, overlay';
-canvas.style.backgroundSize = 'auto, cover';
+/* Apply composite background to document body to prevent canvas repaint recalculations */
+document.body.style.backgroundImage = `url(${noiseCanvas.toDataURL()}), ${svgNebula}`;
+document.body.style.backgroundBlendMode = 'normal, overlay';
+document.body.style.backgroundSize = 'auto, cover';
+document.body.style.backgroundAttachment = 'fixed';
 
 const ctx = canvas.getContext('2d');
 let stars = [];
@@ -60,21 +62,28 @@ function drawStars() {
     const mouseX = clientMouseX === -1000 ? -1000 : (clientMouseX - rect.left) * (canvas.width / rect.width);
     const mouseY = clientMouseY === -1000 ? -1000 : (clientMouseY - rect.top) * (canvas.height / rect.height);
     
+    ctx.fillStyle = '#fafafa';
+    const radius = 150;
+    const radiusSq = radius * radius;
+    
     stars.forEach(star => {
-        let dx = mouseX - star.x;
-        let dy = mouseY - star.y;
-        let dist = Math.sqrt(dx * dx + dy * dy);
-        
         let alpha = star.baseAlpha;
-        const radius = 150;
         
-        if (dist < radius) {
-            let intensity = 1 - (dist / radius);
-            alpha = star.baseAlpha + intensity * (1 - star.baseAlpha);
+        /* Check if mouse is active */
+        if (mouseX !== -1000) {
+            let dx = mouseX - star.x;
+            let dy = mouseY - star.y;
+            let distSq = dx * dx + dy * dy;
+            
+            /* Use squared distance check for performance */
+            if (distSq < radiusSq) {
+                let dist = Math.sqrt(distSq);
+                let intensity = 1 - (dist / radius);
+                alpha = star.baseAlpha + intensity * (1 - star.baseAlpha);
+            }
         }
         
-        ctx.fillStyle = `rgba(250, 250, 250, ${alpha})`;
-        /* Draw stars using fillRect for better rendering performance */
+        ctx.globalAlpha = alpha;
         ctx.fillRect(star.x - star.size, star.y - star.size, star.size * 2, star.size * 2);
     });
     

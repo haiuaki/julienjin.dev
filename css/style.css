@@ -1,3 +1,4 @@
+:root { --active-planet-size: 2.2vmin; }
 /* --- 1. RESET & BASE STYLES --- */
 
 * {
@@ -44,9 +45,9 @@ body {
 /* --- 3. MODULAR UTILITIES --- */
 
 /* Modular Sizes */
-.size-small  { --planet-size: 8px;  width: var(--planet-size); height: var(--planet-size); }
-.size-medium { --planet-size: 16px; width: var(--planet-size); height: var(--planet-size); }
-.size-large  { --planet-size: 24px; width: var(--planet-size); height: var(--planet-size); }
+.size-small  { --planet-size: 0.74vmin;  width: var(--planet-size); height: var(--planet-size); }
+.size-medium { --planet-size: 1.5vmin; width: var(--planet-size); height: var(--planet-size); }
+.size-large  { --planet-size: 2.2vmin; width: var(--planet-size); height: var(--planet-size); }
 
 /* Modular Colors */
 .bg-theme { background-color: var(--planet-color); color: #1a1a1a; }
@@ -201,10 +202,20 @@ body {
     cursor: pointer;
     text-decoration: none;
     pointer-events: auto;
-    transition: box-shadow 0.3s ease-out;
-
-    /* Planet counter-spin animation assignment & Initial Fade-in */
+    
+    /* Force GPU rasterization */
+    transform: translateZ(0); 
+    /* Spin counter to the orbit to keep the text/gradient facing up */
     animation: master-anti-spin var(--spin-duration) linear infinite, initial-fade-in 2.5s ease-in-out;
+}
+
+.planet-btn {
+    transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1), 
+                width 1.5s cubic-bezier(0.25, 1, 0.5, 1), 
+                height 1.5s cubic-bezier(0.25, 1, 0.5, 1), 
+                top 1.5s cubic-bezier(0.25, 1, 0.5, 1), 
+                left 1.5s cubic-bezier(0.25, 1, 0.5, 1), 
+                box-shadow 0.3s ease-out;
 }
 
 /* Hover Interaction */
@@ -242,10 +253,10 @@ body {
 /* Note: --planet-color uniquely overrides the global theme set in `:root` */
 
 /* Main Planets */
-.planet-1 { --ring-size: 240px; --orbit-diag: 0deg; --orbit-tilt: 68deg; --start-angle: 80deg; --spin-duration: 10s; }
-.planet-2 { --ring-size: 460px; --orbit-diag: 16deg; --orbit-tilt: 70deg; --start-angle: 240deg; --spin-duration: 15s; }
-.planet-3 { --ring-size: 680px; --orbit-diag: -12deg; --orbit-tilt: 58deg; --start-angle: 160deg; --spin-duration: 20s; }
-.planet-4 { --ring-size: 900px; --orbit-diag: 10deg; --orbit-tilt: 75deg; --start-angle: 0deg; --spin-duration: 25s; }
+.planet-1 { --ring-size: 22vmin; --orbit-diag: 0deg; --orbit-tilt: 68deg; --start-angle: 80deg; --spin-duration: 10s; }
+.planet-2 { --ring-size: 42vmin; --orbit-diag: 16deg; --orbit-tilt: 70deg; --start-angle: 240deg; --spin-duration: 15s; }
+.planet-3 { --ring-size: 63vmin; --orbit-diag: -12deg; --orbit-tilt: 58deg; --start-angle: 160deg; --spin-duration: 20s; }
+.planet-4 { --ring-size: 83vmin; --orbit-diag: 10deg; --orbit-tilt: 75deg; --start-angle: 0deg; --spin-duration: 25s; }
 
 /* Empty Comet Trails */
 .comet-1 { --ring-size: 1120px; --orbit-diag: 37deg; --orbit-tilt: 80deg; --start-angle: 90deg; --spin-duration: 40s; --planet-color: #444444; }
@@ -304,10 +315,7 @@ body {
 
 .planet-btn {
     transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1), 
-                width 1.5s cubic-bezier(0.25, 1, 0.5, 1), 
-                height 1.5s cubic-bezier(0.25, 1, 0.5, 1), 
-                top 1.5s cubic-bezier(0.25, 1, 0.5, 1), 
-                left 1.5s cubic-bezier(0.25, 1, 0.5, 1), 
+                scale 1.5s cubic-bezier(0.25, 1, 0.5, 1), 
                 box-shadow 0.3s ease-out;
 }
 
@@ -466,23 +474,46 @@ body.panel-opening .corner-br {
                 top var(--anim-speed) cubic-bezier(0.25, 1, 0.5, 1) var(--delay-y);
 }
 
-/* The dynamic semi-transparent background drawn by the corners */
-.panel-bg {
+body.panel-opening 
+
+/* Hardware Accelerated Panel Background */
+.panel-clip-x {
     position: absolute;
     top: calc(var(--cursor-y) + var(--corner-h));
     left: var(--corner-w);
-    width: 0px;
-    height: 0px;
+    width: calc(100% - (var(--corner-w) * 2));
+    height: calc(100% - var(--cursor-y) - (var(--corner-h) * 2));
+    clip-path: inset(0 100% 0 0); /* Hide right edge */
+    transition: clip-path var(--anim-speed) cubic-bezier(0.25, 1, 0.5, 1) var(--delay-x);
+    will-change: clip-path;
+}
+
+.panel-clip-y {
+    width: 100%;
+    height: 100%;
+    clip-path: inset(0 0 100% 0); /* Hide bottom edge */
+    transition: clip-path var(--anim-speed) cubic-bezier(0.25, 1, 0.5, 1) var(--delay-y);
+    will-change: clip-path;
+}
+
+.panel-bg {
+    width: 100%;
+    height: 100%;
     background: var(--panel-bg);
     border: 1px solid var(--panel-border);
     opacity: 0;
+    transition: opacity 0.05s ease-out;
+    box-sizing: border-box;
+}
+
+body.panel-opening .panel-clip-x {
+    clip-path: inset(0 0 0 0);
+}
+
+body.panel-opening .panel-clip-y {
+    clip-path: inset(0 0 0 0);
 }
 
 body.panel-opening .panel-bg {
     opacity: 1;
-    width: calc(100% - (var(--corner-w) * 2));
-    height: calc(100% - var(--cursor-y) - (var(--corner-h) * 2));
-    transition: opacity 0.05s ease-out,
-                width var(--anim-speed) cubic-bezier(0.25, 1, 0.5, 1) var(--delay-x),
-                height var(--anim-speed) cubic-bezier(0.25, 1, 0.5, 1) var(--delay-y);
 }
