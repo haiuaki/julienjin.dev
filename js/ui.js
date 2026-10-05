@@ -24,7 +24,7 @@ planetBtns.forEach(planet => {
         if (!document.body.classList.contains('planet-focused')) {
             planet.classList.add('is-hovered');
             document.body.classList.add('crosshairs-active');
-            
+
             /* Set transition styles once on hover */
             if (crossX && crossY) {
                 crossX.style.transition = 'opacity 0.2s ease-out';
@@ -88,8 +88,8 @@ planetBtns.forEach(planet => {
         const planetY = rect.y + rect.height / 2;
         
         /* Define target screen coordinates */
-        const targetX = 64; 
-        const targetY = 58;
+        const targetX = FOCUS_TARGET_X;
+        const targetY = FOCUS_TARGET_Y;
 
         /* Calculate delta vector */
         const dx = targetX - planetX;
@@ -122,15 +122,15 @@ planetBtns.forEach(planet => {
             /* Disable crosshair active class (opacity is inherited by planet-focused) */
             document.body.classList.remove('crosshairs-active');
 
-            crossX.style.transform = `translate3d(0, ${planetY}px, 0)`;
-            crossY.style.transform = `translate3d(${planetX}px, 0, 0)`;
-            
+            crossX.style.transform = `translate3d(0, ${crosshairPos(planetY)}px, 0)`;
+            crossY.style.transform = `translate3d(${crosshairPos(planetX)}px, 0, 0)`;
+
             void crossX.offsetWidth; /* Force synchronous layout recalculation */
-            
+
             crossX.style.transition = 'transform 1.0s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease-out';
             crossY.style.transition = 'transform 1.0s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease-out';
-            crossX.style.transform = `translate3d(0, ${targetY}px, 0)`;
-            crossY.style.transform = `translate3d(${targetX}px, 0, 0)`;
+            crossX.style.transform = `translate3d(0, ${crosshairPos(targetY)}px, 0)`;
+            crossY.style.transform = `translate3d(${crosshairPos(targetX)}px, 0, 0)`;
         }
 
 
@@ -236,8 +236,8 @@ function trackAllPositions(now) {
 
         /* Dynamically update crosshairs if hovered */
         if (!focused && crossX && crossY && t.planet.classList.contains('is-hovered')) {
-            crossX.style.transform = `translate3d(0, ${planetY}px, 0)`;
-            crossY.style.transform = `translate3d(${planetX}px, 0, 0)`;
+            crossX.style.transform = `translate3d(0, ${crosshairPos(planetY)}px, 0)`;
+            crossY.style.transform = `translate3d(${crosshairPos(planetX)}px, 0, 0)`;
         }
     });
 }

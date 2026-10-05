@@ -87,8 +87,8 @@ function resetCamera() {
         crossX.style.transition = 'transform 1.0s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease-out 1s';
         crossY.style.transition = 'transform 1.0s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease-out 1s';
         
-        crossX.style.transform = `translate3d(0, ${crossX.dataset.originY}px, 0)`;
-        crossY.style.transform = `translate3d(${crossY.dataset.originX}px, 0, 0)`;
+        crossX.style.transform = `translate3d(0, ${crosshairPos(+crossX.dataset.originY)}px, 0)`;
+        crossY.style.transform = `translate3d(${crosshairPos(+crossY.dataset.originX)}px, 0, 0)`;
     }
 }
 

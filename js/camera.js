@@ -21,8 +21,8 @@ function recalculateCameraFocus() {
     const screenCenterX = window.innerWidth / 2;
     const screenCenterY = window.innerHeight / 2;
 
-    const targetX = 64;
-    const targetY = 58;
+    const targetX = FOCUS_TARGET_X;
+    const targetY = FOCUS_TARGET_Y;
 
     const dx = targetX - planetX;
     const dy = targetY - planetY;
@@ -43,8 +43,8 @@ function recalculateCameraFocus() {
         crossX.dataset.originY = planetY;
         crossY.dataset.originX = planetX;
         /* Snap crosshairs to the target position after camera recalculation */
-        crossX.style.transform = `translate3d(0, ${targetY}px, 0)`;
-        crossY.style.transform = `translate3d(${targetX}px, 0, 0)`;
+        crossX.style.transform = `translate3d(0, ${crosshairPos(targetY)}px, 0)`;
+        crossY.style.transform = `translate3d(${crosshairPos(targetX)}px, 0, 0)`;
     }
 }
 window.addEventListener('mousemove', (e) => {

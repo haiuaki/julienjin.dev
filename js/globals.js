@@ -20,6 +20,19 @@ if (isNaN(systemEpoch)) {
     sessionStorage.setItem('systemEpoch', systemEpoch);
 }
 
+/* Focus target for the active planet. Pixel centers (x.5) rather than pixel
+   boundaries, so a 1px crosshair line can sit exactly on the planet's center. */
+const FOCUS_TARGET_X = 64.5;
+const FOCUS_TARGET_Y = 58.5;
+
+/* Crosshairs are 1px lines drawn from their translate value, so their visual
+   center sits half a line past it. Offset by half a line and snap to the device
+   pixel grid so the line is both centered on the target and crisp (1x and 2x). */
+function crosshairPos(center) {
+    const dpr = window.devicePixelRatio || 1;
+    return Math.round((center - 0.5) * dpr) / dpr;
+}
+
 /* UI Animation Trackers */
 let uiTimeouts = [];
 let uiIntervals = [];
