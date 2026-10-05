@@ -54,6 +54,30 @@ function initStars() {
     }
 }
 
+/* Redraw only when something visible changed: mouse moved, resize, or the
+   camera parallax is shifting the canvas under a stationary cursor. */
+let starsDirty = true;
+let starfieldMoving = false;
+canvas.addEventListener('transitionrun', (e) => {
+    if (e.propertyName === 'transform') starfieldMoving = true;
+});
+const stopStarfieldMotion = (e) => {
+    if (e.propertyName !== 'transform') return;
+    starfieldMoving = false;
+    starsDirty = true;
+};
+canvas.addEventListener('transitionend', stopStarfieldMotion);
+canvas.addEventListener('transitioncancel', stopStarfieldMotion);
+
+function renderLoop() {
+    /* Highlight depends on the canvas rect only while the cursor is on screen */
+    if (starsDirty || (starfieldMoving && clientMouseX !== -1000)) {
+        starsDirty = false;
+        drawStars();
+    }
+    requestAnimationFrame(renderLoop);
+}
+
 function drawStars() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
@@ -86,12 +110,11 @@ function drawStars() {
         ctx.globalAlpha = alpha;
         ctx.fillRect(star.x - star.size, star.y - star.size, star.size * 2, star.size * 2);
     });
-    
-    requestAnimationFrame(drawStars);
 }
 
 window.addEventListener('resize', () => {
     initStars();
+    starsDirty = true;
     recalculateCameraFocus();
 });
 

@@ -51,13 +51,15 @@ window.addEventListener('mousemove', (e) => {
     /* Store screen coordinates for render loop */
     clientMouseX = e.clientX;
     clientMouseY = e.clientY;
+    starsDirty = true;
 });
 window.addEventListener('mouseout', () => {
     clientMouseX = -1000;
     clientMouseY = -1000;
+    starsDirty = true;
 });
 
 initStars();
-drawStars();
+renderLoop();
 
 

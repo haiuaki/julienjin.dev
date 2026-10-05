@@ -1,4 +1,12 @@
 const planetBtns = document.querySelectorAll('.planet-btn');
+const crossX = document.getElementById('crosshair-x');
+const crossY = document.getElementById('crosshair-y');
+
+/* Planet/label pairs updated by the single shared rAF loop */
+const trackers = [];
+/* Labels finish fading out 1.5s after focus (0.3s delay + 1.2s fade); stop tracking after that */
+const LABEL_FADE_MS = 1600;
+let labelsHiddenAt = Infinity;
 
 planetBtns.forEach(planet => {
     /* Retrieve label string from dataset */
@@ -18,8 +26,6 @@ planetBtns.forEach(planet => {
             document.body.classList.add('crosshairs-active');
             
             /* Set transition styles once on hover */
-            const crossX = document.getElementById('crosshair-x');
-            const crossY = document.getElementById('crosshair-y');
             if (crossX && crossY) {
                 crossX.style.transition = 'opacity 0.2s ease-out';
                 crossY.style.transition = 'opacity 0.2s ease-out';
@@ -34,53 +40,8 @@ planetBtns.forEach(planet => {
         }
     });
 
-    const trackPosition = () => {
-        const rect = planet.getBoundingClientRect();
-        const planetX = rect.x + rect.width / 2;
-        const planetY = rect.y + rect.height / 2;
-        
-        /* Calculate true physical center of the solar system (The Sun) */
-        const sunRect = sunBtn.getBoundingClientRect();
-        const centerX = sunRect.x + sunRect.width / 2;
-        const centerY = sunRect.y + sunRect.height / 2;
-
-        /* Calculate normalized vector from Sun to Planet */
-        let dx = planetX - centerX;
-        let dy = planetY - centerY;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        
-        if (dist > 0) {
-            dx /= dist;
-            dy /= dist;
-        }
-
-        /* Shift label anchor based on orbital vector */
-        const xPercent = (dx * 50) - 50;
-        const yPercent = (dy * 50) - 50;
-        
-        /* Derive offset from the planet's actual rendered screen-space radius.
-           On large/4K displays the perspective depth effect makes near-planets
-           visually bigger, so the offset grows with them and never overlaps. */
-        const screenRadius = Math.max(rect.width, rect.height) / 2;
-        const LABEL_OFFSET = screenRadius + 8;
-        /* Drive position exclusively via transform — no left/top writes (same as crosshairs) */
-        floatingLabel.style.transform = `translate3d(${planetX + dx * LABEL_OFFSET}px, ${planetY + dy * LABEL_OFFSET}px, 0) translate(${xPercent}%, ${yPercent}%)`;
-
-
-        /* Dynamically update crosshairs if hovered */
-        if (planet.classList.contains('is-hovered') && !document.body.classList.contains('planet-focused')) {
-            const crossX = document.getElementById('crosshair-x');
-            const crossY = document.getElementById('crosshair-y');
-            if (crossX && crossY) {
-                crossX.style.transform = `translate3d(0, ${planetY}px, 0)`;
-                crossY.style.transform = `translate3d(${planetX}px, 0, 0)`;
-            }
-        }
-        requestAnimationFrame(trackPosition);
-    };
-    
-    /* Start label tracking loop */
-    trackPosition();
+    /* Register with the shared tracking loop (see trackAllPositions below) */
+    trackers.push({ planet, label: floatingLabel });
 
     
     planet.addEventListener('click', (e) => {
@@ -151,8 +112,6 @@ planetBtns.forEach(planet => {
         }
 
         /* Set crosshair positions and sweep them to the target coordinates */
-        const crossX = document.getElementById('crosshair-x');
-        const crossY = document.getElementById('crosshair-y');
         if (crossX && crossY) {
             /* Store origin coordinates to allow crosshairs to return home */
             crossX.dataset.originY = planetY;
@@ -227,3 +186,59 @@ planetBtns.forEach(planet => {
 
     });
 });
+
+/* Single tracking loop for every planet label and the hover crosshairs.
+   All layout reads happen first, then all style writes, so the browser
+   computes layout at most once per frame instead of once per planet. */
+function trackAllPositions(now) {
+    requestAnimationFrame(trackAllPositions);
+
+    const focused = document.body.classList.contains('planet-focused');
+    if (!focused) labelsHiddenAt = Infinity;
+    else if (labelsHiddenAt === Infinity) labelsHiddenAt = now + LABEL_FADE_MS;
+    /* Labels are fully invisible: skip all work until focus is released */
+    if (now > labelsHiddenAt) return;
+
+    /* --- Read phase --- */
+    /* Calculate true physical center of the solar system (The Sun) */
+    const sunRect = sunBtn.getBoundingClientRect();
+    const centerX = sunRect.x + sunRect.width / 2;
+    const centerY = sunRect.y + sunRect.height / 2;
+    const rects = trackers.map(t => t.planet.getBoundingClientRect());
+
+    /* --- Write phase --- */
+    trackers.forEach((t, i) => {
+        const rect = rects[i];
+        const planetX = rect.x + rect.width / 2;
+        const planetY = rect.y + rect.height / 2;
+
+        /* Calculate normalized vector from Sun to Planet */
+        let dx = planetX - centerX;
+        let dy = planetY - centerY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist > 0) {
+            dx /= dist;
+            dy /= dist;
+        }
+
+        /* Shift label anchor based on orbital vector */
+        const xPercent = (dx * 50) - 50;
+        const yPercent = (dy * 50) - 50;
+
+        /* Derive offset from the planet's actual rendered screen-space radius.
+           On large/4K displays the perspective depth effect makes near-planets
+           visually bigger, so the offset grows with them and never overlaps. */
+        const screenRadius = Math.max(rect.width, rect.height) / 2;
+        const LABEL_OFFSET = screenRadius + 8;
+        /* Drive position exclusively via transform — no left/top writes (same as crosshairs) */
+        t.label.style.transform = `translate3d(${planetX + dx * LABEL_OFFSET}px, ${planetY + dy * LABEL_OFFSET}px, 0) translate(${xPercent}%, ${yPercent}%)`;
+
+        /* Dynamically update crosshairs if hovered */
+        if (!focused && crossX && crossY && t.planet.classList.contains('is-hovered')) {
+            crossX.style.transform = `translate3d(0, ${planetY}px, 0)`;
+            crossY.style.transform = `translate3d(${planetX}px, 0, 0)`;
+        }
+    });
+}
+requestAnimationFrame(trackAllPositions);
