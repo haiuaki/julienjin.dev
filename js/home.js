@@ -20,7 +20,19 @@ let homeLast = -1;       /* section the visitor last opened */
 /* The full power-on plays once per browser session; returns are quiet */
 const HOME_SEEN_KEY = 'homeSeen';
 
+/* The section list starts collapsed so the sky is explored first. It opens
+   from its toggle, ↑/↓, tabbing into it, or after a quiet spell; once open it
+   stays open for the rest of the visit. The links stay in the page while
+   collapsed (only visually hidden), so screen readers always reach them. */
+const HOME_EXPANDED_KEY = 'homeExpanded';
+const HOME_IDLE_MS = 8000;
+let homeToggle = null;
+let homeIdleTimer = null;
+
 function buildHome() {
+    homeToggle = createEl('button', 'home-toggle');
+    homeToggle.setAttribute('aria-controls', 'home-sections');
+
     const columns = createEl('div', 'menu-columns');
     columns.append(createEl('span', 'menu-num', 'NO'), createEl('span', 'menu-col-title', 'SECTION'));
 
@@ -42,9 +54,38 @@ function buildHome() {
     const status = createEl('div', 'menu-status');
     status.append(createEl('span', 'menu-keys', '↑↓ SELECT · → OPEN'));
 
-    homeContent.replaceChildren(columns, list, status);
+    const sections = createEl('div', 'home-sections');
+    sections.id = 'home-sections';
+    sections.append(columns, list, status);
+
+    homeContent.replaceChildren(homeToggle, sections);
     homeRows = [...list.querySelectorAll('.menu-item')];
+    setExpanded(sessionStorage.getItem(HOME_EXPANDED_KEY) === 'true');
 }
+
+function setExpanded(expanded) {
+    homeWindow.classList.toggle('is-collapsed', !expanded);
+    homeToggle.setAttribute('aria-expanded', String(expanded));
+    homeToggle.textContent = `${expanded ? '▾' : '▸'} MENU`;
+    if (expanded) {
+        sessionStorage.setItem(HOME_EXPANDED_KEY, 'true');
+        clearTimeout(homeIdleTimer);
+    }
+}
+
+const homeExpanded = () => !homeWindow.classList.contains('is-collapsed');
+
+/* Safety net for visitors who don't explore: open after a quiet spell.
+   Any input restarts the wait; it only runs while home is showing. */
+function armIdleExpand() {
+    clearTimeout(homeIdleTimer);
+    if (homeExpanded() || document.body.classList.contains('planet-focused')) return;
+    homeIdleTimer = setTimeout(() => {
+        if (!document.body.classList.contains('planet-focused')) setExpanded(true);
+    }, HOME_IDLE_MS);
+}
+['pointermove', 'pointerdown', 'keydown', 'wheel', 'touchstart'].forEach(type =>
+    document.addEventListener(type, () => { if (homeIdleTimer) armIdleExpand(); }, { passive: true }));
 
 function openHome() {
     if (document.body.classList.contains('planet-focused')) return;
@@ -65,6 +106,7 @@ function openHome() {
 
     /* Keep the section the visitor came from selected, so ↓ or → continues from it */
     if (homeLast >= 0) selectRow(homeLast);
+    armIdleExpand();
 }
 
 /* Mark a row as selected (▸) without touching the crosshairs */
@@ -99,6 +141,10 @@ astreBtns.forEach((planet, i) => planet.addEventListener('click', () => { homeLa
 
 /* --- INPUT --- */
 homeContent.addEventListener('click', (e) => {
+    if (e.target.closest('.home-toggle')) {
+        setExpanded(!homeExpanded());
+        return;
+    }
     const row = e.target.closest('[data-planet]');
     if (row) openSection(+row.dataset.planet);
 });
@@ -110,6 +156,11 @@ homeContent.addEventListener('mouseover', (e) => {
 
 homeContent.addEventListener('mouseleave', () => targetPlanet(-1));
 
+/* Tabbing onto a hidden section link opens the list */
+homeContent.addEventListener('focusin', (e) => {
+    if (e.target.closest('.home-sections') && !homeExpanded()) setExpanded(true);
+});
+
 /* ↑/↓ select a section, →/Enter open it (Enter is the focused button's own click) */
 document.addEventListener('keydown', (e) => {
     if (!homeRows || document.body.classList.contains('planet-focused')) return;
@@ -120,6 +171,7 @@ document.addEventListener('keydown', (e) => {
     }
     if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
     e.preventDefault();
+    if (!homeExpanded()) setExpanded(true);
     const n = homeRows.length;
     const step = e.key === 'ArrowDown' ? 1 : -1;
     const next = homeTargeted === -1 ? (step === 1 ? 0 : n - 1) : (homeTargeted + step + n) % n;

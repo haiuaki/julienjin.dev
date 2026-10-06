@@ -17,6 +17,27 @@
 </head>
 <body>
 
+    <!-- Home window: name and role in its title bar, one row per planet (js/home.js).
+         First in the page so Tab and screen readers reach the sections first;
+         its position on screen is set in CSS. -->
+    <nav id="home-nav" aria-label="Site sections">
+        <section id="home-window" class="term-window flicker-window" data-open="flicker">
+            <div class="window-bar">
+                <span class="bar-line bar-edge"></span>
+                <div class="window-header"></div>
+                <span class="bar-line"></span>
+                <div class="window-meta"></div>
+                <span class="bar-line bar-edge"></span>
+            </div>
+            <div class="flicker-frame"></div>
+            <div class="corner corner-tl"></div>
+            <div class="corner corner-tr"></div>
+            <div class="corner corner-bl"></div>
+            <div class="corner corner-br"></div>
+            <div class="window-content"></div>
+        </section>
+    </nav>
+
     <!-- --- 3D SOLAR SYSTEM NAVIGATION --- -->
     <!-- --- TARGETING CROSSHAIRS --- -->
     <div id="crosshair-x"></div>
@@ -62,24 +83,6 @@
     </header>
 
     <!-- --- BRAND IDENTITY --- -->
-    <!-- Home window: name and role in its title bar, one row per planet (js/home.js) -->
-    <nav id="home-nav" aria-label="Site sections">
-        <section id="home-window" class="term-window flicker-window" data-open="flicker">
-            <div class="window-bar">
-                <span class="bar-line bar-edge"></span>
-                <div class="window-header"></div>
-                <span class="bar-line"></span>
-                <div class="window-meta"></div>
-                <span class="bar-line bar-edge"></span>
-            </div>
-            <div class="flicker-frame"></div>
-            <div class="corner corner-tl"></div>
-            <div class="corner corner-tr"></div>
-            <div class="corner corner-bl"></div>
-            <div class="corner corner-br"></div>
-            <div class="window-content"></div>
-        </section>
-    </nav>
 
     <!-- --- RETURN HOME --- -->
     <div id="return-home-container">
