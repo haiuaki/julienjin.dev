@@ -39,4 +39,3 @@ let uiTimeouts = [];
 /* Orbit animations of the focused planet: frozen so it holds still in the
    corner, and left out of every speed change until the planet is released */
 let focusedOrbitAnims = [];
-let uiIntervals = [];

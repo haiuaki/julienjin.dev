@@ -20,7 +20,7 @@ function toggleTime(x, y) {
    is focused, so reading never stops time by accident. */
 document.addEventListener('click', (e) => {
     if (document.body.classList.contains('planet-focused')) return;
-    if (e.target.closest('button, a, #content-window')) return;
+    if (e.target.closest('button, a, .term-window')) return;
     toggleTime(e.clientX, e.clientY);
 });
 

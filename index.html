@@ -41,7 +41,7 @@
                 </div>
                 
                 <div class="orbit-ring planet-2">
-                    <button class="planet-btn size-small bg-theme" data-label="[projects]"></button>
+                    <button class="planet-btn size-small bg-theme" data-label="[projects]" data-menu="projects"></button>
                 </div>
                 
                 <div class="orbit-ring planet-3">
@@ -72,23 +72,80 @@
     <!-- --- TIME STATUS --- -->
     <div id="time-status" aria-live="polite">[ TIME HALTED ]</div>
 
-    <!-- CONTENT WINDOW (BOUNDING BOX) -->
-    <div id="content-window">
-        <div id="window-header"></div>
-        <!-- Panel Clip Wrappers -->
-        <div class="panel-clip-x">
-            <div class="panel-clip-y">
-                <div class="panel-bg"></div>
+    <!-- CONTENT WINDOWS (BOUNDING BOXES) -->
+    <!-- Each .term-window types its header, then opens its 4-corner frame independently.
+         Both size to their content; the row lays them out side by side. -->
+    <div id="window-row">
+
+        <!-- Main window: menu index, or a planet's own content.
+             data-open picks the opening: "flicker" (CRT power-on), or remove it and
+             use class "corner-window" with a bare .window-header and the panel-clip
+             markup for the corner unfold. -->
+        <section id="content-window" class="term-window flicker-window" data-open="flicker">
+            <!-- Title bar: the title and meta slot are cut into the frame's top border -->
+            <div class="window-bar">
+                <span class="bar-line bar-edge"></span>
+                <div class="window-header"></div>
+                <span class="bar-line"></span>
+                <div class="window-meta"></div>
+                <span class="bar-line bar-edge"></span>
             </div>
-        </div>
-        <div class="corner corner-tl"></div>
-        <div class="corner corner-tr"></div>
-        <div class="corner corner-bl"></div>
-        <div class="corner corner-br"></div>
-        <div class="window-content">
-            <!-- Project content will fade in here -->
-        </div>
+            <div class="flicker-frame"></div>
+            <div class="corner corner-tl"></div>
+            <div class="corner corner-tr"></div>
+            <div class="corner corner-bl"></div>
+            <div class="corner corner-br"></div>
+            <div class="window-content">
+                <!-- Menu index is rendered in here by js/menu.js -->
+            </div>
+        </section>
+
+        <!-- Reader window: opens beside the index when an entry is picked.
+             Powers on with a flicker instead of the corner unfolding. -->
+        <section id="reader-window" class="term-window flicker-window" data-open="flicker">
+            <!-- Title bar: the title and meta slot are cut into the frame's top border -->
+            <div class="window-bar">
+                <span class="bar-line bar-edge"></span>
+                <div class="window-header"></div>
+                <span class="bar-line"></span>
+                <div class="window-meta"></div>
+                <span class="bar-line bar-edge"></span>
+            </div>
+            <div class="flicker-frame"></div>
+            <div class="corner corner-tl"></div>
+            <div class="corner corner-tr"></div>
+            <div class="corner corner-bl"></div>
+            <div class="corner corner-br"></div>
+            <div class="window-content">
+                <!-- Entry content is cloned in here by js/menu.js -->
+            </div>
+        </section>
+
     </div>
+
+    <!-- --- MENU ENTRY CONTENT --- -->
+    <!-- One <template id="entry-{id}"> per entry in the MENUS registry (js/menu.js) -->
+    <!-- Body text only: title and dossier fields come from the registry -->
+    <template id="entry-nebula-engine">
+        <p>
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus in mi ut odio finibus faucibus a vitae libero. Aenean ultricies eros ac erat varius ornare. Sed et velit tempus, luctus dolor eu, mattis magna. Vestibulum sit amet odio eu purus euismod tincidunt nec eleifend justo. Aenean nulla massa, viverra sit amet pulvinar in, aliquam vitae mi. Donec id nulla sed enim feugiat vulputate non ut orci. Pellentesque enim purus, eleifend non pulvinar at, blandit eget nisl. Fusce gravida sem ac arcu commodo, in sagittis augue imperdiet. In efficitur libero eu nunc vehicula accumsan. Morbi convallis, arcu a pulvinar ullamcorper, velit mauris commodo erat, vitae bibendum sem turpis vel mi. Quisque eu nisl id risus vestibulum sollicitudin ac nec turpis. Phasellus non mauris vel neque malesuada vestibulum.
+
+Sed bibendum, erat a varius aliquam, turpis ipsum malesuada felis, et sagittis purus urna vitae ligula. Ut ac lacus lacus. Ut sit amet tincidunt mauris. Integer euismod urna nec euismod auctor. Fusce venenatis sem sit amet rutrum egestas. Quisque aliquet mauris eu ante molestie, ac dapibus orci finibus. Nulla facilisi. Sed iaculis pretium nunc, vitae vulputate lorem feugiat quis. Vestibulum dolor tellus, malesuada quis lectus a, tincidunt lacinia libero. In convallis justo eget diam porta ullamcorper. Maecenas rutrum bibendum condimentum. Curabitur ut molestie nibh. Etiam nec egestas odio. Sed dapibus laoreet ultrices. Suspendisse suscipit non velit id rutrum. Etiam vitae maximus nisi, id egestas ipsum.
+
+Morbi nisi nulla, mattis a mattis eget, tincidunt a ex. Nulla dignissim tortor in enim mattis, et euismod nulla mattis. Proin fermentum porta eros, ac tincidunt sapien sodales quis. Sed auctor leo sed tempus sagittis. Etiam ut volutpat neque, id tempus elit. Duis accumsan neque in lorem sodales, eu efficitur sem pharetra. Mauris eu sodales lacus, quis elementum sapien.
+
+Praesent vehicula, est ac convallis pharetra, eros justo rhoncus dolor, at facilisis nisi mauris nec nibh. Morbi finibus malesuada ipsum, in consequat neque egestas efficitur. Proin sem justo, convallis eget euismod sit amet, interdum vitae nisi. Mauris ultricies nunc eu velit iaculis, eget efficitur lectus scelerisque. Suspendisse hendrerit risus facilisis, vulputate turpis sed, porttitor dui. Nam at turpis magna. Morbi elementum accumsan purus et dictum. Vivamus semper tempor pellentesque. Aenean mauris sapien, tincidunt id lectus in, lacinia ultrices felis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vestibulum finibus porttitor vestibulum. Pellentesque sit amet mi elementum turpis varius finibus sit amet non justo. Nam at lobortis magna. Ut molestie eu risus nec bibendum.
+
+Nunc quis euismod sapien. Sed ac vehicula justo. Donec maximus leo nec suscipit ornare. Aliquam tempus erat sit amet diam consequat blandit. Cras vel turpis non est fermentum lacinia. Etiam dapibus odio venenatis vehicula feugiat. Aenean pellentesque in nulla quis facilisis. Nullam hendrerit sed odio ut rutrum. Pellentesque turpis leo, tristique ornare eros a, cursus vestibulum libero. Duis pretium, massa et malesuada ultricies, quam eros ornare urna, et ultrices lacus mauris at sem. Mauris nisi velit, volutpat sed efficitur tempus, eleifend ac mauris. Suspendisse pellentesque sem in ligula imperdiet, nec laoreet enim interdum. Proin at libero vitae lorem maximus porttitor. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla facilisi. Fusce congue, orci ac scelerisque tristique, lacus quam suscipit magna, id scelerisque erat sem ut lorem.
+
+</p>
+    </template>
+    <template id="entry-stellar-core">
+        <p>Placeholder description for Stellar Core.</p>
+    </template>
+    <template id="entry-orbital-archive">
+        <p>Placeholder description for Orbital Archive.</p>
+    </template>
 
     <!-- --- SYSTEM INITIALIZATION SCRIPTS --- -->
     <script src="js/globals.js"></script>
@@ -98,6 +155,7 @@
     <script src="js/physics.js"></script>
     <script src="js/timestop.js"></script>
     <script src="js/ui.js"></script>
+    <script src="js/menu.js"></script>
 
 </body>
 </html>

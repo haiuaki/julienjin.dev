@@ -485,20 +485,47 @@ body.planet-focused #crosshair-y {
     opacity: 1;
 }
 
-/* --- CONTENT WINDOW & CORNER ANIMATION --- */
-#content-window {
+/* --- CONTENT WINDOWS --- */
+/* Row holding the main window and the reader. Anchored just below/right of the
+   focused planet; windows size to their content instead of the viewport. */
+#window-row {
+    position: absolute;
+    /* Clear of the horizontal crosshair line (y = 58.5) */
+    top: 94px;
+    left: 110px;
+    right: 40px;
+    bottom: 40px;
+    display: flex;
+    align-items: flex-start;
+    gap: 48px;
+    pointer-events: none;
+    z-index: 40;
+}
+
+/* --- TERMINAL WINDOW & CORNER ANIMATION --- */
+.term-window {
     /* Cursor block geometry — scales with the font size so the split animation
        always starts from exactly one line below the typewriter text.
-       Uses the same clamp() as #window-header (1.2vmin, 12–20px).
+       Uses the same clamp() as .window-header (1.2vmin, 12–24px).
        × 1.75 = line-height (1.5) + half-leading (0.25) above the glyph on line 2,
        placing the corner block flush with the top of the █ character. */
-    --header-font-size: clamp(12px, 1.2vmin, 20px);
-    --cursor-y: calc(var(--header-font-size) * 1.85);
+    --header-font-size: clamp(12px, 1.2vmin, 24px);
+    --cursor-y: calc(var(--header-font-size) * 1.75);
 
     /* Corner tick dimensions — reverse-engineered from the original hardcoded values
        at the 14px baseline: corner-w = 4.3/14 = 0.307, corner-h = 7.3/14 = 0.521 */
     --corner-w: calc(var(--header-font-size) * 0.307);
     --corner-h: calc(var(--header-font-size) * 0.521);
+
+    /* Body text size: scales with the screen so the 80ch measure keeps its proportion on 4K */
+    --content-font: clamp(13px, 1vmin, 21px);
+
+    /* Height of the header area above the content; flicker windows override it */
+    --head-h: calc(var(--cursor-y) + var(--corner-h));
+
+    /* Space the row leaves for content below the header (row top + bottom offsets) */
+    --row-inset: 134px; /* #window-row top (94) + bottom (40) */
+    --content-max-h: calc(100vh - var(--row-inset) - var(--head-h));
 
     /* Animation Timings */
     --anim-speed: 0.5s;
@@ -509,30 +536,28 @@ body.planet-focused #crosshair-y {
     --panel-bg: rgba(120, 120, 120, 0.15);
     --panel-border: rgba(120, 120, 120, 0.4);
 
-    position: absolute;
-    top: 70px;
-    left: 110px;
-    right: 40px;
-    bottom: 40px;
+    position: relative;
+    flex: none;
     pointer-events: none;
-    z-index: 40;
 }
 
-#window-header {
+.window-header {
     position: absolute;
     top: 0;
     left: 0;
     font-family: 'IBM Plex Mono', monospace;
     color: #fafafa;
     /* Scales with the viewport so text stays readable on 4K without being overwhelming on small screens */
-    font-size: clamp(12px, 1.2vmin, 20px);
+    font-size: var(--header-font-size);
     letter-spacing: 2px;
     line-height: 1.5;
+    /* Headers are written with textContent; pre keeps the "\n" cursor drop */
+    white-space: pre;
     opacity: 0;
     transition: opacity 0.2s ease-out;
 }
 
-body.planet-focused #window-header {
+body.planet-focused .window-header {
     opacity: 1;
 }
 
@@ -551,26 +576,26 @@ body.planet-focused #window-header {
 .corner-br { top: calc(var(--cursor-y) + var(--corner-h)); left: var(--corner-w); }
 
 /* Dynamic Animation: The cursor block shatters */
-body.panel-opening .corner-tl {
+.corner-window.is-open .corner-tl {
     opacity: 1;
     transition: opacity 0.05s ease-out;
 }
 
-body.panel-opening .corner-tr {
+.corner-window.is-open .corner-tr {
     opacity: 1;
     left: calc(100% - var(--corner-w));
     transition: opacity 0.05s ease-out, 
                 left var(--anim-speed) cubic-bezier(0.25, 1, 0.5, 1) var(--delay-x);
 }
 
-body.panel-opening .corner-bl {
+.corner-window.is-open .corner-bl {
     opacity: 1;
     top: calc(100% - var(--corner-h));
     transition: opacity 0.05s ease-out, 
                 top var(--anim-speed) cubic-bezier(0.25, 1, 0.5, 1) var(--delay-y);
 }
 
-body.panel-opening .corner-br {
+.corner-window.is-open .corner-br {
     opacity: 1;
     left: calc(100% - var(--corner-w));
     top: calc(100% - var(--corner-h));
@@ -609,14 +634,481 @@ body.panel-opening .corner-br {
     box-sizing: border-box;
 }
 
-body.panel-opening .panel-clip-x {
+.corner-window.is-open .panel-clip-x {
     clip-path: inset(0 0 0 0);
 }
 
-body.panel-opening .panel-clip-y {
+.corner-window.is-open .panel-clip-y {
     clip-path: inset(0 0 0 0);
 }
 
-body.panel-opening .panel-bg {
+.corner-window.is-open .panel-bg {
     opacity: 1;
+}
+
+/* --- WINDOW CONTENT --- */
+/* In normal flow so it sets the window's size; the frame (corners, panel)
+   is absolutely positioned around it and expands to 100% of that size. */
+.window-content {
+    position: relative;
+    margin-top: var(--head-h);
+    padding: 1.5em 1.75em;
+    box-sizing: border-box;
+    max-height: var(--content-max-h);
+    overflow-y: auto;
+    /* Body disables touch gestures; re-allow vertical scrolling here */
+    touch-action: pan-y;
+    scrollbar-width: thin;
+    scrollbar-color: var(--panel-border) transparent;
+    font-size: var(--content-font);
+    line-height: 1.6;
+    color: #cccccc;
+    /* Hidden instantly when the window collapses so swapped content never flashes */
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* Fade in once the corners and panel have finished expanding */
+.corner-window.is-open .window-content {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition: opacity 0.3s ease-out calc(var(--delay-y) + var(--anim-speed));
+}
+
+.window-content p {
+    margin: 0 0 1em;
+}
+
+/* Prompt-style lines: "> cat nebula-engine", "PROJECTS_DB //" */
+.term-line {
+    color: #888888;
+}
+
+/* Main window without a menu (planet placeholder content) */
+#content-window .window-content {
+    min-width: 24ch;
+    min-height: 6em;
+}
+
+/* Reader: fills the rest of the row (capped at ~120 columns on very wide
+   screens). Its height fits the entry, up to the space left in the row
+   (longer entries scroll), and never drops below the index's height
+   (set by js/menu.js). The 80-column dossier is centered inside. */
+#reader-window {
+    flex: 1 1 auto;
+    min-width: 0;
+    /* 120ch of the monospace content font (0.6em advance) + padding */
+    max-width: calc(var(--content-font) * 75.5);
+}
+
+
+/* --- MENU INDEX --- */
+/* Rendered by js/menu.js into the main window: header line, entries, status line */
+/* Column header row: same flex layout and padding as the entries below */
+.menu-columns {
+    display: flex;
+    align-items: baseline;
+    gap: 1ch;
+    padding: 0 0.6em 0.75em 1.8em;
+    border-bottom: 1px solid var(--panel-border);
+    /* Same size and spacing as the rows: monospace columns only line up
+       when the character widths match */
+    letter-spacing: 1px;
+    color: #888888;
+}
+
+.menu-col-title {
+    flex: 1;
+}
+
+.menu-list {
+    list-style: none;
+    padding: 0;
+    margin: 0.5em 0 0;
+}
+
+.menu-item {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    gap: 1ch;
+    width: 100%;
+    padding: 0.25em 0.6em 0.25em 1.8em;
+    background: none;
+    border: none;
+    color: #aaaaaa;
+    font: inherit;
+    letter-spacing: 1px;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+/* Selection marker */
+.menu-item::before {
+    content: '▸';
+    position: absolute;
+    left: 0.5em;
+    color: #fafafa;
+    opacity: 0;
+}
+
+.menu-item:hover,
+.menu-item[aria-current="true"] {
+    color: #ffffff;
+}
+
+.menu-item[aria-current="true"]::before {
+    opacity: 1;
+}
+
+.menu-item:focus-visible {
+    outline: 1px dashed var(--panel-border);
+    outline-offset: -1px;
+}
+
+.menu-num,
+.menu-meta {
+    color: #888888;
+}
+
+/* Fixed number column so the header "NO" and "01" line up */
+.menu-num {
+    min-width: 2ch;
+}
+
+/* Dotted leader between title and meta: "01 NEBULA ENGINE ····· 2026" */
+.menu-leader {
+    flex: 1;
+    min-width: 3ch;
+    border-bottom: 1px dotted rgba(120, 120, 120, 0.5);
+    transform: translateY(-0.3em);
+}
+
+.menu-status {
+    display: flex;
+    justify-content: space-between;
+    gap: 2em;
+    margin-top: 1em;
+    padding-top: 0.5em;
+    border-top: 1px solid var(--panel-border);
+    font-size: 0.85em;
+    letter-spacing: 2px;
+    white-space: nowrap;
+    color: #888888;
+}
+
+/* Keyboard hints are noise on touch-only devices */
+@media (hover: none) {
+    .menu-keys {
+        visibility: hidden;
+    }
+}
+
+/* --- FLICKER WINDOW --- */
+/* Powers on like a CRT instead of unfolding: the frame starts as a bright
+   scanline, snaps open with a few flickers, then the content glitches in.
+   Only opacity/transform (and a brief text-shadow) animate, once per open. */
+.flicker-window {
+    /* One title line; the frame's top edge runs through its middle */
+    --bar-h: calc(var(--header-font-size) * 1.5);
+    --frame-top: calc(var(--bar-h) / 2);
+    --head-h: var(--bar-h);
+}
+
+/* Title bar: ─ TITLE ──────────── META ─  drawn over the frame's top edge */
+.window-bar {
+    position: absolute;
+    top: 0;
+    left: var(--corner-w);
+    right: var(--corner-w);
+    height: var(--bar-h);
+    display: flex;
+    align-items: center;
+    opacity: 0;
+}
+
+.bar-line {
+    flex: 1;
+    height: 1px;
+    background: var(--panel-border);
+}
+
+.bar-edge {
+    flex: 0 0 1.25em;
+}
+
+.window-bar .window-header {
+    position: static;
+    padding: 0 0.75ch;
+}
+
+/* Right side of the bar: entry count on the index, close tag on the reader */
+.window-meta {
+    padding: 0 0.75ch;
+    font-size: calc(var(--header-font-size) * 0.85);
+    letter-spacing: 2px;
+    line-height: 1;
+    white-space: nowrap;
+    color: #888888;
+}
+
+.window-meta:empty {
+    display: none;
+}
+
+.flicker-frame {
+    position: absolute;
+    top: var(--frame-top);
+    left: var(--corner-w);
+    right: var(--corner-w);
+    bottom: var(--corner-h);
+    /* Static scanlines over the panel tint */
+    background:
+        repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 3px),
+        var(--panel-bg);
+    /* The top edge is drawn by the title bar */
+    border: 1px solid var(--panel-border);
+    border-top: none;
+    box-sizing: border-box;
+    opacity: 0;
+}
+
+/* The frame stops one corner tick above the window's bottom edge; end the
+   scroll area there too, so long entries never show text below the frame */
+.flicker-window .window-content {
+    margin-bottom: var(--corner-h);
+    max-height: calc(var(--content-max-h) - var(--corner-h));
+}
+
+/* Corners sit diagonally outside the frame's corners: they flicker, they don't travel */
+.flicker-window .corner-tl { top: calc(var(--frame-top) - var(--corner-h)); }
+.flicker-window .corner-tr { top: calc(var(--frame-top) - var(--corner-h)); left: calc(100% - var(--corner-w)); }
+.flicker-window .corner-bl { top: calc(100% - var(--corner-h)); }
+.flicker-window .corner-br { left: calc(100% - var(--corner-w)); top: calc(100% - var(--corner-h)); }
+
+.flicker-window.is-open .window-bar {
+    opacity: 1;
+    animation: flicker-in 0.5s steps(1, end) both;
+}
+
+.flicker-window.is-open .window-meta {
+    pointer-events: auto;
+}
+
+.flicker-window.is-open .flicker-frame {
+    opacity: 1;
+    animation: crt-on 0.5s linear both;
+}
+
+.flicker-window.is-open .corner {
+    opacity: 1;
+    animation: flicker-in 0.5s steps(1, end) both;
+}
+
+.flicker-window.is-open .window-content {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    animation: glitch-in 0.45s steps(1, end) 0.35s both;
+}
+
+@keyframes crt-on {
+    0%   { opacity: 0;    transform: scale(0.6, 0.006); }
+    20%  { opacity: 1;    transform: scale(1, 0.006); }
+    45%  { opacity: 1;    transform: scale(1, 1); }
+    55%  { opacity: 0.35; }
+    62%  { opacity: 1; }
+    72%  { opacity: 0.6; }
+    80%  { opacity: 1; }
+    100% { opacity: 1;    transform: scale(1, 1); }
+}
+
+@keyframes flicker-in {
+    0%   { opacity: 0; }
+    40%  { opacity: 1; }
+    50%  { opacity: 0; }
+    60%  { opacity: 1; }
+    75%  { opacity: 0.3; }
+    85%  { opacity: 1; }
+    100% { opacity: 1; }
+}
+
+/* Jitter + red/cyan channel split, resolving to clean text */
+@keyframes glitch-in {
+    0%   { opacity: 0; }
+    15%  { opacity: 1;    transform: translateX(-3px); text-shadow: 2px 0 rgba(255, 60, 100, 0.55), -2px 0 rgba(60, 220, 255, 0.55); }
+    30%  { opacity: 0.25; transform: translateX(2px); }
+    45%  { opacity: 1;    transform: translateX(0);    text-shadow: -1px 0 rgba(255, 60, 100, 0.4), 1px 0 rgba(60, 220, 255, 0.4); }
+    60%  { opacity: 0.7;  text-shadow: none; }
+    100% { opacity: 1;    transform: none;            text-shadow: none; }
+}
+
+/* --- DOSSIER (reader content) --- */
+/* Replaced on every entry switch, so the glitch replays without any JS */
+.dossier {
+    max-width: 80ch;
+    margin: 0 auto;
+    animation: glitch-in 0.35s steps(1, end);
+}
+
+.dossier-close,
+.dossier-nav button {
+    padding: 0;
+    background: none;
+    border: none;
+    color: #888888;
+    font: inherit;
+    letter-spacing: inherit;
+    cursor: pointer;
+}
+
+.dossier-close:hover,
+.dossier-close:focus-visible,
+.dossier-nav button:hover,
+.dossier-nav button:focus-visible {
+    color: #ffffff;
+}
+
+/* Same focus ring as the index rows instead of the browser default */
+.dossier-close:focus-visible,
+.dossier-nav button:focus-visible {
+    outline: 1px dashed var(--panel-border);
+    outline-offset: 2px;
+}
+
+/* "[←]" in the reader's title bar on wide screens, "← INDEX" where the reader replaces the index */
+.close-compact {
+    display: none;
+}
+
+/* Label/value grid with dotted leaders: "YEAR ........ 2026" */
+.dossier-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 4ch;
+    row-gap: 0.4em;
+    margin: 0;
+    padding-bottom: 1em;
+    border-bottom: 1px solid var(--panel-border);
+}
+
+.dossier-field {
+    display: flex;
+    align-items: baseline;
+    min-width: 0;
+}
+
+.dossier-field dt {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    color: #888888;
+    letter-spacing: 1px;
+}
+
+.dossier-field dt::after {
+    content: '';
+    flex: 1;
+    min-width: 2ch;
+    margin: 0 1ch;
+    border-bottom: 1px dotted rgba(120, 120, 120, 0.5);
+    transform: translateY(-0.3em);
+}
+
+.dossier-field dd {
+    margin: 0;
+    color: #e8e8e8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dossier-body {
+    margin-top: 1.25em;
+    line-height: 1.7;
+}
+
+/* Previous / next entry */
+.dossier-nav {
+    display: flex;
+    gap: 2ch;
+    margin-top: 2em;
+    padding-top: 0.75em;
+    border-top: 1px solid var(--panel-border);
+    font-size: 0.85em;
+    letter-spacing: 1px;
+}
+
+/* One line each, truncated on narrow screens instead of wrapping */
+.dossier-nav button {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align: left;
+}
+
+.dossier-nav .nav-next {
+    margin-left: auto;
+    text-align: right;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .flicker-window.is-open .flicker-frame,
+    .flicker-window.is-open .window-bar,
+    .flicker-window.is-open .corner,
+    .flicker-window.is-open .window-content,
+    .dossier {
+        animation: none;
+    }
+}
+
+/* --- COMPACT LAYOUT --- */
+/* Matches compactQuery in js/menu.js: one window at a time, index first, then the reader */
+@media (max-width: 900px) {
+    /* Start just right of the crosshair's vertical line (x = 64.5) to give the text room */
+    #window-row {
+        left: 84px;
+        right: 16px;
+        bottom: 24px;
+    }
+
+    .term-window {
+        --row-inset: 118px; /* top (94) + compact bottom (24) */
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .window-content {
+        padding: 1.25em 1em;
+    }
+
+    /* Keyboard hints would wrap at this width; the position counter is enough */
+    .menu-keys {
+        display: none;
+    }
+
+    .menu-status {
+        justify-content: flex-end;
+    }
+
+    .close-wide {
+        display: none;
+    }
+
+    .close-compact {
+        display: inline;
+    }
+
+    .dossier-fields {
+        grid-template-columns: 1fr;
+    }
+
+    #window-row:not(.is-reading) #reader-window,
+    #window-row.is-reading #content-window {
+        display: none;
+    }
 }

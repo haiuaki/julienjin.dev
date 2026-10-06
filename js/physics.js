@@ -78,17 +78,12 @@ function resumePhysics(dramatic = false) {
 /* Leave a focused planet: close the window and pan the camera back home */
 function resetCamera() {
     document.body.classList.remove('planet-focused');
-    document.body.classList.remove('panel-opening');
+    closeAllWindows();
+    closeMenu();
 
     /* Clear sequence timers */
     uiTimeouts.forEach(clearTimeout);
     uiTimeouts = [];
-    uiIntervals.forEach(clearInterval);
-    uiIntervals = [];
-    
-    /* Clear the header text */
-    const windowHeader = document.getElementById('window-header');
-    if (windowHeader) windowHeader.innerHTML = '';
 
     document.querySelectorAll('.active-planet').forEach(el => el.classList.remove('active-planet'));
 

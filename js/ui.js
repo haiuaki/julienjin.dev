@@ -141,51 +141,29 @@ planetBtns.forEach(planet => {
         document.body.classList.add('planet-focused');
 
         /* Typewriter sequence */
-        const windowHeader = document.getElementById('window-header');
-        if (windowHeader) {
-            windowHeader.innerHTML = '';
-            document.body.classList.remove('panel-opening');
-            
-            const rawLabel = planet.getAttribute('data-label') || 'DATA';
-            const labelText = rawLabel.toUpperCase();
-            
-            /* Clear existing sequence timers */
-            if (typeof uiTimeouts !== 'undefined') {
-                uiTimeouts.forEach(clearTimeout);
-                uiTimeouts = [];
-            }
-            if (typeof uiIntervals !== 'undefined') {
-                uiIntervals.forEach(clearInterval);
-                uiIntervals = [];
-            }
+        closeAllWindows();
+        closeMenu();
 
-            /* Wait for camera sweep (1.5s) */
-            let t1 = setTimeout(() => {
-                let typeIndex = 0;
-                const typingInterval = setInterval(() => {
-                    if (typeIndex < labelText.length) {
-                        windowHeader.innerHTML = `${labelText.substring(0, typeIndex + 1)}█`;
-                        typeIndex++;
-                    } else {
-                        clearInterval(typingInterval);
-                        /* Hold for a split second */
-                        let t2 = setTimeout(() => {
-                            /* Drop cursor to new line */
-                            windowHeader.innerHTML = `${labelText}<br>█`;
-                            /* Trigger panel opening animation */
-                            let t3 = setTimeout(() => {
-                                windowHeader.innerHTML = `${labelText}<br>&nbsp;`;
-                                document.body.classList.add('panel-opening');
-                            }, 300);
-                            uiTimeouts.push(t3);
-                        }, 300);
-                        uiTimeouts.push(t2);
-                    }
-                }, 60);
-                uiIntervals.push(typingInterval);
-            }, 1000);
-            uiTimeouts.push(t1);
-        }
+        /* "[projects]" -> "PROJECTS": the window frame now encloses the title */
+        const rawLabel = planet.getAttribute('data-label') || 'DATA';
+        const labelText = rawLabel.replace(/^\[(.*)\]$/, '$1').toUpperCase();
+        const menuId = planet.dataset.menu;
+
+        /* Clear existing sequence timers */
+        uiTimeouts.forEach(clearTimeout);
+        uiTimeouts = [];
+
+        /* Wait for camera sweep (1.5s) */
+        let t1 = setTimeout(() => {
+            if (menuId) {
+                /* Hand over to the menu module (index window + reader) */
+                openMenu(menuId, labelText);
+            } else {
+                /* Standard behavior: open the main window with the planet label */
+                openWindow(document.getElementById('content-window'), labelText);
+            }
+        }, 1000);
+        uiTimeouts.push(t1);
 
     });
 });
@@ -245,3 +223,123 @@ function trackAllPositions(now) {
     });
 }
 requestAnimationFrame(trackAllPositions);
+
+/* --- TERMINAL WINDOWS --- */
+/* Each .term-window types its header, drops the cursor to a new line, then
+   splits that cursor block into its 4-corner frame (.is-open). Timers are kept
+   per window so the index and the reader can animate independently. */
+const windowTimers = new Map();
+
+const TYPE_INTERVAL = 60; /* Keystroke interval */
+const TYPE_HOLD = 300;    /* Pause before the cursor drops / the frame opens */
+
+function clearWindowTimers(win) {
+    /* Timeout and interval ids share one pool, so clearTimeout cancels both */
+    (windowTimers.get(win) || []).forEach(clearTimeout);
+    windowTimers.set(win, []);
+}
+
+/* Type text into a window's header, then run onDone */
+function typeHeader(win, text, onDone) {
+    const header = win.querySelector('.window-header');
+    const timers = windowTimers.get(win);
+    let typeIndex = 0;
+    const typing = setInterval(() => {
+        if (typeIndex < text.length) {
+            header.textContent = `${text.substring(0, typeIndex + 1)}█`;
+            typeIndex++;
+            return;
+        }
+        clearInterval(typing);
+        onDone(header);
+    }, TYPE_INTERVAL);
+    timers.push(typing);
+}
+
+/* Decode effect for flicker windows: letters lock in left to right out of
+   random glyphs, then the header settles on the label. Only letters scramble:
+   numbers and separators ("02 · ") stay fixed from the first frame. */
+const SCRAMBLE_GLYPHS = '!<>-_\\/[]{}=+*^?#%&$01';
+const SCRAMBLES = /[A-Z]/i;
+const SCRAMBLE_FRAME = 30;  /* ms per frame */
+const SCRAMBLE_FRAMES = 14; /* frames until the last character locks */
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+function scrambleHeader(win, text) {
+    const header = win.querySelector('.window-header');
+    if (reducedMotion.matches) {
+        header.textContent = text;
+        return;
+    }
+    let frame = 0;
+    const scramble = setInterval(() => {
+        frame++;
+        const locked = Math.floor(text.length * frame / SCRAMBLE_FRAMES);
+        let out = text.slice(0, locked);
+        for (let i = locked; i < text.length; i++) {
+            out += SCRAMBLES.test(text[i]) ? SCRAMBLE_GLYPHS[Math.random() * SCRAMBLE_GLYPHS.length | 0] : text[i];
+        }
+        header.textContent = out;
+        if (locked >= text.length) clearInterval(scramble);
+    }, SCRAMBLE_FRAME);
+    windowTimers.get(win).push(scramble);
+}
+
+/* Full sequence: type the label, drop the cursor, open the frame.
+   Flicker windows (data-open="flicker") instead power on at once
+   while their label decodes. */
+function openWindow(win, labelText) {
+    clearWindowTimers(win);
+    win.classList.remove('is-open');
+    win.querySelector('.window-header').textContent = '';
+
+    if (win.dataset.open === 'flicker') {
+        void win.offsetWidth; /* Restart the CSS power-on animations */
+        win.classList.add('is-open');
+        scrambleHeader(win, labelText);
+        return;
+    }
+
+    typeHeader(win, labelText, (header) => {
+        const timers = windowTimers.get(win);
+        timers.push(setTimeout(() => {
+            /* Drop cursor to new line */
+            header.textContent = `${labelText}\n█`;
+            timers.push(setTimeout(() => {
+                /* The cursor block becomes the corners: trigger the frame */
+                header.textContent = `${labelText}\n `;
+                win.classList.add('is-open');
+            }, TYPE_HOLD));
+        }, TYPE_HOLD));
+    });
+}
+
+/* Retype the header of an open window without replaying its frame */
+function retitleWindow(win, labelText) {
+    /* Still mid-sequence: cancelling its timers would leave the frame closed,
+       so restart the full open sequence with the new label instead */
+    if (!win.classList.contains('is-open')) {
+        openWindow(win, labelText);
+        return;
+    }
+    clearWindowTimers(win);
+    if (win.dataset.open === 'flicker') {
+        scrambleHeader(win, labelText);
+        return;
+    }
+    typeHeader(win, labelText, (header) => {
+        header.textContent = `${labelText}\n `;
+    });
+}
+
+function closeWindow(win) {
+    clearWindowTimers(win);
+    win.classList.remove('is-open');
+    win.querySelector('.window-header').textContent = '';
+    const meta = win.querySelector('.window-meta');
+    if (meta) meta.replaceChildren();
+}
+
+function closeAllWindows() {
+    document.querySelectorAll('.term-window').forEach(closeWindow);
+}
