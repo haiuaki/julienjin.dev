@@ -58,16 +58,19 @@ planetBtns.forEach(planet => {
         planet.classList.add('active-planet');
         floatingLabel.classList.add('active-planet');
 
-        /* Pause physics engine when a planet is focused */
-        isManuallyPaused = true;
-        sessionStorage.setItem('isManuallyPaused', 'true');
-        isPhysicsPaused = true;
-        solarSystem.classList.add('paused');
-        document.getAnimations().forEach(anim => {
-            if (anim.animationName === 'master-spin' || anim.animationName === 'master-anti-spin') {
-                anim.playbackRate = 0;
-            }
-        });
+        /* Freeze only this planet's orbit so it holds still in the corner. The rest
+           of the system is faded out, and time itself keeps running: focusing a
+           planet is not a time stop. */
+        const orbit = planet.closest('.orbit-ring');
+        focusedOrbitAnims = [...orbit.getAnimations(), ...planet.getAnimations()].filter(anim =>
+            CLOCK_ANIMATIONS.includes(anim.animationName)
+        );
+        focusedOrbitAnims.forEach(anim => { anim.playbackRate = 0; });
+        /* Restart any speed easing in progress without the frozen orbit */
+        animateSpeed(isPhysicsPaused ? 0 : 1);
+
+        /* The starfield drifts behind the open window */
+        setStarDrift(true);
 
         /* Calculate perspective scale to maintain uniform visual size */
         const rect = planet.getBoundingClientRect();

@@ -1,13 +1,24 @@
 let speedTransition;
-function animateSpeed(targetSpeed) {
-    cancelAnimationFrame(speedTransition);
-    
-    /* Filter active animations to orbital physics only */
-    const animations = document.getAnimations().filter(anim => 
-        anim.animationName === 'master-spin' || anim.animationName === 'master-anti-spin'
+
+/* Every animation driven by the orbit clock: rings and planets */
+const CLOCK_ANIMATIONS = ['master-spin', 'master-anti-spin'];
+
+function clockAnimations() {
+    return document.getAnimations().filter(anim =>
+        CLOCK_ANIMATIONS.includes(anim.animationName) && !focusedOrbitAnims.includes(anim)
     );
+}
+
+/* Ease clock animations (all by default) to targetSpeed, then call onDone.
+   Time-based (7% of the remaining gap per 60Hz frame) so it feels the same
+   on 60Hz and 120Hz displays. */
+function animateSpeed(targetSpeed, onDone, animations = clockAnimations()) {
+    cancelAnimationFrame(speedTransition);
+    let last = performance.now();
     
-    function step() {
+    function step(now = last) {
+        const ease = 1 - Math.pow(1 - 0.07, (now - last) / (1000 / 60));
+        last = now;
         let allDone = true;
         animations.forEach(anim => {
             const currentSpeed = anim.playbackRate;
@@ -18,50 +29,75 @@ function animateSpeed(targetSpeed) {
                 anim.playbackRate = targetSpeed;
             } else {
                 /* Apply ease-out deceleration to target speed */
-                anim.playbackRate = currentSpeed + (diff * 0.07);
+                anim.playbackRate = currentSpeed + (diff * ease);
                 allDone = false;
             }
         });
         
         if (!allDone) {
             speedTransition = requestAnimationFrame(step);
+        } else if (onDone) {
+            onDone();
         }
     }
     step();
 }
 
 /* Abstracted Physics Controls */
-function pausePhysics() {
+/* dramatic: time lurches backwards for a moment before locking still */
+function pausePhysics(dramatic = false) {
     if (isPhysicsPaused) return;
     pauseTimestamp = Date.now();
     sessionStorage.setItem('pauseTimestamp', pauseTimestamp);
     solarSystem.classList.add('paused');
     isPhysicsPaused = true;
-    
+
+    if (dramatic) {
+        cancelAnimationFrame(speedTransition);
+        clockAnimations().forEach(anim => { anim.playbackRate = -0.5; });
+    }
+
     /* Trigger WAAPI deceleration */
     animateSpeed(0);
 }
 
+/* dramatic: time surges past full speed before settling */
+function resumePhysics(dramatic = false) {
+    if (!isPhysicsPaused) return;
+    let pauseDuration = Date.now() - pauseTimestamp;
+    systemEpoch += pauseDuration;
+    sessionStorage.setItem('systemEpoch', systemEpoch);
+    solarSystem.classList.remove('paused');
+    isPhysicsPaused = false;
+
+    /* Trigger WAAPI acceleration */
+    if (dramatic) animateSpeed(1.6, () => animateSpeed(1));
+    else animateSpeed(1);
+}
+
+/* Leave a focused planet: close the window and pan the camera back home */
 function resetCamera() {
-    /* Reset camera pan if a planet was focused */
     document.body.classList.remove('planet-focused');
     document.body.classList.remove('panel-opening');
 
     /* Clear sequence timers */
-    if (typeof uiTimeouts !== 'undefined') {
-        uiTimeouts.forEach(clearTimeout);
-        uiTimeouts = [];
-    }
-    if (typeof uiIntervals !== 'undefined') {
-        uiIntervals.forEach(clearInterval);
-        uiIntervals = [];
-    }
+    uiTimeouts.forEach(clearTimeout);
+    uiTimeouts = [];
+    uiIntervals.forEach(clearInterval);
+    uiIntervals = [];
     
     /* Clear the header text */
     const windowHeader = document.getElementById('window-header');
     if (windowHeader) windowHeader.innerHTML = '';
 
     document.querySelectorAll('.active-planet').forEach(el => el.classList.remove('active-planet'));
+
+    /* Let the focused planet's orbit rejoin the others, unless time is halted */
+    const releasedOrbit = focusedOrbitAnims;
+    focusedOrbitAnims = [];
+    if (!isPhysicsPaused) animateSpeed(1, null, releasedOrbit);
+
+    setStarDrift(false);
     
     solarSystem.style.transition = 'margin 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
     solarSystem.style.marginLeft = '0px';
@@ -92,44 +128,16 @@ function resetCamera() {
     }
 }
 
-function resumePhysics() {
-    if (!isPhysicsPaused) return;
-    let pauseDuration = Date.now() - pauseTimestamp;
-    systemEpoch += pauseDuration;
-    sessionStorage.setItem('systemEpoch', systemEpoch);
-    solarSystem.classList.remove('paused');
-    isPhysicsPaused = false;
-    
-    resetCamera();
-
-    /* Trigger WAAPI acceleration */
-    animateSpeed(1);
-}
-
 /* Restore previous state on page load */
 if (isPhysicsPaused) {
     let runningTimeMs = pauseTimestamp - systemEpoch;
     document.documentElement.style.setProperty('--system-time', `-${runningTimeMs}ms`);
     solarSystem.classList.add('paused');
+    document.body.classList.add('time-halted');
     
     /* Force 0 playback rate if DOM parses in paused state */
-    document.getAnimations().forEach(anim => {
-        if (anim.animationName === 'master-spin' || anim.animationName === 'master-anti-spin') {
-            anim.playbackRate = 0;
-        }
-    });
+    clockAnimations().forEach(anim => { anim.playbackRate = 0; });
 } else {
     let runningTimeMs = Date.now() - systemEpoch;
     document.documentElement.style.setProperty('--system-time', `-${runningTimeMs}ms`);
 }
-
-/* Manual Sun Button Toggle */
-sunBtn.addEventListener('click', function() {
-    isManuallyPaused = !isManuallyPaused;
-    sessionStorage.setItem('isManuallyPaused', isManuallyPaused);
-    
-    if (isManuallyPaused) pausePhysics();
-    else resumePhysics();
-});
-
-

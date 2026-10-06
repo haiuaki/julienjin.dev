@@ -137,7 +137,59 @@ body {
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%) translateZ(0);
-    animation: sun-pulse 4s ease-in-out infinite;
+    /* Star point: a small bright core in a soft halo, fully faded at the edge */
+    background: radial-gradient(circle closest-side,
+        #ffffff 0%,
+        #ffffff 28%,
+        rgba(255, 255, 255, 0.85) 40%,
+        rgba(255, 255, 255, 0.25) 66%,
+        rgba(255, 255, 255, 0) 100%);
+    box-shadow: none;
+}
+
+/* Wider, fainter outer halo: a gradient too (a box-shadow would start at the
+   button's edge and leave a visible seam) */
+#sun-btn::before {
+    content: '';
+    position: absolute;
+    inset: -70%;
+    border-radius: 50%;
+    background: radial-gradient(circle closest-side, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0));
+    pointer-events: none;
+    transition: opacity 0.3s ease-out;
+    opacity: 0.8;
+}
+
+/* Lens streak: one long, soft horizontal flare through the core, like an
+   anamorphic film lens. Static; sized from the star, so it scales with the system. */
+.sun-streak {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s ease-out;
+}
+
+.sun-streak {
+    width: 700%;
+    height: 70%;
+    background:
+        /* Hairline core of the streak */
+        linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.9) 50%, rgba(255, 255, 255, 0)) center / 100% 1px no-repeat,
+        /* Soft elongated glow around it */
+        radial-gradient(ellipse closest-side, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0)) center / 100% 100% no-repeat;
+}
+
+/* Time halted: the streak retracts into the core and the halo dims */
+body.time-halted .sun-streak {
+    transform: translate(-50%, -50%) scaleX(0.1);
+    opacity: 0.5;
+}
+
+
+body.time-halted #sun-btn::before {
+    opacity: 0.35;
 }
 
 #main-nav {
@@ -210,20 +262,39 @@ body {
     will-change: transform;
     /* Spin counter to the orbit to keep the text/gradient facing up */
     animation: master-anti-spin var(--spin-duration) linear infinite, initial-fade-in 2.5s ease-in-out;
+
+    /* Star point: a companion star. A firm core (brighter and larger than any
+       background star) fading into a soft halo, with no streak, so the central
+       star keeps its rank. */
+    background: radial-gradient(circle closest-side,
+        #ffffff 0%,
+        #ffffff 45%,
+        rgba(255, 255, 255, 0.55) 62%,
+        rgba(255, 255, 255, 0.16) 85%,
+        rgba(255, 255, 255, 0.07) 100%);
+    /* Outer halo. A box-shadow, because a pseudo-element halo gets clipped at the
+       planet's own box inside the 3D orbit; it starts at the same faint value the
+       gradient ends on, so there is no seam. */
+    box-shadow: 0 0 10px 0 rgba(255, 255, 255, 0.14);
 }
 
 
 
 /* Hover Interaction */
-.planet-btn:hover {
-    box-shadow: 0 0 10px 2px rgba(250, 250, 250, 0.5), 
-                0 0 25px 6px rgba(250, 250, 250, 0.2);
+/* Hover brightens the halo */
+.planet-btn:hover,
+.planet-btn.is-hovered {
+    box-shadow: 0 0 14px 1px rgba(255, 255, 255, 0.3);
 }
 
+/* Hover brightens the outer halo */
 #sun-btn:hover {
-    animation: none;
-    box-shadow: 0 0 15px 3px rgba(250, 250, 250, 0.8), 
-                0 0 30px 8px rgba(250, 250, 250, 0.4);
+    box-shadow: none;
+}
+
+#sun-btn:hover::before {
+    opacity: 1;
+    background: radial-gradient(circle closest-side, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0));
 }
 
 /* Base Floating Label (Pure 2D Screenspace) */
@@ -290,18 +361,6 @@ body {
     100% { pointer-events: auto; }
 }
 
-/* 5. Center node idle animation */
-@keyframes sun-pulse {
-    0%, 100% {
-        box-shadow: 0 0 5px 1px rgba(250, 250, 250, 0.2), 
-                    0 0 10px 2px rgba(120, 120, 120, 0.4);
-    }
-    50% {
-        box-shadow: 0 0 15px 3px rgba(250, 250, 250, 0.6), 
-                    0 0 30px 8px rgba(120, 120, 120, 0.4);
-    }
-}
-
 
 /* --- 10. CAMERA FOCUS DIMMING EFFECT --- */
 
@@ -319,11 +378,11 @@ body {
                 box-shadow 0.3s ease-out;
 }
 
-/* Fade unselected elements during target focus */
+/* Fade the rest of the system behind the focused view; the starfield drifts instead (js/canvas.js) */
 body.planet-focused .orbit-ring::before,
 body.planet-focused #sun-btn,
-body.planet-focused #brand-logo,
 body.planet-focused .planet-btn:not(.active-planet),
+body.planet-focused #brand-logo,
 body.planet-focused .planet-label {
     opacity: 0 !important;
     pointer-events: none !important;
@@ -331,6 +390,7 @@ body.planet-focused .planet-label {
     transition-delay: 0.3s;
     transition-duration: 1.2s;
 }
+
 
 /* Fade out the active planet's label after the camera arrives (1.5s delay) */
 
@@ -354,6 +414,41 @@ body.planet-focused .planet-btn.active-planet {
     height: var(--active-planet-size) !important;
     top: var(--active-planet-offset) !important;
     left: calc(50% + var(--active-planet-offset)) !important;
+}
+
+
+/* --- TIME STATUS --- */
+#time-status {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: #888888;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+    z-index: 45;
+}
+
+/* Blinks on like a status light, then holds */
+body.time-halted #time-status {
+    opacity: 1;
+    animation: status-on 0.6s steps(1, end);
+}
+
+body.planet-focused #time-status {
+    opacity: 0;
+}
+
+@keyframes status-on {
+    0%   { opacity: 0; }
+    20%  { opacity: 1; }
+    40%  { opacity: 0; }
+    60%  { opacity: 1; }
+    80%  { opacity: 0.4; }
+    100% { opacity: 1; }
 }
 
 /* --- 11. TARGETING CROSSHAIRS --- */

@@ -27,8 +27,10 @@
         <!-- Main coordinate anchor -->
         <div id="solar-system">
 
-            <!-- Interactive sun / start trigger -->
-			<button id="sun-btn" class="circle-btn size-large bg-theme"></button>
+            <!-- Interactive sun / time switch: a star with a lens streak that retracts when time halts -->
+            <button id="sun-btn" class="circle-btn size-large" aria-label="Halt or resume time">
+                <span class="sun-streak"></span>
+            </button>
 
             <!-- Orbital navigation rings -->
             <nav id="main-nav">
@@ -67,6 +69,9 @@
         <button id="return-home-btn" class="circle-btn size-large bg-theme"></button>
     </div>
 
+    <!-- --- TIME STATUS --- -->
+    <div id="time-status" aria-live="polite">[ TIME HALTED ]</div>
+
     <!-- CONTENT WINDOW (BOUNDING BOX) -->
     <div id="content-window">
         <div id="window-header"></div>
@@ -91,6 +96,7 @@
     <script src="js/canvas.js"></script>
     <script src="js/camera.js"></script>
     <script src="js/physics.js"></script>
+    <script src="js/timestop.js"></script>
     <script src="js/ui.js"></script>
 
 </body>
