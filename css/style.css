@@ -811,8 +811,9 @@ body.planet-focused .window-header {
 
 /* Keyboard hints are noise on touch-only devices */
 @media (hover: none) {
-    .menu-keys {
-        visibility: hidden;
+    .menu-keys,
+    .menu-keys > [data-hint] {
+        visibility: hidden !important;
     }
 }
 
@@ -1117,9 +1118,52 @@ body.planet-focused .window-header {
     color: #888888;
 }
 
-/* Previous / next entry */
+/* Key hints stack in one cell: the line keeps the longest hint's width */
+.menu-keys {
+    display: inline-grid;
+}
+
+.menu-keys > [data-hint] {
+    grid-area: 1 / 1;
+    visibility: hidden;
+}
+
+.menu-keys[data-state="browse"] > [data-hint="browse"],
+.menu-keys[data-state="reading"] > [data-hint="reading"],
+.menu-keys[data-state="reader"] > [data-hint="reader"] {
+    visibility: visible;
+}
+
+/* Pane focus: while the reader has the keyboard, the index dims and the
+   reader's frame brightens */
+#content-window,
+#reader-window .flicker-frame {
+    transition: opacity 0.2s ease-out, border-color 0.2s ease-out;
+}
+
+#window-row.focus-reader #content-window {
+    opacity: 0.45;
+}
+
+#window-row.focus-reader #reader-window .flicker-frame,
+#window-row.focus-reader #reader-window .bar-line {
+    border-color: rgba(200, 200, 200, 0.65);
+}
+
+#window-row.focus-reader #reader-window .bar-line {
+    background: rgba(200, 200, 200, 0.65);
+}
+
+/* The frame shows focus; no outline around the scroll area */
+#reader-window .window-content:focus {
+    outline: none;
+}
+
+/* Previous | ← INDEX | next */
 .dossier-nav {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: baseline;
     gap: 2ch;
     margin-top: 2em;
     padding-top: 0.75em;
@@ -1137,9 +1181,38 @@ body.planet-focused .window-header {
     text-align: left;
 }
 
+.dossier-nav .nav-prev {
+    justify-self: start;
+}
+
 .dossier-nav .nav-next {
-    margin-left: auto;
+    justify-self: end;
     text-align: right;
+}
+
+.nav-hint {
+    display: inline-grid;
+    justify-items: center;
+    color: #666666;
+}
+
+.nav-hint > span {
+    grid-area: 1 / 1;
+}
+
+/* Keyboard reader at the end: "END · ↓ NEXT · ← INDEX" replaces "← INDEX" */
+.nav-hint .hint-end {
+    visibility: hidden;
+}
+
+#window-row.focus-reader #reader-window.at-end .hint-reading {
+    visibility: hidden;
+}
+
+#window-row.focus-reader #reader-window.at-end .hint-end {
+    visibility: visible;
+    color: #cccccc;
+    animation: status-on 0.6s steps(1, end);
 }
 
 @media (prefers-reduced-motion: reduce) {

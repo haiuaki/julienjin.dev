@@ -68,7 +68,17 @@ const readerMeta = readerWindow.querySelector('.window-meta');
 
 /* id: open menu key, index: selected entry (-1 = none), reading: reader open,
    els: rendered index nodes */
-const menuState = { id: null, index: -1, reading: false, els: null };
+const menuState = { id: null, index: -1, reading: false, els: null, pane: 'index' };
+
+/* The reader can take keyboard focus, so arrows / Space / Page keys scroll it natively */
+readerContent.tabIndex = -1;
+
+/* Key hints for each state of the index + reader pair */
+const KEY_HINTS = {
+    browse: '↑↓ SELECT · → OPEN · ← BACK',
+    reading: '↑↓ SELECT · → READ · ← CLOSE',
+    reader: '↑↓ SCROLL · SPACE PAGE · ← INDEX',
+};
 
 /* --- RENDERING --- */
 
@@ -99,7 +109,16 @@ function buildIndex(menu) {
 
     const count = createEl('span', 'menu-count');
     const status = createEl('div', 'menu-status');
-    status.append(createEl('span', 'menu-keys', '↑↓ SELECT · → OPEN · ← BACK'), count);
+    /* All hints share one grid cell and only the active one shows, so the line
+       always reserves the longest hint's width and the window never resizes */
+    const keys = createEl('span', 'menu-keys');
+    keys.dataset.state = 'browse';
+    Object.entries(KEY_HINTS).forEach(([state, text]) => {
+        const hint = createEl('span', null, text);
+        hint.dataset.hint = state;
+        keys.appendChild(hint);
+    });
+    status.append(keys, count);
 
     /* Column headers share the row layout so they line up with the entries */
     const columns = createEl('div', 'menu-columns');
@@ -141,9 +160,21 @@ function buildDossier(menu, i) {
         btn.dataset.index = j;
         return btn;
     };
-    /* ↑ / ↓ match the keys that switch entries (← closes the reader) */
-    if (i > 0) nav.appendChild(navButton(i - 1, 'nav-prev', `↑ ${pad(i)} ${menu.entries[i - 1].title}`));
-    if (i < total - 1) nav.appendChild(navButton(i + 1, 'nav-next', `${pad(i + 2)} ${menu.entries[i + 1].title} ↓`));
+    /* Previous | ← INDEX hint | next. No arrow keys on the links: in the reader
+       ↑/↓ scroll, and ← is the key that leads back to the index. */
+    /* The middle hint changes once a keyboard reader reaches the end, to say
+       what ↓ does next; both texts share one cell so the row never shifts */
+    const entryLabel = j => `${pad(j + 1)} ${menu.entries[j].title}`;
+    const hint = createEl('span', 'nav-hint');
+    hint.append(
+        createEl('span', 'hint-reading', '← INDEX'),
+        createEl('span', 'hint-end', i < total - 1 ? 'END · ↓ NEXT · ← INDEX' : 'END · ← INDEX'),
+    );
+    nav.append(
+        i > 0 ? navButton(i - 1, 'nav-prev', entryLabel(i - 1)) : createEl('span'),
+        hint,
+        i < total - 1 ? navButton(i + 1, 'nav-next', entryLabel(i + 1)) : createEl('span'),
+    );
 
     const dossier = createEl('article', 'dossier');
     if (fields.children.length) dossier.append(fields);
@@ -230,13 +261,49 @@ function selectEntry(i) {
 
 /* Show an entry in the reader: the first open plays the full window sequence,
    later switches only retype the title and swap the content */
-function openEntry(i) {
+/* --- PANE FOCUS --- */
+/* With the reader open on wide screens, keys act on one pane at a time:
+   the index (↑/↓ switch entries) or the reader (↑/↓ scroll the text).
+   → moves into the reader, ← back out; clicking a pane focuses it too. */
+function setPane(pane) {
+    menuState.pane = pane;
+    windowRow.classList.toggle('focus-reader', pane === 'reader');
+    const keys = indexContent.querySelector('.menu-keys');
+    if (keys) keys.dataset.state = pane === 'reader' ? 'reader' : menuState.reading ? 'reading' : 'browse';
+}
+
+/* Reader scrolled to its top / end (a short entry is both) */
+const readerAtTop = () => readerContent.scrollTop <= 1;
+const readerAtEnd = () => readerContent.scrollTop + readerContent.clientHeight >= readerContent.scrollHeight - 2;
+
+function updateReaderEnd() {
+    readerWindow.classList.toggle('at-end', menuState.reading && readerAtEnd());
+}
+readerContent.addEventListener('scroll', updateReaderEnd, { passive: true });
+
+function focusReader() {
+    setPane('reader');
+    readerContent.focus({ preventScroll: true });
+}
+
+function focusIndex() {
+    setPane('index');
+    const btn = menuButtons()[menuState.index];
+    if (btn) btn.focus({ preventScroll: true });
+}
+
+/* stayInReader: opened from inside the reader (previous / next links, or
+   ↑/↓ at its edges), so keyboard focus stays there; from the index it stays
+   on the index. atEnd: open scrolled to the end, so ↑ at the top of an entry
+   lands where the previous one was left, as if they were one document. */
+function openEntry(i, stayInReader = false, atEnd = false) {
     const menu = MENUS[menuState.id];
     const entry = menu.entries[i];
     selectEntry(i);
 
     readerContent.replaceChildren(buildDossier(menu, i));
-    readerContent.scrollTop = 0;
+    readerContent.scrollTop = atEnd ? readerContent.scrollHeight : 0;
+    updateReaderEnd();
 
     if (menuState.reading) {
         retitleWindow(readerWindow, entryTitle(entry, i));
@@ -249,13 +316,15 @@ function openEntry(i) {
         readerMeta.replaceChildren(buildCloseButton());
     }
 
-    /* Compact: the reader replaced the index, so move focus into it */
-    if (compactQuery.matches) readerMeta.querySelector('.dossier-close').focus({ preventScroll: true });
+    /* Compact: the reader replaced the index, so it takes focus */
+    if (compactQuery.matches || stayInReader) focusReader();
+    else setPane('index');
 }
 
 /* Close the reader and return focus to the selected entry */
 function closeEntry() {
     menuState.reading = false;
+    setPane('index');
     windowRow.classList.remove('is-reading');
     closeWindow(readerWindow);
     readerContent.replaceChildren();
@@ -269,7 +338,8 @@ function closeMenu() {
     menuState.index = -1;
     menuState.reading = false;
     menuState.els = null;
-    windowRow.classList.remove('is-reading');
+    menuState.pane = 'index';
+    windowRow.classList.remove('is-reading', 'focus-reader');
     indexWindow.classList.remove('is-page');
     indexContent.replaceChildren();
     readerContent.replaceChildren();
@@ -277,11 +347,34 @@ function closeMenu() {
 
 /* --- INPUT --- */
 
+/* Clicking (or tabbing) into a pane makes it the active one */
+readerWindow.addEventListener('focusin', () => {
+    if (menuState.reading && menuState.pane !== 'reader') setPane('reader');
+});
+indexContent.addEventListener('focusin', () => {
+    if (menuState.els && menuState.pane !== 'index') setPane('index');
+});
+/* The pane you click is the pane you're in. A press anywhere in a window
+   (padding and plain text included) moves keyboard focus there; controls
+   then do their own thing on click. */
+readerWindow.addEventListener('mousedown', (e) => {
+    if (menuState.reading && !e.target.closest('button, a')) focusReader();
+});
+indexWindow.addEventListener('mousedown', (e) => {
+    if (!menuState.reading || !menuState.els || e.target.closest('button')) return;
+    /* Keep the browser from moving focus to the page after we focus the row */
+    e.preventDefault();
+    focusIndex();
+});
+
 /* One delegated listener per window */
 indexContent.addEventListener('click', (e) => {
     if (!menuState.id) return;
     const btn = e.target.closest('[data-index]');
-    if (btn) openEntry(+btn.dataset.index);
+    if (!btn) return;
+    openEntry(+btn.dataset.index);
+    /* Safari doesn't focus buttons on click; do it so the keys follow */
+    btn.focus({ preventScroll: true });
 });
 
 /* Reader: close tag in the title bar, plus previous / next entry links */
@@ -292,19 +385,25 @@ readerWindow.addEventListener('click', (e) => {
         return;
     }
     const btn = e.target.closest('[data-index]');
-    if (btn) openEntry(+btn.dataset.index);
+    if (btn) openEntry(+btn.dataset.index, true);
 });
 
-/* File-browser keys: ↑/↓ move the selection (and the reader along with it
-   once it is open on wide screens), →/Enter open, ← steps back: reader
-   first, then out to the solar system. Esc does the same as ← but is only a
-   fallback: in page-triggered fullscreen the browser takes Esc to exit. */
+/* File-browser keys. Index pane: ↑/↓ move the selection (and the open entry
+   along with it), → opens, then → again moves into the reader. Reader pane:
+   ↑/↓, Space and Page Up/Down scroll natively, ← returns to the index.
+   ← / Esc step back: reader pane, then the open entry, then out to the
+   solar system. Esc is only a fallback: in page-triggered fullscreen the
+   browser takes it to exit. */
+const PAGE_KEYS = [' ', 'PageDown', 'PageUp'];
+
 document.addEventListener('keydown', (e) => {
     if (!menuState.id) return;
+    const inReader = menuState.reading && (menuState.pane === 'reader' || compactQuery.matches);
 
     if (e.key === 'ArrowLeft' || e.key === 'Escape') {
         e.preventDefault();
-        if (menuState.reading) closeEntry();
+        if (inReader && !compactQuery.matches) focusIndex();
+        else if (menuState.reading) closeEntry();
         else resetCamera();
         return;
     }
@@ -312,15 +411,38 @@ document.addEventListener('keydown', (e) => {
     /* Single-page windows have nothing to select */
     if (!menuState.els) return;
 
+    /* Reader pane: the focused reader scrolls itself. A fresh ↓ at the very
+       end (or ↑ at the top) continues to the next (previous) entry; key
+       repeat never does, so holding ↓ to scroll stops at the end. */
+    if (inReader) {
+        const last = MENUS[menuState.id].entries.length - 1;
+        if (e.repeat || (e.key !== 'ArrowDown' && e.key !== 'ArrowUp')) return;
+        if (e.key === 'ArrowDown' && readerAtEnd() && menuState.index < last) {
+            e.preventDefault();
+            openEntry(menuState.index + 1, true);
+        } else if (e.key === 'ArrowUp' && readerAtTop() && menuState.index > 0) {
+            e.preventDefault();
+            openEntry(menuState.index - 1, true, true);
+        }
+        return;
+    }
+
     if (e.key === 'ArrowRight') {
         e.preventDefault();
-        if (!menuState.reading) openEntry(Math.max(menuState.index, 0));
+        if (menuState.reading) focusReader();
+        else openEntry(Math.max(menuState.index, 0));
+        return;
+    }
+
+    /* From the index, Space / Page keys still scroll the open entry */
+    if (PAGE_KEYS.includes(e.key) && menuState.reading) {
+        e.preventDefault();
+        const dir = e.key === 'PageUp' || (e.key === ' ' && e.shiftKey) ? -1 : 1;
+        readerContent.scrollBy({ top: dir * readerContent.clientHeight * 0.85, behavior: 'smooth' });
         return;
     }
 
     if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
-    /* Compact reader replaces the index: leave arrow keys to scroll the entry */
-    if (compactQuery.matches && menuState.reading) return;
     e.preventDefault();
 
     const buttons = menuButtons();
