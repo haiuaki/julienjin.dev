@@ -1,14 +1,25 @@
-const planetBtns = document.querySelectorAll('.planet-btn');
+const astreBtns = document.querySelectorAll('.astre-btn');
 const crossX = document.getElementById('crosshair-x');
 const crossY = document.getElementById('crosshair-y');
 
 /* Planet/label pairs updated by the single shared rAF loop */
 const trackers = [];
 /* Labels finish fading out 1.5s after focus (0.3s delay + 1.2s fade); stop tracking after that */
-const LABEL_FADE_MS = 1600;
+const LABEL_FADE_MS = 800;
 let labelsHiddenAt = Infinity;
 
-planetBtns.forEach(planet => {
+/* Crosshair return after leaving a planet: the astre starts in the corner,
+   right under the crosshairs, so they simply stay locked on its live position
+   as the camera carries it home and its orbit starts moving again, until
+   they have faded out */
+const RETURN_FADE_END_MS = 950; /* matches the delayed opacity fade in resetCamera() */
+let returnSweep = null;
+
+function startReturnSweep(planet) {
+    returnSweep = { planet, t0: performance.now() };
+}
+
+astreBtns.forEach(planet => {
     /* Retrieve label string from dataset */
     const labelText = planet.getAttribute('data-label');
     if (!labelText) return;
@@ -22,6 +33,8 @@ planetBtns.forEach(planet => {
     /* Hover triggers for dynamic crosshair tracking */
     planet.addEventListener('mouseenter', () => {
         if (!document.body.classList.contains('planet-focused')) {
+            /* Hovering takes the crosshairs over from a return sweep */
+            returnSweep = null;
             planet.classList.add('is-hovered');
             document.body.classList.add('crosshairs-active');
 
@@ -99,29 +112,25 @@ planetBtns.forEach(planet => {
         const dy = targetY - planetY;
 
         /* Reset container margins */
-        solarSystem.style.transition = 'margin 1.0s cubic-bezier(0.25, 1, 0.5, 1)';
+        solarSystem.style.transition = `margin ${FOCUS_PAN_MS}ms ${CAMERA_EASE}`;
         solarSystem.style.marginLeft = '0px';
         solarSystem.style.marginTop = '0px';
 
         /* Apply transforms to space container */
         const spaceContainer = document.getElementById('space-container');
-        spaceContainer.style.transition = 'transform 1.0s cubic-bezier(0.25, 1, 0.5, 1)';
+        spaceContainer.style.transition = `transform ${FOCUS_PAN_MS}ms ${CAMERA_EASE}`;
         spaceContainer.style.transform = `translate(${dx}px, ${dy}px) scale(1)`;
 
         /* Apply fractional translation to starfield for parallax effect */
         const starfield = document.getElementById('starfield');
         if (starfield) {
+            /* Same duration as the pan, so the parallax doesn't trail behind it */
+            starfield.style.transition = `transform ${FOCUS_PAN_MS}ms ${CAMERA_EASE}`;
             starfield.style.transform = `translate(${dx * 0.15}px, ${dy * 0.15}px) scale(1)`;
         }
 
         /* Set crosshair positions and sweep them to the target coordinates */
         if (crossX && crossY) {
-            /* Store origin coordinates to allow crosshairs to return home */
-            crossX.dataset.originY = planetY;
-            crossY.dataset.originX = planetX;
-            crossX.dataset.baseOriginY = planetY;
-            crossY.dataset.baseOriginX = planetX;
-
             /* Disable crosshair active class (opacity is inherited by planet-focused) */
             document.body.classList.remove('crosshairs-active');
 
@@ -130,8 +139,8 @@ planetBtns.forEach(planet => {
 
             void crossX.offsetWidth; /* Force synchronous layout recalculation */
 
-            crossX.style.transition = 'transform 1.0s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease-out';
-            crossY.style.transition = 'transform 1.0s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease-out';
+            crossX.style.transition = `transform ${FOCUS_PAN_MS}ms ${CAMERA_EASE}, opacity 0.2s ease-out`;
+            crossY.style.transition = `transform ${FOCUS_PAN_MS}ms ${CAMERA_EASE}, opacity 0.2s ease-out`;
             crossX.style.transform = `translate3d(0, ${crosshairPos(targetY)}px, 0)`;
             crossY.style.transform = `translate3d(${crosshairPos(targetX)}px, 0, 0)`;
         }
@@ -153,7 +162,7 @@ planetBtns.forEach(planet => {
         uiTimeouts.forEach(clearTimeout);
         uiTimeouts = [];
 
-        /* Wait for camera sweep (1.5s) */
+        /* Open the window as the camera settles */
         let t1 = setTimeout(() => {
             if (menuId) {
                 /* Hand over to the menu module (index window + reader) */
@@ -162,7 +171,7 @@ planetBtns.forEach(planet => {
                 /* Standard behavior: open the main window with the planet label */
                 openWindow(document.getElementById('content-window'), labelText);
             }
-        }, 1000);
+        }, WINDOW_OPEN_MS);
         uiTimeouts.push(t1);
 
     });
@@ -214,6 +223,13 @@ function trackAllPositions(now) {
         const LABEL_OFFSET = screenRadius + 8;
         /* Drive position exclusively via transform — no left/top writes (same as crosshairs) */
         t.label.style.transform = `translate3d(${planetX + dx * LABEL_OFFSET}px, ${planetY + dy * LABEL_OFFSET}px, 0) translate(${xPercent}%, ${yPercent}%)`;
+
+        /* Return: stay locked on the astre as it travels home, until faded */
+        if (!focused && returnSweep && returnSweep.planet === t.planet && crossX && crossY) {
+            crossX.style.transform = `translate3d(0, ${crosshairPos(planetY)}px, 0)`;
+            crossY.style.transform = `translate3d(${crosshairPos(planetX)}px, 0, 0)`;
+            if (now - returnSweep.t0 > RETURN_FADE_END_MS) returnSweep = null;
+        }
 
         /* Dynamically update crosshairs if hovered */
         if (!focused && crossX && crossY && t.planet.classList.contains('is-hovered')) {
@@ -334,7 +350,7 @@ function retitleWindow(win, labelText) {
 
 function closeWindow(win) {
     clearWindowTimers(win);
-    win.classList.remove('is-open');
+    win.classList.remove('is-open', 'is-quiet');
     win.querySelector('.window-header').textContent = '';
     const meta = win.querySelector('.window-meta');
     if (meta) meta.replaceChildren();

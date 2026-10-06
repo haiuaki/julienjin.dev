@@ -33,6 +33,17 @@ function crosshairPos(center) {
     return Math.round((center - 0.5) * dpr) / dpr;
 }
 
+/* --- MOTION TIMINGS --- */
+/* One place for the camera choreography. Entering a planet is a deliberate
+   move; leaving is ~15% quicker. Each step starts while the previous one is
+   settling (the ease-out curve is ~90% done at 60% of its time), so nothing
+   waits on a motion the eye already reads as finished. */
+const CAMERA_EASE = 'cubic-bezier(0.25, 1, 0.5, 1)';
+const FOCUS_PAN_MS = 800;   /* planet + system slide to the corner */
+const WINDOW_OPEN_MS = 500; /* windows start opening as the pan settles */
+const RETURN_PAN_MS = 700;  /* back home */
+const HOME_RETURN_MS = 420; /* home window fades in as the return settles */
+
 /* UI Animation Trackers */
 let uiTimeouts = [];
 

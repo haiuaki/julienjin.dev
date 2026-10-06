@@ -33,15 +33,13 @@ function recalculateCameraFocus() {
     void spaceContainer.offsetWidth; /* Force reflow */
 
     /* Restore camera transition styles */
-    spaceContainer.style.transition = 'transform 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
-    if (starfield) starfield.style.transition = 'transform 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
+    spaceContainer.style.transition = `transform ${FOCUS_PAN_MS}ms ${CAMERA_EASE}`;
+    if (starfield) starfield.style.transition = `transform ${FOCUS_PAN_MS}ms ${CAMERA_EASE}`;
 
-    /* Update the crosshair origins so they return to the correctly resized center */
+    /* Keep the crosshairs locked on the focus target after the resize */
     const crossX = document.getElementById('crosshair-x');
     const crossY = document.getElementById('crosshair-y');
     if (crossX && crossY) {
-        crossX.dataset.originY = planetY;
-        crossY.dataset.originX = planetX;
         /* Snap crosshairs to the target position after camera recalculation */
         crossX.style.transform = `translate3d(0, ${crosshairPos(targetY)}px, 0)`;
         crossY.style.transform = `translate3d(${crosshairPos(targetX)}px, 0, 0)`;

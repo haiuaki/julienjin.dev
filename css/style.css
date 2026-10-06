@@ -218,7 +218,7 @@ body.time-halted #sun-btn::before {
     animation: initial-fade-in 2.5s ease-in-out;
 }
 
-.planet-btn {
+.astre-btn {
     position: absolute;
     top: calc(var(--planet-size) / -2);
     left: calc(50% - (var(--planet-size) / 2));
@@ -257,8 +257,8 @@ body.time-halted #sun-btn::before {
 
 /* Hover Interaction */
 /* Hover brightens the halo */
-.planet-btn:hover,
-.planet-btn.is-hovered {
+.astre-btn:hover,
+.astre-btn.is-hovered {
     box-shadow: 0 0 14px 1px rgba(255, 255, 255, 0.3);
 }
 
@@ -346,7 +346,7 @@ body.time-halted #sun-btn::before {
     transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease-out;
 }
 
-.planet-btn {
+.astre-btn {
     transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1), 
                 scale 1.5s cubic-bezier(0.25, 1, 0.5, 1), 
                 box-shadow 0.3s ease-out;
@@ -355,34 +355,34 @@ body.time-halted #sun-btn::before {
 /* Fade the rest of the system behind the focused view; the starfield drifts instead (js/canvas.js) */
 body.planet-focused .orbit-ring::before,
 body.planet-focused #sun-btn,
-body.planet-focused .planet-btn:not(.active-planet),
+body.planet-focused .astre-btn:not(.active-planet),
 body.planet-focused .planet-label {
     opacity: 0 !important;
     pointer-events: none !important;
     transition-property: opacity !important;
-    transition-delay: 0.3s;
-    transition-duration: 1.2s;
+    transition-delay: 0.1s;
+    transition-duration: 0.6s;
 }
 
 
 /* Fade out the active planet's label after the camera arrives (1.5s delay) */
 
 /* Void Transition: Expand shadow and fade out active planet */
-.planet-btn.void-transition {
+.astre-btn.void-transition {
     /* Expand box-shadow */
     box-shadow: 0 0 50px 20px rgba(250, 250, 250, 1), 0 0 100px 40px rgba(250, 250, 250, 0.5) !important;
     /* Fade opacity to 0 */
     opacity: 0 !important;
     pointer-events: none !important;
-    transition-delay: 0.3s;
-    transition-duration: 1.2s;
+    transition-delay: 0.1s;
+    transition-duration: 0.6s;
     
     /* Transition opacity and box-shadow */
     transition: opacity 0.8s ease-out, box-shadow 0.8s ease-out !important;
 }
 
 
-body.planet-focused .planet-btn.active-planet {
+body.planet-focused .astre-btn.active-planet {
     width: var(--active-planet-size) !important;
     height: var(--active-planet-size) !important;
     top: var(--active-planet-offset) !important;
@@ -479,6 +479,19 @@ body.planet-focused #crosshair-y {
     #home-window .window-content {
         min-width: 48ch;
     }
+}
+
+/* Quiet open (returning home): one short fade instead of the power-on */
+.flicker-window.is-quiet.is-open .flicker-frame,
+.flicker-window.is-quiet.is-open .window-bar,
+.flicker-window.is-quiet.is-open .corner,
+.flicker-window.is-quiet.is-open .window-content {
+    animation: quiet-in 0.2s ease-out both;
+}
+
+@keyframes quiet-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 /* --- CONTENT WINDOWS --- */
@@ -908,7 +921,7 @@ body.planet-focused .window-header {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    animation: glitch-in 0.45s steps(1, end) 0.35s both;
+    animation: glitch-in 0.45s steps(1, end) 0.25s both;
 }
 
 @keyframes crt-on {

@@ -77,6 +77,7 @@ function resumePhysics(dramatic = false) {
 
 /* Leave a focused planet: close the window and pan the camera back home */
 function resetCamera() {
+    const returningPlanet = document.querySelector('.astre-btn.active-planet');
     document.body.classList.remove('planet-focused');
     closeAllWindows();
     closeMenu();
@@ -94,18 +95,20 @@ function resetCamera() {
 
     setStarDrift(false);
 
-    /* The home window comes back once the camera has returned */
-    uiTimeouts.push(setTimeout(openHome, 1000));
+    /* The home window fades back in as the camera finishes its return */
+    uiTimeouts.push(setTimeout(openHome, HOME_RETURN_MS));
     
-    solarSystem.style.transition = 'margin 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
+    solarSystem.style.transition = `margin ${RETURN_PAN_MS}ms ${CAMERA_EASE}`;
     solarSystem.style.marginLeft = '0px';
     solarSystem.style.marginTop = '0px';
 
     const spaceContainer = document.getElementById('space-container');
+    spaceContainer.style.transition = `transform ${RETURN_PAN_MS}ms ${CAMERA_EASE}`;
     spaceContainer.style.transform = 'translate(0px, 0px) scale(1)';
 
     const starfield = document.getElementById('starfield');
     if (starfield) {
+        starfield.style.transition = `transform ${RETURN_PAN_MS}ms ${CAMERA_EASE}`;
         starfield.style.transform = 'translate(0px, 0px) scale(1)';
     }
 
@@ -113,16 +116,15 @@ function resetCamera() {
     document.querySelectorAll('.is-hovered').forEach(el => el.classList.remove('is-hovered'));
     document.body.classList.remove('crosshairs-active');
 
-    /* Sweep crosshairs back to origin */
+    /* Keep the crosshairs locked on the astre as it travels home: the tracking
+       loop in js/ui.js drives their position each frame, so only opacity
+       transitions here (fading out as it arrives) */
     const crossX = document.getElementById('crosshair-x');
     const crossY = document.getElementById('crosshair-y');
-    if (crossX && crossY && crossX.dataset.originY && crossY.dataset.originX) {
-        /* Use a 1s delay on opacity so it fades out exactly as it arrives */
-        crossX.style.transition = 'transform 1.0s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease-out 1s';
-        crossY.style.transition = 'transform 1.0s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease-out 1s';
-        
-        crossX.style.transform = `translate3d(0, ${crosshairPos(+crossX.dataset.originY)}px, 0)`;
-        crossY.style.transform = `translate3d(${crosshairPos(+crossY.dataset.originX)}px, 0, 0)`;
+    if (crossX && crossY && returningPlanet) {
+        crossX.style.transition = 'opacity 0.35s ease-out 0.6s';
+        crossY.style.transition = 'opacity 0.35s ease-out 0.6s';
+        startReturnSweep(returningPlanet);
     }
 }
 
