@@ -201,7 +201,7 @@ function buildPage(id, menu) {
     if (fields.children.length) page.append(fields);
     const body = createEl('div', 'dossier-body');
     const template = document.getElementById(`page-${id}`);
-    if (template) body.appendChild(template.content.cloneNode(true));
+    if (template) body.appendChild(markExternalLinks(template.content.cloneNode(true)));
     page.append(body);
     return page;
 }
@@ -209,7 +209,7 @@ function buildPage(id, menu) {
 /* Clone an entry's template body, or a placeholder if it has none yet */
 function cloneEntryContent(entry) {
     const template = document.getElementById(`entry-${entry.id}`);
-    if (template) return template.content.cloneNode(true);
+    if (template) return markExternalLinks(template.content.cloneNode(true));
     return createEl('p', 'term-line', '// no data');
 }
 
@@ -232,6 +232,7 @@ function openMenu(id, label) {
     menuState.id = id;
     menuState.index = -1;
     menuState.reading = false;
+    syncRoute(id, null);
 
     if (menu.page) {
         menuState.els = null;
@@ -301,6 +302,7 @@ function openEntry(i, stayInReader = false, atEnd = false) {
     const entry = menu.entries[i];
     selectEntry(i);
 
+    syncRoute(menuState.id, entry.id);
     readerContent.replaceChildren(buildDossier(menu, i));
     readerContent.scrollTop = atEnd ? readerContent.scrollHeight : 0;
     updateReaderEnd();
@@ -323,6 +325,7 @@ function openEntry(i, stayInReader = false, atEnd = false) {
 
 /* Close the reader and return focus to the selected entry */
 function closeEntry() {
+    syncRoute(menuState.id, null);
     menuState.reading = false;
     setPane('index');
     windowRow.classList.remove('is-reading');

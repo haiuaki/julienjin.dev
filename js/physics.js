@@ -77,6 +77,7 @@ function resumePhysics(dramatic = false) {
 
 /* Leave a focused planet: close the window and pan the camera back home */
 function resetCamera() {
+    syncRoute(null, null);
     const returningPlanet = document.querySelector('.astre-btn.active-planet');
     document.body.classList.remove('planet-focused');
     closeAllWindows();

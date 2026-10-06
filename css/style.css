@@ -1072,6 +1072,11 @@ body.planet-focused .window-header {
     outline: none;
 }
 
+/* ↗ after links that open in a new tab */
+.ext-mark {
+    color: #888888;
+}
+
 /* Trajectory: dated rows, newest first */
 .timeline {
     list-style: none;
