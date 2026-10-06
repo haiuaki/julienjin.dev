@@ -2,10 +2,32 @@
 /* Each key matches a planet's data-menu attribute. Entry bodies are cloned
    from <template id="entry-{id}"> in index.html, so adding an entry is a
    data change here plus one template.
-   fields:    dossier rows shown in the reader, as [label, entry key]
+   fields:    dossier rows shown in the reader, as [label, entry key];
+              an entry can instead carry its own `fields` as [label, value]
    indexMeta: entry key shown at the end of each index row; its column
-              header is that field's label */
+              header is that field's label
+   page:      a single window instead of a list, with `fields` as
+              [label, value] and its body in <template id="page-{key}">
+   meta:      text on the right of a page window's title bar
+
+   EXAMPLE CONTENT: values in [brackets] are placeholders to replace. */
 const MENUS = {
+    info: {
+        entries: [
+            {
+                id: 'profile', title: 'PROFILE',
+                fields: [['NAME', 'Julien Jin'], ['ROLE', 'Software engineer'], ['BASED', '[City, Country]'], ['FOCUS', '[e.g. graphics · web performance]']],
+            },
+            {
+                id: 'trajectory', title: 'TRAJECTORY',
+                fields: [['SPAN', '2019 — NOW'], ['CURRENT', '[Company]']],
+            },
+            {
+                id: 'now', title: 'NOW',
+                fields: [['UPDATED', 'OCT 2026']],
+            },
+        ],
+    },
     projects: {
         fields: [['YEAR', 'year'], ['ROLE', 'role'], ['STACK', 'stack'], ['STATUS', 'status']],
         indexMeta: 'year',
@@ -15,6 +37,21 @@ const MENUS = {
             { id: 'stellar-core', title: 'STELLAR CORE', year: '2025', role: 'Backend', stack: 'Go · Postgres', status: 'Archived' },
             { id: 'orbital-archive', title: 'ORBITAL ARCHIVE', year: '2024', role: 'Solo project', stack: 'TypeScript', status: 'In progress' },
         ],
+    },
+    lab: {
+        fields: [['YEAR', 'year'], ['MEDIUM', 'medium'], ['STATUS', 'status']],
+        indexMeta: 'year',
+        entries: [
+            { id: 'lens-star', title: 'LENS STAR STUDIES', year: '2026', medium: 'Canvas · CSS', status: 'On this site' },
+            { id: 'black-hole', title: 'BLACK HOLE RENDERER', year: '2026', medium: 'Canvas 2D', status: 'Prototype' },
+            { id: 'time-stop', title: 'TIME STOP', year: '2026', medium: 'Web Animations', status: 'On this site' },
+            { id: 'next-experiment', title: '[NEXT EXPERIMENT]', year: '[YEAR]', medium: '[Medium]', status: '[Status]' },
+        ],
+    },
+    contact: {
+        page: true,
+        meta: 'CHANNEL OPEN',
+        fields: [['STATUS', '[Open to full-time roles]'], ['BASED', '[City] · UTC+1'], ['REPLIES', 'Within 48h'], ['PREFERRED', 'Email']],
     },
 };
 
@@ -91,13 +128,9 @@ function buildDossier(menu, i) {
     const entry = menu.entries[i];
     const total = menu.entries.length;
 
-    const fields = createEl('dl', 'dossier-fields');
-    (menu.fields || []).forEach(([label, key]) => {
-        if (!entry[key]) return;
-        const field = createEl('div', 'dossier-field');
-        field.append(createEl('dt', null, label), createEl('dd', null, entry[key]));
-        fields.appendChild(field);
-    });
+    /* An entry's own [label, value] pairs, or the menu's [label, key] columns */
+    const pairs = entry.fields || (menu.fields || []).map(([label, key]) => [label, entry[key]]);
+    const fields = buildFields(pairs);
 
     const body = createEl('div', 'dossier-body');
     body.appendChild(cloneEntryContent(entry));
@@ -116,6 +149,30 @@ function buildDossier(menu, i) {
     if (fields.children.length) dossier.append(fields);
     dossier.append(body, nav);
     return dossier;
+}
+
+/* Label/value grid with dotted leaders; empty values are skipped */
+function buildFields(pairs) {
+    const fields = createEl('dl', 'dossier-fields');
+    pairs.forEach(([label, value]) => {
+        if (!value) return;
+        const field = createEl('div', 'dossier-field');
+        field.append(createEl('dt', null, label), createEl('dd', null, value));
+        fields.appendChild(field);
+    });
+    return fields;
+}
+
+/* Single-page window (e.g. contact): fields, then the page template */
+function buildPage(id, menu) {
+    const page = createEl('article', 'dossier');
+    const fields = buildFields(menu.fields || []);
+    if (fields.children.length) page.append(fields);
+    const body = createEl('div', 'dossier-body');
+    const template = document.getElementById(`page-${id}`);
+    if (template) body.appendChild(template.content.cloneNode(true));
+    page.append(body);
+    return page;
 }
 
 /* Clone an entry's template body, or a placeholder if it has none yet */
@@ -144,6 +201,17 @@ function openMenu(id, label) {
     menuState.id = id;
     menuState.index = -1;
     menuState.reading = false;
+
+    if (menu.page) {
+        menuState.els = null;
+        indexWindow.classList.add('is-page');
+        indexContent.replaceChildren(buildPage(id, menu));
+        openWindow(indexWindow, label);
+        indexMeta.textContent = menu.meta || '';
+        return;
+    }
+
+    indexWindow.classList.remove('is-page');
     menuState.els = buildIndex(menu);
     updateCount();
     openWindow(indexWindow, label);
@@ -202,6 +270,7 @@ function closeMenu() {
     menuState.reading = false;
     menuState.els = null;
     windowRow.classList.remove('is-reading');
+    indexWindow.classList.remove('is-page');
     indexContent.replaceChildren();
     readerContent.replaceChildren();
 }
@@ -239,6 +308,9 @@ document.addEventListener('keydown', (e) => {
         else resetCamera();
         return;
     }
+
+    /* Single-page windows have nothing to select */
+    if (!menuState.els) return;
 
     if (e.key === 'ArrowRight') {
         e.preventDefault();

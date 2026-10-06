@@ -25,11 +25,10 @@ function buildHome() {
         btn.dataset.planet = i;
         const label = (planet.dataset.label || '').replace(/^\[(.*)\]$/, '$1').toUpperCase();
         btn.append(createEl('span', 'menu-num', pad(i + 1)), label);
-        /* Planets with a menu show how many entries they hold */
+        /* Menus show how many entries they hold; single pages show their meta */
         const menu = MENUS[planet.dataset.menu];
-        if (menu) {
-            btn.append(createEl('span', 'menu-leader'), createEl('span', 'menu-meta', `${pad(menu.entries.length)} FILES`));
-        }
+        const meta = menu && (menu.entries ? `${pad(menu.entries.length)} FILES` : menu.meta);
+        if (meta) btn.append(createEl('span', 'menu-leader'), createEl('span', 'menu-meta', meta));
         const li = createEl('li');
         li.appendChild(btn);
         list.appendChild(li);

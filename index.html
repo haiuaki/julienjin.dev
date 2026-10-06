@@ -37,7 +37,7 @@
                 
                 <!-- Main Navigation Planets -->
                 <div class="orbit-ring planet-1">
-                    <button class="planet-btn size-small bg-theme" data-label="[info]"></button>
+                    <button class="planet-btn size-small bg-theme" data-label="[info]" data-menu="info"></button>
                 </div>
                 
                 <div class="orbit-ring planet-2">
@@ -45,11 +45,11 @@
                 </div>
                 
                 <div class="orbit-ring planet-3">
-                    <button class="planet-btn size-small bg-theme" data-label="[~]"></button>
+                    <button class="planet-btn size-small bg-theme" data-label="[lab]" data-menu="lab"></button>
                 </div>
 
                 <div class="orbit-ring planet-4">
-                    <button class="planet-btn size-small bg-theme" data-label="[~]"></button>
+                    <button class="planet-btn size-small bg-theme" data-label="[contact]" data-menu="contact"></button>
                 </div>
 
                 <!-- Decorative Comet Trails -->
@@ -141,6 +141,56 @@
     </div>
 
     <!-- --- MENU ENTRY CONTENT --- -->
+    <!-- EXAMPLE CONTENT: everything in [brackets] is a placeholder to replace. -->
+
+    <!-- [info] -->
+    <template id="entry-profile">
+        <p>[Two or three sentences in your own voice: what you build, what you care about in your work, and what kind of team or problem you are looking for next.]</p>
+        <p>[One sentence on something outside work that says something about you.]</p>
+    </template>
+    <template id="entry-trajectory">
+        <ol class="timeline">
+            <li><span class="tl-when">2024 — NOW</span><span class="tl-what">Software engineer · [Company]</span><span class="tl-note">[What you own there and one result you are proud of.]</span></li>
+            <li><span class="tl-when">2022 — 2024</span><span class="tl-what">[Role] · [Company]</span><span class="tl-note">[One line on the work and its impact.]</span></li>
+            <li><span class="tl-when">2019 — 2022</span><span class="tl-what">[Degree] · [School]</span><span class="tl-note">[Focus, thesis or standout project.]</span></li>
+        </ol>
+    </template>
+    <template id="entry-now">
+        <ul class="now-list">
+            <li>Building this site: a navigable solar system with a time switch.</li>
+            <li>Learning [topic you are currently studying].</li>
+            <li>Reading [book or paper].</li>
+        </ul>
+    </template>
+
+    <!-- [lab] -->
+    <template id="entry-lens-star">
+        <p>Four rounds of studies for the star at the center of this site: a pulsing glow, an eclipse, shaded spheres, mist particles, eight diffraction stars and five black holes, before settling on a single horizontal lens streak.</p>
+        <p>Every candidate was drawn live at its real on-screen size next to an orbit, with a switch to compare its "time halted" state.</p>
+    </template>
+    <template id="entry-black-hole">
+        <p>A physically based black hole drawn on a 2D canvas. The disk's shape comes from light bending around the hole (Beloborodov's approximation), its brightness from Doppler beaming and gravitational redshift, and background stars are lensed into arcs.</p>
+        <p>The disk is rendered once at high density; only orbiting hot spots and stars move each frame.</p>
+    </template>
+    <template id="entry-time-stop">
+        <p>Click anywhere on the home page to halt time. A shockwave sweeps the starfield from the click point, the orbits lurch backwards before locking still, and the star's streak retracts into its core.</p>
+        <p>Built with the Web Animations API (orbit playback rates) and an on-demand canvas, so nothing renders while the scene is still.</p>
+    </template>
+    <template id="entry-next-experiment">
+        <p>[A small prototype or study: what question it explores, what you tried, and what you learned. Link a live demo if there is one.]</p>
+    </template>
+
+    <!-- [contact]: a single page, no list -->
+    <template id="page-contact">
+        <p>[One line inviting people to reach out, and for what: roles, collaborations, questions about a project.]</p>
+        <dl class="dossier-fields channels">
+            <div class="dossier-field"><dt>EMAIL</dt><dd><a href="mailto:name@example.com">name@example.com</a></dd></div>
+            <div class="dossier-field"><dt>GITHUB</dt><dd><a href="https://github.com/">github.com/[handle]</a></dd></div>
+            <div class="dossier-field"><dt>LINKEDIN</dt><dd><a href="https://www.linkedin.com/">linkedin.com/in/[handle]</a></dd></div>
+            <div class="dossier-field"><dt>CV</dt><dd><a href="#">[cv.pdf]</a></dd></div>
+        </dl>
+    </template>
+
     <!-- One <template id="entry-{id}"> per entry in the MENUS registry (js/menu.js) -->
     <!-- Body text only: title and dossier fields come from the registry -->
     <template id="entry-nebula-engine">

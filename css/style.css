@@ -1027,6 +1027,83 @@ body.planet-focused .window-header {
     line-height: 1.7;
 }
 
+/* Single-page window (contact): a fixed reading width instead of a list's */
+#content-window.is-page .window-content {
+    width: calc(64ch + 3.5em);
+    max-width: calc(100vw - 150px);
+}
+
+/* A page's fields read as one column: label ············ value */
+#content-window.is-page .dossier-fields {
+    grid-template-columns: 1fr;
+}
+
+/* Contact channels: one column of label ···· link */
+.dossier-fields.channels {
+    grid-template-columns: 1fr;
+    margin-top: 1.25em;
+    border-bottom: none;
+}
+
+.dossier-field dd a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dotted rgba(250, 250, 250, 0.45);
+}
+
+.dossier-field dd a:hover,
+.dossier-field dd a:focus-visible {
+    color: #ffffff;
+    border-bottom-color: #ffffff;
+    outline: none;
+}
+
+/* Trajectory: dated rows, newest first */
+.timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1em;
+}
+
+.timeline li {
+    display: grid;
+    grid-template-columns: 15ch 1fr;
+    column-gap: 2ch;
+}
+
+.tl-when {
+    grid-row: span 2;
+    color: #888888;
+    letter-spacing: 1px;
+    font-variant-numeric: tabular-nums;
+}
+
+.tl-what {
+    color: #e8e8e8;
+}
+
+.tl-note {
+    color: #aaaaaa;
+}
+
+/* Now: short items with a terminal marker */
+.now-list {
+    margin: 0;
+    padding-left: 2ch;
+}
+
+.now-list li {
+    margin-bottom: 0.4em;
+}
+
+.now-list li::marker {
+    content: '› ';
+    color: #888888;
+}
+
 /* Previous / next entry */
 .dossier-nav {
     display: flex;
@@ -1110,6 +1187,19 @@ body.planet-focused .window-header {
 
     .dossier-fields {
         grid-template-columns: 1fr;
+    }
+
+    #content-window.is-page .window-content {
+        width: 100%;
+        max-width: none;
+    }
+
+    .timeline li {
+        grid-template-columns: 1fr;
+    }
+
+    .tl-when {
+        grid-row: auto;
     }
 
     #window-row:not(.is-reading) #reader-window,
