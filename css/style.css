@@ -80,31 +80,6 @@ body {
     animation: initial-fade-in 2.5s ease-in-out;
 }
 
-#brand-logo {
-    position: fixed;
-    top: 30px;
-    left: 45px;
-    z-index: 100;
-    font-size: 1.0rem;
-    font-weight: 350;
-    letter-spacing: 1px;
-    color: #888888;
-    pointer-events: none;
-    animation: initial-fade-in 2.5s ease-in-out;
-}
-
-
-/* --- 5. TYPEWRITER EFFECT --- */
-.terminal-cursor {
-    display: inline-block;
-    vertical-align: baseline;
-    animation: terminal-blink 1s step-end infinite;
-}
-
-@keyframes terminal-blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-}
 
 
 /* --- 6. 3D SOLAR SYSTEM LAYOUT --- */
@@ -367,7 +342,6 @@ body.time-halted #sun-btn::before {
 /* Base transition for smooth fading */
 .orbit-ring::before,
 .planet-label,
-#brand-logo,
 #sun-btn {
     transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease-out;
 }
@@ -382,7 +356,6 @@ body.time-halted #sun-btn::before {
 body.planet-focused .orbit-ring::before,
 body.planet-focused #sun-btn,
 body.planet-focused .planet-btn:not(.active-planet),
-body.planet-focused #brand-logo,
 body.planet-focused .planet-label {
     opacity: 0 !important;
     pointer-events: none !important;
@@ -483,6 +456,29 @@ body.crosshairs-active #crosshair-y,
 body.planet-focused #crosshair-x,
 body.planet-focused #crosshair-y {
     opacity: 1;
+}
+
+/* --- HOME WINDOW --- */
+/* Top-left, where the name used to be typed out; sizes to its rows */
+#home-nav {
+    position: fixed;
+    top: 24px;
+    left: 32px;
+    z-index: 45;
+    pointer-events: none;
+}
+
+/* Window titles normally show only during focus; the home title is always visible */
+#home-window .window-header {
+    opacity: 1;
+}
+
+/* Wide enough for the name and role to sit apart in the title bar
+   (compact screens stretch the window to full width instead) */
+@media (min-width: 901px) {
+    #home-window .window-content {
+        min-width: 48ch;
+    }
 }
 
 /* --- CONTENT WINDOWS --- */
@@ -1084,6 +1080,15 @@ body.planet-focused .window-header {
 
     .window-content {
         padding: 1.25em 1em;
+    }
+
+    #home-nav {
+        left: 16px;
+        right: 16px;
+    }
+
+    #home-nav .term-window {
+        width: 100%;
     }
 
     /* Keyboard hints would wrap at this width; the position counter is enough */

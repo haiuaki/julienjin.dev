@@ -62,7 +62,24 @@
     </header>
 
     <!-- --- BRAND IDENTITY --- -->
-    <div id="brand-logo" data-cursor="█" data-text="JULIEN JIN | SOFTWARE ENGINEER"></div>
+    <!-- Home window: name and role in its title bar, one row per planet (js/home.js) -->
+    <nav id="home-nav" aria-label="Site sections">
+        <section id="home-window" class="term-window flicker-window" data-open="flicker">
+            <div class="window-bar">
+                <span class="bar-line bar-edge"></span>
+                <div class="window-header"></div>
+                <span class="bar-line"></span>
+                <div class="window-meta"></div>
+                <span class="bar-line bar-edge"></span>
+            </div>
+            <div class="flicker-frame"></div>
+            <div class="corner corner-tl"></div>
+            <div class="corner corner-tr"></div>
+            <div class="corner corner-bl"></div>
+            <div class="corner corner-br"></div>
+            <div class="window-content"></div>
+        </section>
+    </nav>
 
     <!-- --- RETURN HOME --- -->
     <div id="return-home-container">
@@ -149,13 +166,13 @@ Nunc quis euismod sapien. Sed ac vehicula justo. Donec maximus leo nec suscipit 
 
     <!-- --- SYSTEM INITIALIZATION SCRIPTS --- -->
     <script src="js/globals.js"></script>
-    <script src="js/ui_utils.js"></script>
     <script src="js/canvas.js"></script>
     <script src="js/camera.js"></script>
     <script src="js/physics.js"></script>
     <script src="js/timestop.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/menu.js"></script>
+    <script src="js/home.js"></script>
 
 </body>
 </html>

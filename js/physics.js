@@ -93,6 +93,9 @@ function resetCamera() {
     if (!isPhysicsPaused) animateSpeed(1, null, releasedOrbit);
 
     setStarDrift(false);
+
+    /* The home window comes back once the camera has returned */
+    uiTimeouts.push(setTimeout(openHome, 1000));
     
     solarSystem.style.transition = 'margin 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
     solarSystem.style.marginLeft = '0px';
