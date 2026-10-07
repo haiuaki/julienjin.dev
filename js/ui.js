@@ -6,6 +6,7 @@ const crossY = document.getElementById('crosshair-y');
 const trackers = [];
 /* Labels finish fading out 1.5s after focus (0.3s delay + 1.2s fade); stop tracking after that */
 const LABEL_FADE_MS = 800;
+const FOCUS_GROWTH = 1.4; /* the focused astre grows by this much in the corner */
 const LABEL_MARGIN = 6; /* labels keep this distance from the screen edges */
 document.fonts && document.fonts.ready.then(() => trackers.forEach(t => { t.size = null; }));
 let labelsHiddenAt = Infinity;
@@ -91,10 +92,12 @@ astreBtns.forEach(planet => {
         const rect = planet.getBoundingClientRect();
         const perspectiveScale = rect.width / planet.offsetWidth;
 
-        /* Calculate 2.2vmin in actual pixels — planet's focused visual size,
-           independent of the cursor block (corner elements) geometry. */
+        /* Focused (home button) size on screen: always larger than the astre
+           was in its orbit (×1.4), and at least 2.2vmin so small astres still
+           make a clear target. Follows whatever size the astre has on this
+           screen, so the focus never shrinks it. */
         const vminPx = Math.min(window.innerWidth, window.innerHeight) / 100;
-        const visualTarget = 2.2 * vminPx;
+        const visualTarget = Math.max(2.2 * vminPx, rect.width * FOCUS_GROWTH);
         
         const targetPhysicalSize = visualTarget / perspectiveScale;
         

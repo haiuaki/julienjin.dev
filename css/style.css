@@ -54,18 +54,23 @@ body {
    (labels are kept on screen by js/ui.js). The
    home menu takes the bottom edge, so the system rises slightly. */
 @media (max-width: 600px) and (orientation: portrait) { :root { --system-scale: 0.86; --system-y: 43%; } }
-/* Phones held sideways: little height, but the width leaves room to zoom in */
-@media (max-height: 500px) and (orientation: landscape) { :root { --system-scale: 0.8; } }
+/* Phones held sideways: little height, but the width leaves room to zoom in
+   (1.05 keeps the outer orbit and labels ~20px clear of the menu) */
+@media (max-height: 500px) and (orientation: landscape) { :root { --system-scale: 1.05; } }
 
 
 /* --- 3. MODULAR UTILITIES --- */
 
 /* Modular Sizes */
-.size-small  { --planet-size: 0.74vmin;  width: var(--planet-size); height: var(--planet-size); }
+.size-small  { --planet-size: 1.05vmin;  width: var(--planet-size); height: var(--planet-size); }
 
-/* With the phone zoom, astres grow too (~5px), so they read as stars. This
+/* With the phone zoom (upright or sideways), astres grow too (~8px), so they read as stars. This
    follows screen size, not input, so it also shows in responsive design mode */
-@media (max-width: 600px) and (orientation: portrait) { .size-small { --planet-size: 1.8vmin; } }
+@media (max-width: 600px) and (orientation: portrait), (max-height: 500px) and (orientation: landscape) {
+    .size-small { --planet-size: 2.5vmin; }
+    /* The star stays clearly the largest: ~15px against ~8px astres */
+    #sun-btn.size-large { --planet-size: 4.5vmin; }
+}
 
     /* Touch screens: each astre gets an
    invisible ~44px tap area (Apple's minimum; WCAG asks for 24px). The tap
@@ -87,7 +92,7 @@ body {
     }
 }
 .size-medium { --planet-size: 1.5vmin; width: var(--planet-size); height: var(--planet-size); }
-.size-large  { --planet-size: 2.2vmin; width: var(--planet-size); height: var(--planet-size); }
+.size-large  { --planet-size: 3.1vmin; width: var(--planet-size); height: var(--planet-size); }
 
 /* Modular Colors */
 .bg-theme { background-color: var(--planet-color); color: #1a1a1a; }
@@ -188,7 +193,8 @@ body {
 }
 
 .sun-streak {
-    width: 700%;
+    /* ~15vmin, inside the innermost orbit; a percentage of the star's size */
+    width: 500%;
     height: 70%;
     background:
         /* Hairline core of the streak */
