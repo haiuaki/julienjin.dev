@@ -27,8 +27,28 @@ const currentState = () => history.state || { depth: 0, below: 0 };
 let routeTarget = null; /* while restoring a route, the address being restored */
 let ignorePops = 0;     /* popstates caused by our own history.go() rewinds */
 
+/* --- PAGE TITLES --- */
+/* The tab title follows the view: "Stellar Core · Projects · Julien Jin".
+   It names tabs, browser history entries and bookmarks, and screen readers
+   read it when a tab is revisited. */
+const SITE_TITLE = 'Julien Jin';
+const titleCase = (text) => text.toLowerCase().replace(/(^|[\s\[(-])(\p{L})/gu, (m, gap, letter) => gap + letter.toUpperCase());
+
+function updateTitle(menuId, entryId) {
+    const parts = [];
+    if (menuId) {
+        const entry = entryId && (MENUS[menuId].entries || []).find(e => e.id === entryId);
+        if (entry) parts.push(titleCase(entry.title));
+        const label = astreFor(menuId)?.dataset.label || menuId;
+        parts.push(titleCase(label.replace(/^\[(.*)\]$/, '$1')));
+    }
+    parts.push(SITE_TITLE);
+    document.title = parts.join(' · ');
+}
+
 /* Called by the menu and camera whenever the visible view changes */
 function syncRoute(menuId, entryId) {
+    updateTitle(menuId, entryId);
     const route = routeOf(menuId, entryId);
     const depth = depthOf(menuId, entryId);
 
