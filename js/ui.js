@@ -33,6 +33,22 @@ function startReturnSweep(planet) {
     returnSweep = { planet, t0: performance.now() };
 }
 
+/* Switching targets while the crosshairs are showing (row to row in the
+   home menu, or astre to astre): they glide over instead of jumping. The new
+   astre keeps orbiting, so the glide eases toward its live position. When
+   the crosshairs were hidden they simply appear on the target. */
+const CROSS_GLIDE_MS = 220;
+const CROSS_FADE_MS = 200; /* matches their opacity transition */
+let crossShown = null;         /* center the crosshairs were last drawn on */
+let crossGlide = null;         /* { x, y, t0 }: where the current glide started */
+let crossHiddenAt = -Infinity; /* when the last hover ended (they fade from there) */
+
+function drawCrosshairs(x, y) {
+    crossShown = { x, y };
+    crossX.style.transform = `translate3d(0, ${crosshairPos(y)}px, 0)`;
+    crossY.style.transform = `translate3d(${crosshairPos(x)}px, 0, 0)`;
+}
+
 astreBtns.forEach(planet => {
     /* Retrieve label string from dataset */
     const labelText = planet.getAttribute('data-label');
@@ -47,6 +63,10 @@ astreBtns.forEach(planet => {
     /* Hover triggers for dynamic crosshair tracking */
     planet.addEventListener('mouseenter', () => {
         if (!document.body.classList.contains('planet-focused')) {
+            const showing = document.body.classList.contains('crosshairs-active')
+                || returnSweep || performance.now() - crossHiddenAt < CROSS_FADE_MS;
+            crossGlide = showing && crossShown && !reducedMotion.matches
+                ? { ...crossShown, t0: performance.now() } : null;
             /* Hovering takes the crosshairs over from a return sweep */
             returnSweep = null;
             planet.classList.add('is-hovered');
@@ -64,6 +84,7 @@ astreBtns.forEach(planet => {
         planet.classList.remove('is-hovered');
         if (!document.body.classList.contains('planet-focused')) {
             document.body.classList.remove('crosshairs-active');
+            crossHiddenAt = performance.now();
         }
     });
 
@@ -263,15 +284,23 @@ function trackAllPositions(now) {
 
         /* Return: stay locked on the astre as it travels home, until faded */
         if (!focused && returnSweep && returnSweep.planet === t.planet && crossX && crossY) {
-            crossX.style.transform = `translate3d(0, ${crosshairPos(planetY)}px, 0)`;
-            crossY.style.transform = `translate3d(${crosshairPos(planetX)}px, 0, 0)`;
+            drawCrosshairs(planetX, planetY);
             if (now - returnSweep.t0 > RETURN_FADE_END_MS) returnSweep = null;
         }
 
         /* Dynamically update crosshairs if hovered */
         if (!focused && crossX && crossY && t.planet.classList.contains('is-hovered')) {
-            crossX.style.transform = `translate3d(0, ${crosshairPos(planetY)}px, 0)`;
-            crossY.style.transform = `translate3d(${crosshairPos(planetX)}px, 0, 0)`;
+            let x = planetX, y = planetY;
+            if (crossGlide) {
+                const k = Math.max(0, now - crossGlide.t0) / CROSS_GLIDE_MS;
+                if (k >= 1) crossGlide = null;
+                else {
+                    const ease = 1 - Math.pow(1 - k, 3); /* ease-out cubic */
+                    x = crossGlide.x + (planetX - crossGlide.x) * ease;
+                    y = crossGlide.y + (planetY - crossGlide.y) * ease;
+                }
+            }
+            drawCrosshairs(x, y);
         }
     });
     sunLabel.classList.toggle('is-covered', sunLabelCovered);
