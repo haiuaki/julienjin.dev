@@ -6,6 +6,17 @@ const crossY = document.getElementById('crosshair-y');
 const trackers = [];
 /* Labels finish fading out 1.5s after focus (0.3s delay + 1.2s fade); stop tracking after that */
 const LABEL_FADE_MS = 800;
+/* The star's label, centered just below it (text toggled by CSS with the time state) */
+const sunLabel = document.createElement('div');
+sunLabel.className = 'planet-label sun-label';
+sunLabel.setAttribute('aria-hidden', 'true'); /* the star button already has an accessible name */
+/* Media-player icons drawn as tiny SVGs in the label's own color (Unicode ⏸/▶
+   would turn into colored emoji on Apple devices): pause while time runs,
+   play while halted */
+sunLabel.innerHTML = '[<svg class="when-running" viewBox="0 0 10 10"><rect x="2" y="1.5" width="2" height="7"/><rect x="6" y="1.5" width="2" height="7"/></svg>'
+    + '<svg class="when-halted" viewBox="0 0 10 10"><path d="M2.5 1.5 L8.5 5 L2.5 8.5 Z"/></svg>]';
+document.body.appendChild(sunLabel);
+
 const FOCUS_GROWTH = 1.4; /* the focused astre grows by this much in the corner */
 const LABEL_MARGIN = 6; /* labels keep this distance from the screen edges */
 document.fonts && document.fonts.ready.then(() => trackers.forEach(t => { t.size = null; }));
@@ -206,6 +217,12 @@ function trackAllPositions(now) {
         t.size = [Math.ceil(box.width), Math.ceil(box.height)];
     });
     const viewW = window.innerWidth, viewH = window.innerHeight;
+    const sunLabelBox = sunLabel.getBoundingClientRect();
+
+    /* Star label: centered under the star (its width changes with the time state) */
+    const sunLabelX = centerX - sunLabelBox.width / 2, sunLabelY = sunRect.bottom + 6;
+    sunLabel.style.transform = `translate3d(${sunLabelX}px, ${sunLabelY}px, 0)`;
+    let sunLabelCovered = false;
 
     /* --- Write phase --- */
     trackers.forEach((t, i) => {
@@ -240,6 +257,10 @@ function trackAllPositions(now) {
         /* Drive position exclusively via transform — no left/top writes (same as crosshairs) */
         t.label.style.transform = `translate3d(${labelX}px, ${labelY}px, 0)`;
 
+        /* An astre label crossing the star's label: the star's label gives way */
+        if (labelX < sunLabelX + sunLabelBox.width + 4 && labelX + labelW > sunLabelX - 4 &&
+            labelY < sunLabelY + sunLabelBox.height && labelY + labelH > sunLabelY) sunLabelCovered = true;
+
         /* Return: stay locked on the astre as it travels home, until faded */
         if (!focused && returnSweep && returnSweep.planet === t.planet && crossX && crossY) {
             crossX.style.transform = `translate3d(0, ${crosshairPos(planetY)}px, 0)`;
@@ -253,6 +274,7 @@ function trackAllPositions(now) {
             crossY.style.transform = `translate3d(${crosshairPos(planetX)}px, 0, 0)`;
         }
     });
+    sunLabel.classList.toggle('is-covered', sunLabelCovered);
 }
 requestAnimationFrame(trackAllPositions);
 

@@ -6,13 +6,18 @@ document.addEventListener('gestureend', (e) => e.preventDefault());
 const sunBtn = document.getElementById('sun-btn');
 const solarSystem = document.getElementById('solar-system');
 
-/* Track if user explicitly clicked the Sun */
-let isManuallyPaused = sessionStorage.getItem('isManuallyPaused') === 'true';
+/* Track if time was halted on purpose. Visitors who asked their system for
+   reduced motion arrive with time already halted (the orbits are the page's
+   one continuous motion); a choice made earlier in the visit always wins. */
+const storedPause = sessionStorage.getItem('isManuallyPaused');
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let isManuallyPaused = storedPause === null ? prefersReducedMotion : storedPause === 'true';
 /* Track actual physics state (could be paused by hover or click) */
 let isPhysicsPaused = isManuallyPaused;
 
 let systemEpoch = parseInt(sessionStorage.getItem('systemEpoch'), 10);
 let pauseTimestamp = parseInt(sessionStorage.getItem('pauseTimestamp'), 10);
+if (isManuallyPaused && isNaN(pauseTimestamp)) pauseTimestamp = Date.now();
 
 /* Initialize system epoch on first load */
 if (isNaN(systemEpoch)) {

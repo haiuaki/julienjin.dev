@@ -923,6 +923,37 @@ body.planet-focused .window-header {
     color: #888888;
 }
 
+/* The star's label says what it does: pause / play icons in brackets.
+   It makes the time stop findable (WCAG 2.2.2: continuous motion needs a
+   pause people can find), and floats like the astre labels, so its length
+   changing never moves anything else. Positioned by js/ui.js. */
+.sun-label .when-halted,
+body.time-halted .sun-label .when-running {
+    display: none;
+}
+
+body.time-halted .sun-label .when-halted {
+    display: inline;
+}
+
+.sun-label svg {
+    width: 0.95em;
+    height: 0.95em;
+    margin: 0 0.2em;
+    fill: currentColor;
+    vertical-align: -0.12em;
+}
+
+/* Gives way quickly while an astre's label passes over it */
+.sun-label {
+    transition: opacity 0.25s ease-out;
+}
+
+/* Gives way while an astre's label passes over it */
+.sun-label.is-covered:not(.active-planet) {
+    opacity: 0.12;
+}
+
 /* Keyboard hints are noise on touch-only devices */
 @media (hover: none) {
     .menu-keys,
