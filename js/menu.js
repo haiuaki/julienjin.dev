@@ -308,6 +308,33 @@ function focusIndex() {
     if (btn) btn.focus({ preventScroll: true });
 }
 
+/* --- REDRAW --- */
+/* Switching entries: a bright line sweeps down like a CRT redrawing. The new
+   entry is revealed behind it (and still glitches in, via .dossier), while the
+   frame's bottom edge travels to the new height in the same motion. */
+const redrawLine = createEl('div', 'redraw-line');
+readerWindow.appendChild(redrawLine);
+let redrawAnims = [];
+
+function redrawReader(fromHeight) {
+    redrawAnims.forEach(a => a.cancel());
+    redrawAnims = [];
+    const toHeight = readerContent.offsetHeight;
+    if (reducedMotion.matches) return;
+    /* Short moves are quick, long ones a little longer: 200-300ms */
+    const d = Math.round(Math.min(300, 200 + Math.abs(toHeight - fromHeight) * 0.25));
+    animateWindowHeight(readerContent, fromHeight, d);
+    const top = readerContent.offsetTop;
+    redrawAnims = [
+        readerContent.animate([{ clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0% 0)' }], { duration: d, easing: CAMERA_EASE }),
+        redrawLine.animate([
+            { transform: `translateY(${top}px)`, opacity: 1 },
+            { transform: `translateY(${top + toHeight - 1}px)`, opacity: 1, offset: 0.85 },
+            { transform: `translateY(${top + toHeight - 1}px)`, opacity: 0 },
+        ], { duration: d + 120, easing: CAMERA_EASE }),
+    ];
+}
+
 /* stayInReader: opened from inside the reader (previous / next links, or
    ↑/↓ at its edges), so keyboard focus stays there; from the index it stays
    on the index. atEnd: open scrolled to the end, so ↑ at the top of an entry
@@ -318,9 +345,13 @@ function openEntry(i, stayInReader = false, atEnd = false) {
     selectEntry(i);
 
     syncRoute(menuState.id, entry.id);
+    /* Switching within an open reader redraws it; a first open powers on */
+    const switching = menuState.reading && readerWindow.classList.contains('is-open');
+    const fromHeight = readerContent.offsetHeight;
     readerContent.replaceChildren(buildDossier(menu, i));
     readerContent.scrollTop = atEnd ? readerContent.scrollHeight : 0;
     updateReaderEnd();
+    if (switching) redrawReader(fromHeight);
 
     if (menuState.reading) {
         retitleWindow(readerWindow, entryTitle(entry, i));

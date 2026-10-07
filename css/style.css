@@ -546,9 +546,26 @@ body.planet-focused #crosshair-y {
     white-space: nowrap;
 }
 
-/* Opening reveals the rows with a short fade */
-#home-window:not(.is-collapsed) .home-sections {
-    animation: quiet-in 0.25s ease-out;
+/* Opening: each row glitches in like the dossier text, a beat after the one
+   above (js/home.js adds .rows-in; --row is the row's index) */
+#home-window.rows-in .menu-item {
+    animation: glitch-in 0.38s steps(1, end) both;
+    animation-delay: calc(40ms + var(--row) * 35ms);
+}
+
+/* Closing: the rows flicker off together before the frame closes up */
+#home-window.rows-off .menu-item,
+#home-window.rows-off .menu-columns,
+#home-window.rows-off .menu-status {
+    animation: row-flicker-off 0.18s steps(1, end) both;
+}
+
+@keyframes row-flicker-off {
+    0%   { opacity: 1; }
+    30%  { opacity: 0.2; }
+    50%  { opacity: 0.8; }
+    75%  { opacity: 0; }
+    100% { opacity: 0; }
 }
 
 /* Window titles normally show only during focus; the home title is always visible */
@@ -1039,6 +1056,20 @@ body.planet-focused .window-header {
     100% { opacity: 1;    transform: none;            text-shadow: none; }
 }
 
+/* Redraw line: sweeps down the reader when switching entries (js/menu.js) */
+.redraw-line {
+    position: absolute;
+    top: 0;
+    left: var(--corner-w);
+    right: var(--corner-w);
+    height: 1px;
+    z-index: 2;
+    pointer-events: none;
+    background: #fafafa;
+    box-shadow: 0 0 8px 1px rgba(250, 250, 250, 0.55);
+    opacity: 0;
+}
+
 /* --- DOSSIER (reader content) --- */
 /* Replaced on every entry switch, so the glitch replays without any JS */
 .dossier {
@@ -1318,6 +1349,8 @@ body.planet-focused .window-header {
 }
 
 @media (prefers-reduced-motion: reduce) {
+    #home-window.rows-in .menu-item,
+    #home-window.rows-off .menu-item,
     .flicker-window.is-open .flicker-frame,
     .flicker-window.is-open .window-bar,
     .flicker-window.is-open .corner,

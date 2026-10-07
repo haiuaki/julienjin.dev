@@ -43,6 +43,7 @@ function buildHome() {
     astreBtns.forEach((planet, i) => {
         const btn = createEl('button', 'menu-item');
         btn.dataset.planet = i;
+        btn.style.setProperty('--row', i);
         const label = (planet.dataset.label || '').replace(/^\[(.*)\]$/, '$1').toUpperCase();
         btn.append(createEl('span', 'menu-num', pad(i + 1)), label);
         /* Menus show how many entries they hold; single pages show their meta */
@@ -63,10 +64,46 @@ function buildHome() {
 
     homeContent.replaceChildren(homeToggle, sections);
     homeRows = [...list.querySelectorAll('.menu-item')];
-    setExpanded(sessionStorage.getItem(HOME_EXPANDED_KEY) === 'true');
+    setExpanded(sessionStorage.getItem(HOME_EXPANDED_KEY) === 'true', false);
 }
 
-function setExpanded(expanded) {
+/* animate: open with the frame growing and the rows glitching in one after
+   another (like the dossier text), close with the rows flickering off first */
+const ROW_OFF_MS = 180;
+let homeCloseTimer = null;
+
+function setExpanded(expanded, animate = true) {
+    clearTimeout(homeCloseTimer);
+    homeWindow.classList.remove('rows-off');
+    const visible = homeWindow.classList.contains('is-open');
+    const changing = expanded !== homeExpanded();
+    animate = animate && visible && changing && !reducedMotion.matches;
+
+    if (!expanded && animate) {
+        /* Rows flicker off, then the frame closes up */
+        homeWindow.classList.remove('rows-in');
+        homeWindow.classList.add('rows-off');
+        homeCloseTimer = setTimeout(() => {
+            homeWindow.classList.remove('rows-off');
+            const from = homeContent.offsetHeight;
+            applyExpanded(false);
+            animateWindowHeight(homeContent, from, 140);
+        }, ROW_OFF_MS);
+        return;
+    }
+
+    const from = homeContent.offsetHeight;
+    applyExpanded(expanded);
+    if (expanded && animate) {
+        animateWindowHeight(homeContent, from, 160);
+        /* Restart the row glitch (it only plays while this class is on) */
+        homeWindow.classList.remove('rows-in');
+        void homeWindow.offsetWidth;
+        homeWindow.classList.add('rows-in');
+    }
+}
+
+function applyExpanded(expanded) {
     homeWindow.classList.toggle('is-collapsed', !expanded);
     homeToggle.setAttribute('aria-expanded', String(expanded));
     homeToggle.textContent = `${expanded ? '▾' : '▸'} MENU`;

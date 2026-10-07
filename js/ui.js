@@ -294,6 +294,15 @@ const SCRAMBLE_FRAME = 30;  /* ms per frame */
 const SCRAMBLE_FRAMES = 14; /* frames until the last character locks */
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
+/* Resize a window's content from one height to its new natural height over
+   the camera easing; returns the duration (0 when skipped) */
+function animateWindowHeight(content, from, duration) {
+    const to = content.offsetHeight;
+    if (reducedMotion.matches || from === to) return 0;
+    content.animate([{ height: `${from}px` }, { height: `${to}px` }], { duration, easing: CAMERA_EASE });
+    return duration;
+}
+
 function scrambleHeader(win, text) {
     const header = win.querySelector('.window-header');
     if (reducedMotion.matches) {
