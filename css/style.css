@@ -21,6 +21,11 @@ body {
 /* --- 2. GLOBAL VARIABLES --- */
 
 :root {
+    /* Height actually visible. On phones, 100vh assumes the browser toolbar is
+       hidden, so anything sized from it ends up partly under the toolbar;
+       svh is the height with the toolbar showing. */
+    --visible-h: 100vh;
+
     /* System positioning and scale coordinates */
     --system-x: 50%;
     --system-y: 45%;
@@ -35,17 +40,52 @@ body {
     --planet-color: #fafafa;
 }
 
+@supports (height: 100svh) {
+    :root { --visible-h: 100svh; }
+}
+
 /* Responsive scaling rules */
 @media (max-width: 1200px) , (max-height: 800px) { :root { --system-scale: 1.25; } }
 @media (max-width: 900px) , (max-height: 700px) { :root { --system-scale: 0.85; } }
 @media (max-width: 700px) , (max-height: 550px) { :root { --system-scale: 0.75; } }
 @media (max-width: 450px) , (max-height: 400px) { :root { --system-scale: 0.45; } }
+/* Phones held upright: the vmin-sized orbits come out small on a narrow
+   screen, so zoom in until the outer orbit spans nearly the full width
+   (labels are kept on screen by js/ui.js). The
+   home menu takes the bottom edge, so the system rises slightly. */
+@media (max-width: 600px) and (orientation: portrait) { :root { --system-scale: 0.86; --system-y: 43%; } }
+/* Phones held sideways: little height, but the width leaves room to zoom in */
+@media (max-height: 500px) and (orientation: landscape) { :root { --system-scale: 0.8; } }
 
 
 /* --- 3. MODULAR UTILITIES --- */
 
 /* Modular Sizes */
 .size-small  { --planet-size: 0.74vmin;  width: var(--planet-size); height: var(--planet-size); }
+
+/* With the phone zoom, astres grow too (~5px), so they read as stars. This
+   follows screen size, not input, so it also shows in responsive design mode */
+@media (max-width: 600px) and (orientation: portrait) { .size-small { --planet-size: 1.8vmin; } }
+
+    /* Touch screens: each astre gets an
+   invisible ~44px tap area (Apple's minimum; WCAG asks for 24px). The tap
+   area is in the astre's own 3D plane, so it follows it around the orbit,
+   and it also makes the focused astre (the home button) easy to hit. The
+   perspective shrinks that plane to ~0.75 on screen, hence 60px here. */
+@media (pointer: coarse) {
+
+    .astre-btn::after,
+    #sun-btn::after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 60px;
+        height: 60px;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+    }
+}
 .size-medium { --planet-size: 1.5vmin; width: var(--planet-size); height: var(--planet-size); }
 .size-large  { --planet-size: 2.2vmin; width: var(--planet-size); height: var(--planet-size); }
 
@@ -86,7 +126,8 @@ body {
 
 #space-container {
     position: relative;
-    height: 100vh;
+    /* Visible height, so the system centers above mobile browser toolbars */
+    height: var(--visible-h);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -576,7 +617,7 @@ body.planet-focused #crosshair-y {
 
     /* Space the row leaves for content below the header (row top + bottom offsets) */
     --row-inset: 134px; /* #window-row top (94) + bottom (40) */
-    --content-max-h: calc(100vh - var(--row-inset) - var(--head-h));
+    --content-max-h: calc(var(--visible-h) - var(--row-inset) - var(--head-h));
 
     /* Animation Timings */
     --anim-speed: 0.5s;
@@ -1290,14 +1331,17 @@ body.planet-focused .window-header {
 /* Matches compactQuery in js/menu.js: one window at a time, index first, then the reader */
 @media (max-width: 900px) {
     /* Start just right of the crosshair's vertical line (x = 64.5) to give the text room */
+    /* Tighter corner on compact screens (crosshairs at 28.5, 30.5 in
+       js/globals.js), leaving more room for reading */
     #window-row {
-        left: 84px;
-        right: 16px;
-        bottom: 24px;
+        top: 44px;
+        left: 44px;
+        right: 12px;
+        bottom: 16px;
     }
 
     .term-window {
-        --row-inset: 118px; /* top (94) + compact bottom (24) */
+        --row-inset: 60px; /* compact top (44) + bottom (16) */
         flex: 1 1 auto;
         min-width: 0;
     }

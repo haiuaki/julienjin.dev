@@ -21,8 +21,7 @@ function recalculateCameraFocus() {
     const screenCenterX = window.innerWidth / 2;
     const screenCenterY = window.innerHeight / 2;
 
-    const targetX = FOCUS_TARGET_X;
-    const targetY = FOCUS_TARGET_Y;
+    const { x: targetX, y: targetY } = focusTarget();
 
     const dx = targetX - planetX;
     const dy = targetY - planetY;

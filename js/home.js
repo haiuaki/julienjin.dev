@@ -25,6 +25,9 @@ const HOME_SEEN_KEY = 'homeSeen';
    stays open for the rest of the visit. The links stay in the page while
    collapsed (only visually hidden), so screen readers always reach them. */
 const HOME_EXPANDED_KEY = 'homeExpanded';
+/* Closed by hand: the visitor chose the sky, so the menu never pops open by
+   itself again this visit, and stays closed when they come back home */
+const HOME_DISMISSED_KEY = 'homeDismissed';
 const HOME_IDLE_MS = 8000;
 let homeToggle = null;
 let homeIdleTimer = null;
@@ -80,6 +83,7 @@ const homeExpanded = () => !homeWindow.classList.contains('is-collapsed');
 function armIdleExpand() {
     clearTimeout(homeIdleTimer);
     if (homeExpanded() || document.body.classList.contains('planet-focused')) return;
+    if (sessionStorage.getItem(HOME_DISMISSED_KEY)) return;
     homeIdleTimer = setTimeout(() => {
         if (!document.body.classList.contains('planet-focused')) setExpanded(true);
     }, HOME_IDLE_MS);
@@ -142,7 +146,13 @@ astreBtns.forEach((planet, i) => planet.addEventListener('click', () => { homeLa
 /* --- INPUT --- */
 homeContent.addEventListener('click', (e) => {
     if (e.target.closest('.home-toggle')) {
-        setExpanded(!homeExpanded());
+        if (homeExpanded()) {
+            setExpanded(false);
+            sessionStorage.setItem(HOME_EXPANDED_KEY, 'false');
+            sessionStorage.setItem(HOME_DISMISSED_KEY, 'true');
+        } else {
+            setExpanded(true);
+        }
         return;
     }
     const row = e.target.closest('[data-planet]');

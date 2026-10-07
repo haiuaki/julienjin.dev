@@ -55,6 +55,21 @@ const MENUS = {
     },
 };
 
+/* Touch screens get a visible way home in the astre's window: the home button
+   (the astre in the corner) is not obviously a button to a first-time visitor */
+const touchQuery = window.matchMedia('(hover: none)');
+
+function setIndexMeta(text) {
+    if (touchQuery.matches) {
+        const home = createEl('button', 'dossier-close', '← HOME');
+        home.dataset.action = 'home';
+        home.setAttribute('aria-label', 'Back to the solar system');
+        indexMeta.replaceChildren(home);
+    } else {
+        indexMeta.textContent = text;
+    }
+}
+
 /* Matches the compact @media block in style.css: one window at a time */
 const compactQuery = window.matchMedia('(max-width: 900px)');
 
@@ -239,7 +254,7 @@ function openMenu(id, label) {
         indexWindow.classList.add('is-page');
         indexContent.replaceChildren(buildPage(id, menu));
         openWindow(indexWindow, label);
-        indexMeta.textContent = menu.meta || '';
+        setIndexMeta(menu.meta || '');
         return;
     }
 
@@ -247,7 +262,7 @@ function openMenu(id, label) {
     menuState.els = buildIndex(menu);
     updateCount();
     openWindow(indexWindow, label);
-    indexMeta.textContent = `${pad(menu.entries.length)} FILES`;
+    setIndexMeta(`${pad(menu.entries.length)} FILES`);
 }
 
 /* Highlight an entry in the index */
@@ -368,6 +383,11 @@ indexWindow.addEventListener('mousedown', (e) => {
     /* Keep the browser from moving focus to the page after we focus the row */
     e.preventDefault();
     focusIndex();
+});
+
+/* ← HOME in the astre's window title bar (touch screens) */
+indexWindow.addEventListener('click', (e) => {
+    if (menuState.id && e.target.closest('[data-action="home"]')) resetCamera();
 });
 
 /* One delegated listener per window */

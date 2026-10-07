@@ -6,6 +6,8 @@ const crossY = document.getElementById('crosshair-y');
 const trackers = [];
 /* Labels finish fading out 1.5s after focus (0.3s delay + 1.2s fade); stop tracking after that */
 const LABEL_FADE_MS = 800;
+const LABEL_MARGIN = 6; /* labels keep this distance from the screen edges */
+document.fonts && document.fonts.ready.then(() => trackers.forEach(t => { t.size = null; }));
 let labelsHiddenAt = Infinity;
 
 /* Crosshair return after leaving a planet: the astre starts in the corner,
@@ -104,8 +106,7 @@ astreBtns.forEach(planet => {
         const planetY = rect.y + rect.height / 2;
         
         /* Define target screen coordinates */
-        const targetX = FOCUS_TARGET_X;
-        const targetY = FOCUS_TARGET_Y;
+        const { x: targetX, y: targetY } = focusTarget();
 
         /* Calculate delta vector */
         const dx = targetX - planetX;
@@ -195,6 +196,13 @@ function trackAllPositions(now) {
     const centerX = sunRect.x + sunRect.width / 2;
     const centerY = sunRect.y + sunRect.height / 2;
     const rects = trackers.map(t => t.planet.getBoundingClientRect());
+    /* Label sizes are fixed (measured once, again after web fonts load) */
+    trackers.forEach(t => {
+        if (t.size) return;
+        const box = t.label.getBoundingClientRect();
+        t.size = [Math.ceil(box.width), Math.ceil(box.height)];
+    });
+    const viewW = window.innerWidth, viewH = window.innerHeight;
 
     /* --- Write phase --- */
     trackers.forEach((t, i) => {
@@ -221,8 +229,13 @@ function trackAllPositions(now) {
            visually bigger, so the offset grows with them and never overlaps. */
         const screenRadius = Math.max(rect.width, rect.height) / 2;
         const LABEL_OFFSET = screenRadius + 8;
+        /* Label box anchored outward from the astre, then nudged back inside
+           the screen when the astre swings close to an edge (phones) */
+        const [labelW, labelH] = t.size;
+        const labelX = Math.min(Math.max(planetX + dx * LABEL_OFFSET + labelW * xPercent / 100, LABEL_MARGIN), viewW - labelW - LABEL_MARGIN);
+        const labelY = Math.min(Math.max(planetY + dy * LABEL_OFFSET + labelH * yPercent / 100, LABEL_MARGIN), viewH - labelH - LABEL_MARGIN);
         /* Drive position exclusively via transform — no left/top writes (same as crosshairs) */
-        t.label.style.transform = `translate3d(${planetX + dx * LABEL_OFFSET}px, ${planetY + dy * LABEL_OFFSET}px, 0) translate(${xPercent}%, ${yPercent}%)`;
+        t.label.style.transform = `translate3d(${labelX}px, ${labelY}px, 0)`;
 
         /* Return: stay locked on the astre as it travels home, until faded */
         if (!focused && returnSweep && returnSweep.planet === t.planet && crossX && crossY) {
