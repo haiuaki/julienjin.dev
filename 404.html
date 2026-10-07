@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Served by Vercel (and most static hosts) for any path that doesn't exist.
+         It can be served at any depth (/a/b/c), so every link and asset is
+         absolute from the site root. -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Julien Jin">
+    <meta name="robots" content="noindex">
+
+    <title>Signal lost · Julien Jin</title>
+
+    <!-- Google Fonts: IBM Plex Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        /* The site's terminal window, centered on an empty starfield */
+        #stars {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .lost {
+            position: fixed;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            padding: 16px;
+        }
+
+        .lost .term-window {
+            width: min(100%, 52ch);
+        }
+
+        /* Window titles normally only show while a planet is focused */
+        .lost .window-header {
+            opacity: 1;
+        }
+
+        .lost .window-content {
+            max-height: none;
+        }
+
+        .lost .path {
+            color: #fafafa;
+            word-break: break-all;
+        }
+
+        .lost .menu-item {
+            text-decoration: none;
+        }
+
+        .lost .home-link {
+            display: inline-block;
+            margin-top: 1.25em;
+            color: #fafafa;
+            letter-spacing: 2px;
+            text-decoration: none;
+            border-bottom: 1px dotted rgba(250, 250, 250, 0.45);
+        }
+
+        .lost .home-link:hover,
+        .lost .home-link:focus-visible {
+            border-bottom-color: #fafafa;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="stars" aria-hidden="true"></canvas>
+
+    <main class="lost">
+        <section class="term-window flicker-window is-open" aria-labelledby="lost-title">
+            <div class="window-bar">
+                <span class="bar-line bar-edge"></span>
+                <h1 class="window-header" id="lost-title" style="margin: 0; font-weight: inherit;">404</h1>
+                <span class="bar-line"></span>
+                <div class="window-meta">SIGNAL LOST</div>
+                <span class="bar-line bar-edge"></span>
+            </div>
+            <div class="flicker-frame"></div>
+            <div class="corner corner-tl"></div>
+            <div class="corner corner-tr"></div>
+            <div class="corner corner-bl"></div>
+            <div class="corner corner-br"></div>
+
+            <div class="window-content">
+                <p>No coordinates match <span class="path" id="path">this address</span>.</p>
+
+                <!-- Keep in sync with the planets in index.html -->
+                <nav aria-label="Site sections">
+                    <div class="menu-columns">
+                        <span class="menu-num">NO</span><span class="menu-col-title">SECTION</span>
+                    </div>
+                    <ul class="menu-list">
+                        <li><a class="menu-item" href="/#/info"><span class="menu-num">01</span>INFO</a></li>
+                        <li><a class="menu-item" href="/#/projects"><span class="menu-num">02</span>PROJECTS</a></li>
+                        <li><a class="menu-item" href="/#/lab"><span class="menu-num">03</span>LAB</a></li>
+                        <li><a class="menu-item" href="/#/contact"><span class="menu-num">04</span>CONTACT</a></li>
+                    </ul>
+                </nav>
+
+                <a class="home-link" href="/">← RETURN TO ORBIT</a>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        /* Show the address that was asked for */
+        document.getElementById('path').textContent = location.pathname;
+
+        /* Drifting starfield, like the star drift behind an open window on the
+           home page: stars slide slowly sideways (nearer ones faster) and
+           twinkle. Still for visitors who ask for reduced motion. */
+        const stars = document.getElementById('stars');
+        const ctx = stars.getContext('2d');
+        const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let field = [];
+
+        function seed() {
+            const dpr = window.devicePixelRatio || 1;
+            stars.width = innerWidth * dpr;
+            stars.height = innerHeight * dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            field = Array.from({ length: Math.floor(innerWidth * innerHeight / 4500) }, () => ({
+                x: Math.random() * innerWidth,
+                y: Math.random() * innerHeight,
+                size: Math.random() * 1.5,
+                alpha: Math.random() * 0.3 + 0.2,
+                depth: Math.random(),
+                phase: Math.random() * Math.PI * 2,
+            }));
+        }
+
+        let last = performance.now();
+        function frame(now) {
+            const dt = Math.min(now - last, 50) / 1000;
+            last = now;
+            ctx.clearRect(0, 0, innerWidth, innerHeight);
+            ctx.fillStyle = '#fafafa';
+            field.forEach(star => {
+                if (!still) {
+                    star.x -= (8 + star.depth * 14) * dt;
+                    if (star.x < -2) star.x += innerWidth + 4;
+                }
+                const twinkle = still ? 1 : 0.8 + 0.2 * Math.sin(now / 900 + star.phase);
+                ctx.globalAlpha = star.alpha * twinkle;
+                ctx.fillRect(star.x - star.size, star.y - star.size, star.size * 2, star.size * 2);
+            });
+            if (!still) requestAnimationFrame(frame);
+        }
+
+        seed();
+        addEventListener('resize', () => { seed(); if (still) frame(performance.now()); });
+        requestAnimationFrame(frame);
+    </script>
+</body>
+</html>
