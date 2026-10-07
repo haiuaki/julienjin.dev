@@ -5,12 +5,10 @@
    crosshairs onto that planet, linking the list to the 3D scene. It closes
    while a planet is focused and reopens on the way back home. */
 const HOME_TITLE = 'JULIEN JIN';
-const HOME_ROLE = 'SOFTWARE ENGINEER';
 const HOME_OPEN_DELAY = 1200; /* as the initial fade-in is well under way */
 
 const homeWindow = document.getElementById('home-window');
 const homeContent = homeWindow.querySelector('.window-content');
-const homeMeta = homeWindow.querySelector('.window-meta');
 
 let homeRows = null;     /* row buttons, built once */
 let homeTargeted = -1;   /* selected row (▸), driven by hover or ↑/↓ */
@@ -36,9 +34,6 @@ function buildHome() {
     homeToggle = createEl('button', 'home-toggle');
     homeToggle.setAttribute('aria-controls', 'home-sections');
 
-    const columns = createEl('div', 'menu-columns');
-    columns.append(createEl('span', 'menu-num', 'NO'), createEl('span', 'menu-col-title', 'SECTION'));
-
     const list = createEl('ul', 'menu-list');
     astreBtns.forEach((planet, i) => {
         const btn = createEl('button', 'menu-item');
@@ -46,10 +41,6 @@ function buildHome() {
         btn.style.setProperty('--row', i);
         const label = (planet.dataset.label || '').replace(/^\[(.*)\]$/, '$1').toUpperCase();
         btn.append(createEl('span', 'menu-num', pad(i + 1)), label);
-        /* Menus show how many entries they hold; single pages show their meta */
-        const menu = MENUS[planet.dataset.menu];
-        const meta = menu && (menu.entries ? `${pad(menu.entries.length)} FILES` : menu.meta);
-        if (meta) btn.append(createEl('span', 'menu-leader'), createEl('span', 'menu-meta', meta));
         const li = createEl('li');
         li.appendChild(btn);
         list.appendChild(li);
@@ -60,7 +51,8 @@ function buildHome() {
 
     const sections = createEl('div', 'home-sections');
     sections.id = 'home-sections';
-    sections.append(columns, list, status);
+    /* No column header: the toggle already names the list and 01-04 count it */
+    sections.append(list, status);
 
     homeContent.replaceChildren(homeToggle, sections);
     homeRows = [...list.querySelectorAll('.menu-item')];
@@ -106,7 +98,7 @@ function setExpanded(expanded, animate = true) {
 function applyExpanded(expanded) {
     homeWindow.classList.toggle('is-collapsed', !expanded);
     homeToggle.setAttribute('aria-expanded', String(expanded));
-    homeToggle.textContent = `${expanded ? '▾' : '▸'} MENU`;
+    homeToggle.textContent = `${expanded ? '▾' : '▸'} NAVIGATE`;
     if (expanded) {
         sessionStorage.setItem(HOME_EXPANDED_KEY, 'true');
         clearTimeout(homeIdleTimer);
@@ -136,13 +128,11 @@ function openHome() {
         /* Quiet return: a short fade, no flicker or decode */
         closeWindow(homeWindow);
         homeWindow.querySelector('.window-header').textContent = HOME_TITLE;
-        homeMeta.textContent = HOME_ROLE;
         homeWindow.classList.add('is-quiet', 'is-open');
     } else {
         sessionStorage.setItem(HOME_SEEN_KEY, 'true');
         homeWindow.classList.remove('is-quiet');
         openWindow(homeWindow, HOME_TITLE);
-        homeMeta.textContent = HOME_ROLE;
     }
 
     /* Keep the section the visitor came from selected, so ↓ or → continues from it */

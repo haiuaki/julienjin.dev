@@ -137,7 +137,8 @@ function buildIndex(menu) {
 
     /* Column headers share the row layout so they line up with the entries */
     const columns = createEl('div', 'menu-columns');
-    columns.append(createEl('span', 'menu-num', 'NO'), createEl('span', 'menu-col-title', 'TITLE'));
+    /* "#", not "NO", which read as "no title" */
+    columns.append(createEl('span', 'menu-num', '#'), createEl('span', 'menu-col-title', 'TITLE'));
     const metaField = (menu.fields || []).find(([, key]) => key === menu.indexMeta);
     if (metaField) columns.append(createEl('span', 'menu-meta', metaField[0]));
 

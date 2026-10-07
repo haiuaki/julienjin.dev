@@ -523,7 +523,7 @@ body.planet-focused #crosshair-y {
     pointer-events: none;
 }
 
-/* Menu toggle: "▸ MENU" while collapsed, "▾ MENU" once open */
+/* Menu toggle: "▸ NAVIGATE" while collapsed, "▾ NAVIGATE" once open */
 .home-toggle {
     display: block;
     width: 100%;
@@ -549,15 +549,13 @@ body.planet-focused #crosshair-y {
     margin-bottom: 0.5em;
 }
 
-/* Collapsed: the list leaves the layout but stays in the page for screen
-   readers and the Tab key (focusing a link opens the list) */
+/* Collapsed: the list folds to zero height but keeps its width, so the bar
+   is already as wide as the open menu and opening never jumps sideways. It
+   stays in the page for screen readers and the Tab key (focusing a link
+   opens the list). */
 #home-window.is-collapsed .home-sections {
-    position: absolute;
-    width: 1px;
-    height: 1px;
+    height: 0;
     overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
 }
 
 /* Opening: each row glitches in like the dossier text, a beat after the one
@@ -585,14 +583,6 @@ body.planet-focused #crosshair-y {
 /* Window titles normally show only during focus; the home title is always visible */
 #home-window .window-header {
     opacity: 1;
-}
-
-/* Wide enough for the name and role to sit apart in the title bar
-   (compact screens stretch the window to full width instead) */
-@media (min-width: 901px) {
-    #home-window .window-content {
-        min-width: 48ch;
-    }
 }
 
 /* Quiet open (returning home): one short fade instead of the power-on */
