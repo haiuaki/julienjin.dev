@@ -1,6 +1,14 @@
 :root { --active-planet-size: 2.2vmin; }
 /* --- 1. RESET & BASE STYLES --- */
 
+/* Keep the site's own text sizes: iOS Safari otherwise enlarges blocks it
+   judges to be long text when the phone is turned sideways, so long entries
+   would read bigger than short ones */
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
 * {
     margin: 0;
     padding: 0;
