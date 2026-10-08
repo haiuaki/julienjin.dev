@@ -426,6 +426,13 @@ body.planet-focused .planet-label {
     transition-duration: 0.6s;
 }
 
+/* Returning home: labels stay hidden until the camera has settled
+   (js/physics.js), then fade in next to their astres */
+body.labels-settling .planet-label {
+    opacity: 0 !important;
+    transition: none !important;
+}
+
 /* Reduced motion: the camera cuts (js/camera.js), so the rest of the system
    hides and returns at once with the cut instead of fading where the cut
    left it (in the corner) */

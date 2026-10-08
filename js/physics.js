@@ -75,10 +75,28 @@ function resumePhysics(dramatic = false) {
     else animateSpeed(1);
 }
 
+/* Astre labels wait for the camera to settle on the way home: during the pan
+   their astres come in from off-screen, and the labels (kept on screen) would
+   gather at the edge before catching up. Not needed when the camera cuts. */
+let labelSettleTimer = null;
+
 /* Leave a focused planet: close the window and pan the camera back home */
 function resetCamera() {
     syncRoute(null, null);
     const returningPlanet = document.querySelector('.astre-btn.active-planet');
+
+    /* Keep the crosshairs locked on the astre as it travels home: the tracking
+       loop in js/ui.js drives their position each frame, so only opacity
+       transitions here (holding, then fading out as it arrives). Set before
+       leaving the focused state: any style update in between would otherwise
+       start their fade-out with the quick hover fade (seen on phones). */
+    const crossX = document.getElementById('crosshair-x');
+    const crossY = document.getElementById('crosshair-y');
+    if (crossX && crossY && returningPlanet) {
+        crossX.style.transition = 'opacity 0.35s ease-out 0.6s';
+        crossY.style.transition = 'opacity 0.35s ease-out 0.6s';
+    }
+
     document.body.classList.remove('planet-focused');
     closeAllWindows();
     closeMenu();
@@ -102,6 +120,11 @@ function resetCamera() {
     /* Reduced motion: a cut instead of the pan (js/camera.js) */
     const panMs = panDuration(RETURN_PAN_MS);
     cutScene(false);
+    clearTimeout(labelSettleTimer);
+    if (panMs) {
+        document.body.classList.add('labels-settling');
+        labelSettleTimer = setTimeout(() => document.body.classList.remove('labels-settling'), HOME_RETURN_MS);
+    }
     solarSystem.style.transition = `margin ${panMs}ms ${CAMERA_EASE}`;
     solarSystem.style.marginLeft = '0px';
     solarSystem.style.marginTop = '0px';
@@ -120,16 +143,7 @@ function resetCamera() {
     document.querySelectorAll('.is-hovered').forEach(el => el.classList.remove('is-hovered'));
     document.body.classList.remove('crosshairs-active');
 
-    /* Keep the crosshairs locked on the astre as it travels home: the tracking
-       loop in js/ui.js drives their position each frame, so only opacity
-       transitions here (fading out as it arrives) */
-    const crossX = document.getElementById('crosshair-x');
-    const crossY = document.getElementById('crosshair-y');
-    if (crossX && crossY && returningPlanet) {
-        crossX.style.transition = 'opacity 0.35s ease-out 0.6s';
-        crossY.style.transition = 'opacity 0.35s ease-out 0.6s';
-        startReturnSweep(returningPlanet);
-    }
+    if (crossX && crossY && returningPlanet) startReturnSweep(returningPlanet);
 }
 
 /* Restore previous state on page load */
