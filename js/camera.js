@@ -59,4 +59,6 @@ window.addEventListener('mouseout', () => {
 initStars();
 renderLoop();
 
-
+/* Registered here rather than with the starfield's resize handler
+   (js/canvas.js), which can fire before this script has loaded */
+window.addEventListener('resize', recalculateCameraFocus);

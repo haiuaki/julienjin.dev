@@ -229,6 +229,5 @@ function drawStars(now) {
 window.addEventListener('resize', () => {
     initStars();
     starsDirty = true;
-    recalculateCameraFocus();
 });
 
