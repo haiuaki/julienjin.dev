@@ -776,7 +776,8 @@ body.planet-focused #crosshair-y {
     pointer-events: none;
 }
 
-/* Menu toggle: "▸ NAVIGATE" while collapsed, "▾ NAVIGATE" once open */
+/* Menu toggle: "▸ NAVIGATE" while collapsed, "▾ NAVIGATE" once open (the
+   triangle turns down; drawn as a shape, see .toggle-arrow) */
 .home-toggle {
     display: block;
     width: 100%;
@@ -795,6 +796,25 @@ body.planet-focused #crosshair-y {
     color: #ffffff;
     outline: 1px dashed var(--panel-border);
     outline-offset: -1px;
+}
+
+.toggle-arrow {
+    display: inline-block;
+    margin-right: 1ch;
+    /* Its bottom edge sits on the baseline; moved up so its centre meets the
+       capitals' centre (0.349em up). With translate, like the row marker,
+       rather than vertical-align, which browsers round to whole pixels
+       differently (half a pixel low in Safari) */
+    --tri-raise: calc(var(--tri-h) / 2 - 0.349em);
+    translate: 0 var(--tri-raise);
+}
+
+/* Open: the triangle points down. Its weight sits in its wide top edge, so
+   centred by its box it reads a little high; nudged down about halfway to
+   its visual centre (optical alignment) */
+#home-window:not(.is-collapsed) .toggle-arrow {
+    rotate: 90deg;
+    translate: 0 calc(var(--tri-raise) + 0.05em);
 }
 
 #home-window:not(.is-collapsed) .home-toggle {
@@ -1114,11 +1134,33 @@ body.planet-focused .window-header {
     cursor: pointer;
 }
 
+/* Small triangles (selection marker, NAVIGATE toggle): one SVG shape
+   filled with the text color, so they look the same on every device (the
+   site font has no triangles, and system fonts draw them differently) and
+   screen readers skip them. Both are centred on the capital letters next to
+   them: Plex Mono's capitals are 0.698em tall, so their centre sits 0.349em
+   above the baseline. */
+.menu-item::before,
+.toggle-arrow {
+    --tri-h: 0.65em;
+    width: 1ch;
+    height: var(--tri-h);
+    background-color: currentColor;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 12'%3E%3Cpath d='M1 1L9 6L1 11Z'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 12'%3E%3Cpath d='M1 1L9 6L1 11Z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
 /* Selection marker */
 .menu-item::before {
-    content: '▸';
-    position: absolute;
-    left: 0.5em;
+    content: '';
+    /* A flex item aligned on the row's baseline (its bottom edge sits on it),
+       raised so its centre meets the capitals' centre: the same reference as
+       the toggle, whatever the row holds. The margins take back the space it
+       and the row's gap would use, so it hangs at 0.5em in the left padding. */
+    flex: none;
+    margin-left: -1.3em;
+    margin-right: calc(1.3em - 2ch);
+    translate: 0 calc(var(--tri-h) / 2 - 0.349em);
     color: #fafafa;
     opacity: 0;
 }

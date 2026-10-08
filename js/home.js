@@ -33,6 +33,11 @@ let homeIdleTimer = null;
 function buildHome() {
     homeToggle = createEl('button', 'home-toggle');
     homeToggle.setAttribute('aria-controls', 'home-sections');
+    /* The triangle is a shape (css .toggle-arrow), hidden from screen readers:
+       aria-expanded already says whether the list is open */
+    const arrow = createEl('span', 'toggle-arrow');
+    arrow.setAttribute('aria-hidden', 'true');
+    homeToggle.append(arrow, 'NAVIGATE');
 
     const list = createEl('ul', 'menu-list');
     astreBtns.forEach((planet, i) => {
@@ -98,7 +103,6 @@ function setExpanded(expanded, animate = true) {
 function applyExpanded(expanded) {
     homeWindow.classList.toggle('is-collapsed', !expanded);
     homeToggle.setAttribute('aria-expanded', String(expanded));
-    homeToggle.textContent = `${expanded ? '▾' : '▸'} NAVIGATE`;
     if (expanded) {
         sessionStorage.setItem(HOME_EXPANDED_KEY, 'true');
         clearTimeout(homeIdleTimer);
