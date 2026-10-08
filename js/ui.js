@@ -10,6 +10,13 @@ const LABEL_FADE_MS = 800;
 const FOCUS_GROWTH = 1.4; /* the focused astre grows by this much in the corner */
 const LABEL_MARGIN = 6; /* labels keep this distance from the screen edges */
 document.fonts && document.fonts.ready.then(() => trackers.forEach(t => { t.size = null; }));
+/* Label sizes are cached for the tracking loop; measured again whenever a
+   label's size changes (web fonts arriving, or a browser translating the
+   page: "[lab]" becomes "[laboratoire]"), so they stay placed by their width */
+const labelResize = new ResizeObserver(entries => entries.forEach(entry => {
+    const tracker = trackers.find(t => t.label === entry.target);
+    if (tracker) tracker.size = null;
+}));
 let labelsHiddenAt = Infinity;
 
 /* Crosshair return after leaving a planet: the astre starts in the corner,
@@ -81,6 +88,7 @@ astreBtns.forEach((planet, i) => {
 
     /* Register with the shared tracking loop (see trackAllPositions below) */
     trackers.push({ planet, label: floatingLabel });
+    labelResize.observe(floatingLabel);
 
     
     planet.addEventListener('click', (e) => {
