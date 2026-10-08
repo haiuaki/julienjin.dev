@@ -1,3 +1,23 @@
+/* --- REDUCED MOTION: CAMERA CUTS --- */
+/* With reduced motion, the camera cuts instead of panning (WCAG 2.3.3): the
+   scene takes its new framing at once and fades in there, so nothing slides
+   or zooms across the screen. Pans use panDuration() for their length. */
+const cameraReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+const panDuration = (ms) => (cameraReducedMotion.matches ? 0 : ms);
+const CUT_FADE_MS = 220;
+
+/* Fade the scene in at its new framing, with the astre labels (they live
+   outside the scene; while hidden for a focused astre, their CSS keeps them
+   hidden). Crosshairs too when entering an astre; on the way home they fade
+   out on their own. */
+function cutScene(withCrosshairs) {
+    if (!cameraReducedMotion.matches) return;
+    const els = [document.getElementById('space-container'), document.getElementById('starfield'),
+        ...document.querySelectorAll('.planet-label')];
+    if (withCrosshairs) els.push(document.getElementById('crosshair-x'), document.getElementById('crosshair-y'));
+    els.forEach(el => el && el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: CUT_FADE_MS, easing: 'ease-out' }));
+}
+
 function recalculateCameraFocus() {
     const activePlanet = document.querySelector('.active-planet');
     if (!activePlanet) return;
@@ -32,8 +52,8 @@ function recalculateCameraFocus() {
     void spaceContainer.offsetWidth; /* Force reflow */
 
     /* Restore camera transition styles */
-    spaceContainer.style.transition = `transform ${FOCUS_PAN_MS}ms ${CAMERA_EASE}`;
-    if (starfield) starfield.style.transition = `transform ${FOCUS_PAN_MS}ms ${CAMERA_EASE}`;
+    spaceContainer.style.transition = `transform ${panDuration(FOCUS_PAN_MS)}ms ${CAMERA_EASE}`;
+    if (starfield) starfield.style.transition = `transform ${panDuration(FOCUS_PAN_MS)}ms ${CAMERA_EASE}`;
 
     /* Keep the crosshairs locked on the focus target after the resize */
     const crossX = document.getElementById('crosshair-x');

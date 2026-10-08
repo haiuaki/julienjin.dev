@@ -426,6 +426,19 @@ body.planet-focused .planet-label {
     transition-duration: 0.6s;
 }
 
+/* Reduced motion: the camera cuts (js/camera.js), so the rest of the system
+   hides and returns at once with the cut instead of fading where the cut
+   left it (in the corner) */
+@media (prefers-reduced-motion: reduce) {
+    .orbit-ring::before,
+    .planet-label,
+    #sun-btn,
+    .astre-btn {
+        transition-duration: 0s !important;
+        transition-delay: 0s !important;
+    }
+}
+
 
 /* Fade out the active planet's label after the camera arrives (1.5s delay) */
 
@@ -1479,12 +1492,17 @@ body.planet-focused .window-header {
 @media (prefers-reduced-motion: reduce) {
     #home-window.rows-in .menu-item,
     #home-window.rows-off .menu-item,
+    .dossier {
+        animation: none;
+    }
+
+    /* Windows open with the quiet fade instead of the power-on flicker, like
+       the home menu on a return: opacity only, nothing moves */
     .flicker-window.is-open .flicker-frame,
     .flicker-window.is-open .window-bar,
     .flicker-window.is-open .corner,
-    .flicker-window.is-open .window-content,
-    .dossier {
-        animation: none;
+    .flicker-window.is-open .window-content {
+        animation: quiet-in 0.2s ease-out both;
     }
 }
 

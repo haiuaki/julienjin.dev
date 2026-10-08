@@ -99,17 +99,20 @@ function resetCamera() {
     /* The home window fades back in as the camera finishes its return */
     uiTimeouts.push(setTimeout(openHome, HOME_RETURN_MS));
     
-    solarSystem.style.transition = `margin ${RETURN_PAN_MS}ms ${CAMERA_EASE}`;
+    /* Reduced motion: a cut instead of the pan (js/camera.js) */
+    const panMs = panDuration(RETURN_PAN_MS);
+    cutScene(false);
+    solarSystem.style.transition = `margin ${panMs}ms ${CAMERA_EASE}`;
     solarSystem.style.marginLeft = '0px';
     solarSystem.style.marginTop = '0px';
 
     const spaceContainer = document.getElementById('space-container');
-    spaceContainer.style.transition = `transform ${RETURN_PAN_MS}ms ${CAMERA_EASE}`;
+    spaceContainer.style.transition = `transform ${panMs}ms ${CAMERA_EASE}`;
     spaceContainer.style.transform = 'translate(0px, 0px) scale(1)';
 
     const starfield = document.getElementById('starfield');
     if (starfield) {
-        starfield.style.transition = `transform ${RETURN_PAN_MS}ms ${CAMERA_EASE}`;
+        starfield.style.transition = `transform ${panMs}ms ${CAMERA_EASE}`;
         starfield.style.transform = 'translate(0px, 0px) scale(1)';
     }
 

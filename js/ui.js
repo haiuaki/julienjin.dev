@@ -139,20 +139,23 @@ astreBtns.forEach((planet, i) => {
         const dy = targetY - planetY;
 
         /* Reset container margins */
-        solarSystem.style.transition = `margin ${FOCUS_PAN_MS}ms ${CAMERA_EASE}`;
+        /* Reduced motion: a cut instead of the pan (js/camera.js) */
+        const panMs = panDuration(FOCUS_PAN_MS);
+        cutScene(true);
+        solarSystem.style.transition = `margin ${panMs}ms ${CAMERA_EASE}`;
         solarSystem.style.marginLeft = '0px';
         solarSystem.style.marginTop = '0px';
 
         /* Apply transforms to space container */
         const spaceContainer = document.getElementById('space-container');
-        spaceContainer.style.transition = `transform ${FOCUS_PAN_MS}ms ${CAMERA_EASE}`;
+        spaceContainer.style.transition = `transform ${panMs}ms ${CAMERA_EASE}`;
         spaceContainer.style.transform = `translate(${dx}px, ${dy}px) scale(1)`;
 
         /* Apply fractional translation to starfield for parallax effect */
         const starfield = document.getElementById('starfield');
         if (starfield) {
             /* Same duration as the pan, so the parallax doesn't trail behind it */
-            starfield.style.transition = `transform ${FOCUS_PAN_MS}ms ${CAMERA_EASE}`;
+            starfield.style.transition = `transform ${panMs}ms ${CAMERA_EASE}`;
             starfield.style.transform = `translate(${dx * 0.15}px, ${dy * 0.15}px) scale(1)`;
         }
 
@@ -166,8 +169,8 @@ astreBtns.forEach((planet, i) => {
 
             void crossX.offsetWidth; /* Force synchronous layout recalculation */
 
-            crossX.style.transition = `transform ${FOCUS_PAN_MS}ms ${CAMERA_EASE}, opacity 0.2s ease-out`;
-            crossY.style.transition = `transform ${FOCUS_PAN_MS}ms ${CAMERA_EASE}, opacity 0.2s ease-out`;
+            crossX.style.transition = `transform ${panMs}ms ${CAMERA_EASE}, opacity 0.2s ease-out`;
+            crossY.style.transition = `transform ${panMs}ms ${CAMERA_EASE}, opacity 0.2s ease-out`;
             crossX.style.transform = `translate3d(0, ${crosshairPos(targetY)}px, 0)`;
             crossY.style.transform = `translate3d(${crosshairPos(targetX)}px, 0, 0)`;
         }
