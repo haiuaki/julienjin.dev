@@ -330,10 +330,22 @@ const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 /* Resize a window's content from one height to its new natural height over
    the camera easing; returns the duration (0 when skipped) */
+const heightAnims = new WeakMap(); /* content -> its latest height animation */
+
 function animateWindowHeight(content, from, duration) {
     const to = content.offsetHeight;
     if (reducedMotion.matches || from === to) return 0;
-    content.animate([{ height: `${from}px` }, { height: `${to}px` }], { duration, easing: CAMERA_EASE });
+    const anim = content.animate([{ height: `${from}px` }, { height: `${to}px` }], { duration, easing: CAMERA_EASE });
+    /* While growing, the content is briefly taller than its box: a scrollbar
+       would appear (visible with a mouse, or "always show scroll bars") and
+       widen the window for a moment. Hidden until the height has caught up. */
+    content.style.overflowY = 'hidden';
+    heightAnims.set(content, anim);
+    const restore = () => {
+        if (heightAnims.get(content) === anim) content.style.overflowY = '';
+    };
+    anim.onfinish = restore;
+    anim.oncancel = restore;
     return duration;
 }
 
