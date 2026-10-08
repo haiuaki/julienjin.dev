@@ -1,59 +1,59 @@
 /* --- MENU REGISTRY --- */
-/* Each key matches a planet's data-menu attribute. Entry bodies are cloned
-   from <template id="entry-{id}"> in index.html, so adding an entry is a
-   data change here plus one template.
-   fields:    dossier rows shown in the reader, as [label, entry key];
-              an entry can instead carry its own `fields` as [label, value]
-   indexMeta: entry key shown at the end of each index row; its column
-              header is that field's label
-   page:      a single window instead of a list, with `fields` as
-              [label, value] and its body in <template id="page-{key}">
-   meta:      text on the right of a page window's title bar
-
-   EXAMPLE CONTENT: values in [brackets] are placeholders to replace. */
+/* Each key matches a planet's data-menu attribute. This holds each section's
+   settings only; its entries live in content/{key}.html, one <article> each
+   (see the note at the top of those files), so adding an entry is one edit
+   in one file.
+   fields:    details shown above an entry's text, as [label, key], where key
+              is the entry's data-{key} attribute; entries without a value
+              for a field skip it
+   indexMeta: key shown at the end of each index row; its column header is
+              that field's label
+   page:      a single window instead of a list, built from the file's one
+              <article>
+   meta:      text on the right of a page window's title bar */
 const MENUS = {
     info: {
-        entries: [
-            {
-                id: 'profile', title: 'PROFILE',
-                fields: [['NAME', SITE_NAME], ['ROLE', 'Software engineer'], ['BASED', '[City, Country]'], ['FOCUS', '[e.g. graphics · web performance]']],
-            },
-            {
-                id: 'trajectory', title: 'TRAJECTORY',
-                fields: [['SPAN', '2019 — NOW'], ['CURRENT', '[Company]']],
-            },
-            {
-                id: 'now', title: 'NOW',
-                fields: [['UPDATED', 'OCT 2026']],
-            },
-        ],
+        fields: [['NAME', 'name'], ['ROLE', 'role'], ['BASED', 'based'], ['FOCUS', 'focus'],
+            ['SPAN', 'span'], ['CURRENT', 'current'], ['UPDATED', 'updated']],
     },
     projects: {
         fields: [['YEAR', 'year'], ['ROLE', 'role'], ['STACK', 'stack'], ['STATUS', 'status']],
         indexMeta: 'year',
-        /* Placeholder data */
-        entries: [
-            { id: 'nebula-engine', title: 'NEBULA ENGINE', year: '2026', role: 'Lead engineer', stack: 'WebGL · Rust', status: 'Live' },
-            { id: 'stellar-core', title: 'STELLAR CORE', year: '2025', role: 'Backend', stack: 'Go · Postgres', status: 'Archived' },
-            { id: 'orbital-archive', title: 'ORBITAL ARCHIVE', year: '2024', role: 'Solo project', stack: 'TypeScript', status: 'In progress' },
-        ],
     },
     lab: {
         fields: [['YEAR', 'year'], ['MEDIUM', 'medium'], ['STATUS', 'status']],
         indexMeta: 'year',
-        entries: [
-            { id: 'lens-star', title: 'LENS STAR STUDIES', year: '2026', medium: 'Canvas · CSS', status: 'On this site' },
-            { id: 'black-hole', title: 'BLACK HOLE RENDERER', year: '2026', medium: 'Canvas 2D', status: 'Prototype' },
-            { id: 'time-stop', title: 'TIME STOP', year: '2026', medium: 'Web Animations', status: 'On this site' },
-            { id: 'next-experiment', title: '[NEXT EXPERIMENT]', year: '[YEAR]', medium: '[Medium]', status: '[Status]' },
-        ],
     },
     contact: {
         page: true,
         meta: 'CHANNEL OPEN',
-        fields: [['STATUS', '[Open to full-time roles]'], ['BASED', '[City] · UTC+1'], ['REPLIES', 'Within 48h'], ['PREFERRED', 'Email']],
+        fields: [['STATUS', 'status'], ['BASED', 'based'], ['REPLIES', 'replies'], ['PREFERRED', 'preferred']],
     },
 };
+
+/* --- CONTENT --- */
+/* Every section's file is fetched once, all in parallel, as the page loads,
+   so a window never waits on the network unless it opens within the first
+   moments (a shared link). Each <article> becomes an entry: its id, its
+   data-* attributes (title, year...) and its content as the body.
+   A file that fails to load leaves its section empty instead of breaking. */
+const contentReady = Promise.all(Object.entries(MENUS).map(([key, menu]) =>
+    fetch(`content/${key}.html`)
+        .then(res => (res.ok ? res.text() : Promise.reject(new Error(`content/${key}.html: ${res.status}`))))
+        .then(text => {
+            const parsed = createEl('template');
+            parsed.innerHTML = text;
+            const entries = [...parsed.content.children]
+                .filter(el => el.tagName === 'ARTICLE')
+                .map(article => ({ ...article.dataset, id: article.id, body: article }));
+            if (menu.page) menu.content = entries[0] || null;
+            else menu.entries = entries;
+        })
+        .catch(err => {
+            console.warn(err);
+            if (!menu.page) menu.entries = [];
+        })
+        .finally(() => { menu.loaded = true; })));
 
 /* Touch screens get a visible way home in the astre's window: the home button
    (the astre in the corner) is not obviously a button to a first-time visitor */
@@ -110,6 +110,7 @@ const pad = (n) => String(n).padStart(2, '0');
 /* Index window body: column headers, numbered entries, status line */
 function buildIndex(menu) {
     const list = createEl('ul', 'menu-list');
+    if (!menu.entries.length) list.append(createEl('li', 'term-line', '// no signal'));
     menu.entries.forEach((entry, i) => {
         const btn = createEl('button', 'menu-item');
         btn.dataset.index = i;
@@ -163,9 +164,7 @@ function buildDossier(menu, i) {
     const entry = menu.entries[i];
     const total = menu.entries.length;
 
-    /* An entry's own [label, value] pairs, or the menu's [label, key] columns */
-    const pairs = entry.fields || (menu.fields || []).map(([label, key]) => [label, entry[key]]);
-    const fields = buildFields(pairs);
+    const fields = buildFields(entryFields(menu, entry));
 
     const body = createEl('div', 'dossier-body');
     body.appendChild(cloneEntryContent(entry));
@@ -198,6 +197,9 @@ function buildDossier(menu, i) {
     return dossier;
 }
 
+/* The section's [label, key] fields filled from an entry: [label, value] */
+const entryFields = (menu, entry) => (menu.fields || []).map(([label, key]) => [label, entry[key]]);
+
 /* Label/value grid with dotted leaders; empty values are skipped */
 function buildFields(pairs) {
     const fields = createEl('dl', 'dossier-fields');
@@ -210,7 +212,7 @@ function buildFields(pairs) {
     return fields;
 }
 
-/* A <div data-copy-of="some-id"> in a template stands for a block written
+/* A <div data-copy-of="some-id"> in an entry stands for a block written
    once elsewhere in the page (the contact channels live in the no-JS window),
    so it is only ever edited in one place */
 function fillCopies(fragment) {
@@ -224,23 +226,27 @@ function fillCopies(fragment) {
     return fragment;
 }
 
-/* Single-page window (e.g. contact): fields, then the page template */
-function buildPage(id, menu) {
+/* Single-page window (e.g. contact): fields, then the page's text */
+function buildPage(menu) {
     const page = createEl('article', 'dossier');
-    const fields = buildFields(menu.fields || []);
-    if (fields.children.length) page.append(fields);
     const body = createEl('div', 'dossier-body');
-    const template = document.getElementById(`page-${id}`);
-    if (template) body.appendChild(markExternalLinks(fillCopies(template.content.cloneNode(true))));
+    if (menu.content) {
+        const fields = buildFields(entryFields(menu, menu.content));
+        if (fields.children.length) page.append(fields);
+        body.appendChild(cloneEntryContent(menu.content));
+    } else {
+        body.appendChild(createEl('p', 'term-line', '// no signal'));
+    }
     page.append(body);
     return page;
 }
 
-/* Clone an entry's template body, or a placeholder if it has none yet */
+/* A fresh copy of an entry's text, or a placeholder if it has none yet */
 function cloneEntryContent(entry) {
-    const template = document.getElementById(`entry-${entry.id}`);
-    if (template) return markExternalLinks(fillCopies(template.content.cloneNode(true)));
-    return createEl('p', 'term-line', '// no data');
+    if (!entry.body.children.length) return createEl('p', 'term-line', '// no data');
+    const copy = document.createDocumentFragment();
+    entry.body.childNodes.forEach(node => copy.appendChild(document.importNode(node, true)));
+    return markExternalLinks(fillCopies(copy));
 }
 
 function menuButtons() {
@@ -259,6 +265,13 @@ function updateCount() {
 function openMenu(id, label) {
     const menu = MENUS[id];
     if (!menu) return;
+    if (!menu.loaded) {
+        /* Opened before its file arrived: open once it has, if still on this astre */
+        contentReady.then(() => {
+            if (document.querySelector('.astre-btn.active-planet')?.dataset.menu === id) openMenu(id, label);
+        });
+        return;
+    }
     menuState.id = id;
     menuState.index = -1;
     menuState.reading = false;
@@ -267,7 +280,7 @@ function openMenu(id, label) {
     if (menu.page) {
         menuState.els = null;
         indexWindow.classList.add('is-page');
-        indexContent.replaceChildren(buildPage(id, menu));
+        indexContent.replaceChildren(buildPage(menu));
         openWindow(indexWindow, label);
         setIndexMeta(menu.meta || '');
         return;

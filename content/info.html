@@ -1,0 +1,39 @@
+<!-- Info content, loaded by js/menu.js.
+     One <article> per entry, in the order the index lists them:
+       id          the entry's address (#/info/<id>): lowercase, dashes
+       data-title  the title in the index and the reader
+       data-*      the details shown above the text; which ones, and their
+               labels, are set for this section in MENUS (js/menu.js)
+     The article's content is the text shown in the reader.
+     EXAMPLE CONTENT: everything in [brackets] is a placeholder to replace. -->
+
+<article id="profile"
+         data-title="PROFILE"
+         data-name="Julien Jin"
+         data-role="Software engineer"
+         data-based="[City, Country]"
+         data-focus="[e.g. graphics · web performance]">
+    <p>[Two or three sentences in your own voice: what you build, what you care about in your work, and what kind of team or problem you are looking for next.]</p>
+    <p>[One sentence on something outside work that says something about you.]</p>
+</article>
+
+<article id="trajectory"
+         data-title="TRAJECTORY"
+         data-span="2019 — NOW"
+         data-current="[Company]">
+    <ol class="timeline">
+        <li><span class="tl-when">2024 — NOW</span><span class="tl-what">Software engineer · [Company]</span><span class="tl-note">[What you own there and one result you are proud of.]</span></li>
+        <li><span class="tl-when">2022 — 2024</span><span class="tl-what">[Role] · [Company]</span><span class="tl-note">[One line on the work and its impact.]</span></li>
+        <li><span class="tl-when">2019 — 2022</span><span class="tl-what">[Degree] · [School]</span><span class="tl-note">[Focus, thesis or standout project.]</span></li>
+    </ol>
+</article>
+
+<article id="now"
+         data-title="NOW"
+         data-updated="OCT 2026">
+    <ul class="now-list">
+        <li>Building this site: a navigable solar system with a time switch.</li>
+        <li>Learning [topic you are currently studying].</li>
+        <li>Reading [book or paper].</li>
+    </ul>
+</article>
