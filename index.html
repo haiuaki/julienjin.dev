@@ -17,6 +17,38 @@
 </head>
 <body>
 
+    <!-- Without JavaScript the scene can't move or open anything: a still
+         window over the frozen system says so and keeps the essentials one
+         click away. Keep the channels in sync with the [contact] page below. -->
+    <noscript>
+        <main class="no-script">
+            <section class="term-window flicker-window is-open" aria-labelledby="no-script-title">
+                <div class="window-bar">
+                    <span class="bar-line bar-edge"></span>
+                    <h1 class="window-header" id="no-script-title">JULIEN JIN</h1>
+                    <span class="bar-line"></span>
+                    <div class="window-meta">NO SIGNAL</div>
+                    <span class="bar-line bar-edge"></span>
+                </div>
+                <div class="flicker-frame"></div>
+                <div class="corner corner-tl"></div>
+                <div class="corner corner-tr"></div>
+                <div class="corner corner-bl"></div>
+                <div class="corner corner-br"></div>
+
+                <div class="window-content">
+                    <p>This system runs on JavaScript, which is turned off in this browser. Turn it on to explore, or reach me directly:</p>
+                    <dl class="dossier-fields channels">
+                        <div class="dossier-field"><dt>EMAIL</dt><dd><a href="mailto:name@example.com">name@example.com</a></dd></div>
+                        <div class="dossier-field"><dt>GITHUB</dt><dd><a href="https://github.com/" target="_blank" rel="noopener">github.com/[handle]</a></dd></div>
+                        <div class="dossier-field"><dt>LINKEDIN</dt><dd><a href="https://www.linkedin.com/" target="_blank" rel="noopener">linkedin.com/in/[handle]</a></dd></div>
+                        <div class="dossier-field"><dt>CV</dt><dd><a href="cv.pdf">[cv.pdf]</a></dd></div>
+                    </dl>
+                </div>
+            </section>
+        </main>
+    </noscript>
+
     <!-- Home window: name and role in its title bar, one row per planet (js/home.js).
          First in the page so Tab and screen readers reach the sections first;
          its position on screen is set in CSS. -->
@@ -176,7 +208,7 @@
         <p>[A small prototype or study: what question it explores, what you tried, and what you learned. Link a live demo if there is one.]</p>
     </template>
 
-    <!-- [contact]: a single page, no list -->
+    <!-- [contact]: a single page, no list (its channels are repeated in the <noscript> window at the top) -->
     <template id="page-contact">
         <p>[One line inviting people to reach out, and for what: roles, collaborations, questions about a project.]</p>
         <dl class="dossier-fields channels">

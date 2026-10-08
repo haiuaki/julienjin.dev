@@ -479,6 +479,39 @@ body.planet-focused #time-status {
     100% { opacity: 1; }
 }
 
+/* --- NO-SCRIPT FALLBACK --- */
+/* A still window centered over the frozen scene (index.html <noscript>).
+   It covers the whole screen, so the scene's dead buttons can't be clicked. */
+.no-script {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+}
+
+.no-script .term-window {
+    width: min(100%, 52ch);
+}
+
+/* Window titles normally only show while a planet is focused */
+.no-script .window-header {
+    margin: 0;
+    font-weight: inherit;
+    opacity: 1;
+}
+
+.no-script .window-content {
+    max-height: none;
+}
+
+/* The scene stays as a faint backdrop, like it fades behind an open window.
+   (With JavaScript on, <noscript> content is never parsed, so this can't match.) */
+body:has(.no-script) #space-container {
+    opacity: 0.2;
+}
+
 /* --- 11. TARGETING CROSSHAIRS --- */
 #crosshair-x, #crosshair-y {
     position: fixed;
