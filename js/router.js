@@ -39,7 +39,7 @@ function updateTitle(menuId, entryId) {
         const entry = entryId && (MENUS[menuId].entries || []).find(e => e.id === entryId);
         if (entry) parts.push(titleCase(entry.title));
         const label = astreFor(menuId)?.dataset.label || menuId;
-        parts.push(titleCase(label.replace(/^\[(.*)\]$/, '$1')));
+        parts.push(titleCase(label));
     }
     parts.push(SITE_NAME);
     document.title = parts.join(' · ');

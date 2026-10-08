@@ -462,6 +462,19 @@ body.time-halted #sun-btn::before {
     animation: glitch-in 0.45s steps(1, end) calc(0.9s + var(--i, 0) * 0.12s) backwards;
 }
 
+/* "[projects]": the brackets are drawn here, not written in the label, so
+   translators only see the word; "/ ''" keeps them out of what screen
+   readers announce */
+.planet-label::before {
+    content: '['; /* browsers without the alt-text syntax */
+    content: '[' / '';
+}
+
+.planet-label::after {
+    content: ']'; /* browsers without the alt-text syntax */
+    content: ']' / '';
+}
+
 @media (prefers-reduced-motion: reduce) {
     .planet-label {
         animation: initial-fade-in 2.5s ease-in-out;

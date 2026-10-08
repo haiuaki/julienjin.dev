@@ -44,7 +44,7 @@ function buildHome() {
         const btn = createEl('button', 'menu-item');
         btn.dataset.planet = i;
         btn.style.setProperty('--row', i);
-        const label = (planet.dataset.label || '').replace(/^\[(.*)\]$/, '$1').toUpperCase();
+        const label = (planet.dataset.label || '').toUpperCase();
         btn.append(createEl('span', 'menu-num', pad(i + 1)), label);
         const li = createEl('li');
         li.appendChild(btn);

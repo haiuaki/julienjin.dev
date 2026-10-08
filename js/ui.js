@@ -51,10 +51,15 @@ astreBtns.forEach((planet, i) => {
     const labelText = planet.getAttribute('data-label');
     if (!labelText) return;
 
-    /* Generate a dedicated 2D screenspace label for this planet */
+    /* Generate a dedicated 2D screenspace label for this planet. Plain word
+       only: CSS draws the brackets, so a browser translating the page gets a
+       clean word (brackets in the text got reordered, or the word skipped).
+       It also names the astre's button, in whatever language it shows. */
     const floatingLabel = document.createElement('div');
     floatingLabel.className = 'planet-label';
+    floatingLabel.id = `astre-label-${i}`;
     floatingLabel.textContent = labelText;
+    planet.setAttribute('aria-labelledby', floatingLabel.id);
     floatingLabel.style.setProperty('--i', i); /* glitches in after the labels before it */
     document.body.appendChild(floatingLabel);
     
@@ -191,9 +196,8 @@ astreBtns.forEach((planet, i) => {
         closeAllWindows();
         closeMenu();
 
-        /* "[projects]" -> "PROJECTS": the window frame now encloses the title */
-        const rawLabel = planet.getAttribute('data-label') || 'DATA';
-        const labelText = rawLabel.replace(/^\[(.*)\]$/, '$1').toUpperCase();
+        /* "projects" -> "PROJECTS": the window frame now encloses the title */
+        const labelText = (planet.getAttribute('data-label') || 'DATA').toUpperCase();
         const menuId = planet.dataset.menu;
 
         /* Clear existing sequence timers */
