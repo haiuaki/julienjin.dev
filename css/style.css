@@ -1509,18 +1509,18 @@ body.planet-focused .window-header {
 /* --- COMPACT LAYOUT --- */
 /* Matches compactQuery in js/menu.js: one window at a time, index first, then the reader */
 @media (max-width: 900px) {
-    /* Start just right of the crosshair's vertical line (x = 64.5) to give the text room */
-    /* Tighter corner on compact screens (crosshairs at 28.5, 30.5 in
-       js/globals.js), leaving more room for reading */
+    /* Tighter corner on compact screens (crosshairs at 28.5, 52.5 in
+       js/globals.js), leaving more room for reading. The crosshair line sits
+       below the time switch (16-40px), and the windows below the line. */
     #window-row {
-        top: 44px;
+        top: 66px;
         left: 44px;
         right: 12px;
         bottom: 16px;
     }
 
     .term-window {
-        --row-inset: 60px; /* compact top (44) + bottom (16) */
+        --row-inset: 82px; /* compact top (66) + bottom (16) */
         flex: 1 1 auto;
         min-width: 0;
     }
@@ -1530,14 +1530,11 @@ body.planet-focused .window-header {
     }
 
     /* The home menu takes the bottom edge, so the time switch moves to the
-       top, above the windows (which start 44px down) */
+       top. It stays in the same place in every view: the focused astre, its
+       crosshairs and the windows sit below it. */
     #time-switch {
         bottom: auto;
         top: calc(16px + env(safe-area-inset-top, 0px));
-    }
-
-    body.planet-focused #time-switch {
-        top: calc(6px + env(safe-area-inset-top, 0px));
     }
 
     /* Bottom of the screen, within thumb reach; the list opens upward */

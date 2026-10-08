@@ -34,10 +34,11 @@ if (isNaN(systemEpoch)) {
 /* Focus target for the active planet. Pixel centers (x.5) rather than pixel
    boundaries, so a 1px crosshair line can sit exactly on the planet's center.
    Compact screens (matches the 900px layout in style.css) use a tighter corner
-   to leave more room for reading. Read at use time, so it follows resizes. */
+   to leave more room for reading, low enough that the crosshair line clears
+   the time switch at the top. Read at use time, so it follows resizes. */
 const compactLayout = window.matchMedia('(max-width: 900px)');
 function focusTarget() {
-    return compactLayout.matches ? { x: 28.5, y: 30.5 } : { x: 64.5, y: 58.5 };
+    return compactLayout.matches ? { x: 28.5, y: 52.5 } : { x: 64.5, y: 58.5 };
 }
 
 /* Crosshairs are 1px lines drawn from their translate value, so their visual
