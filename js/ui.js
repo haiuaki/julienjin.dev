@@ -329,6 +329,8 @@ const SCRAMBLE_GLYPHS = '!<>-_\\/[]{}=+*^?#%&$01';
 const SCRAMBLES = /[A-Z]/i;
 const SCRAMBLE_FRAME = 30;  /* ms per frame */
 const SCRAMBLE_FRAMES = 14; /* frames until the last character locks */
+/* The power-on flicker (0.5s) is dark for its first 40% (css flicker-in) */
+const POWER_ON_DARK_MS = 200;
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 /* Resize a window's content from one height to its new natural height over
@@ -352,22 +354,28 @@ function animateWindowHeight(content, from, duration) {
     return duration;
 }
 
-function scrambleHeader(win, text) {
+/* holdMs: keep every letter scrambled this long before decoding starts, so
+   a window powering on decodes while its title is on screen */
+function scrambleHeader(win, text, holdMs = 0) {
     const header = win.querySelector('.window-header');
     if (reducedMotion.matches) {
         header.textContent = text;
         return;
     }
-    let frame = 0;
-    const scramble = setInterval(() => {
-        frame++;
-        const locked = Math.floor(text.length * frame / SCRAMBLE_FRAMES);
+    const holdFrames = Math.round(holdMs / SCRAMBLE_FRAME);
+    const draw = (frame) => {
+        const locked = Math.floor(text.length * Math.max(0, frame - holdFrames) / SCRAMBLE_FRAMES);
         let out = text.slice(0, locked);
         for (let i = locked; i < text.length; i++) {
             out += SCRAMBLES.test(text[i]) ? SCRAMBLE_GLYPHS[Math.random() * SCRAMBLE_GLYPHS.length | 0] : text[i];
         }
         header.textContent = out;
-        if (locked >= text.length) clearInterval(scramble);
+        return locked >= text.length;
+    };
+    let frame = 0;
+    draw(frame);
+    const scramble = setInterval(() => {
+        if (draw(++frame)) clearInterval(scramble);
     }, SCRAMBLE_FRAME);
     windowTimers.get(win).push(scramble);
 }
@@ -383,7 +391,9 @@ function openWindow(win, labelText) {
     if (win.dataset.open === 'flicker') {
         void win.offsetWidth; /* Restart the CSS power-on animations */
         win.classList.add('is-open');
-        scrambleHeader(win, labelText);
+        /* The title bar's power-on flicker (flicker-in) keeps it dark for its
+           first 40%: hold the scramble until it lights up */
+        scrambleHeader(win, labelText, POWER_ON_DARK_MS);
         return;
     }
 
