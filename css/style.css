@@ -480,8 +480,13 @@ body.planet-focused #time-status {
 }
 
 /* --- NO-SCRIPT FALLBACK --- */
-/* A still window centered over the frozen scene (index.html <noscript>).
-   It covers the whole screen, so the scene's dead buttons can't be clicked. */
+/* A still window centered over the frozen scene (index.html .no-script).
+   It covers the whole screen, so the scene's dead buttons can't be clicked.
+   <html class="js"> is set by an inline script as soon as JavaScript runs. */
+.js .no-script {
+    display: none;
+}
+
 .no-script {
     position: fixed;
     inset: 0;
@@ -506,9 +511,8 @@ body.planet-focused #time-status {
     max-height: none;
 }
 
-/* The scene stays as a faint backdrop, like it fades behind an open window.
-   (With JavaScript on, <noscript> content is never parsed, so this can't match.) */
-body:has(.no-script) #space-container {
+/* The scene stays as a faint backdrop, like it fades behind an open window */
+html:not(.js) #space-container {
     opacity: 0.2;
 }
 

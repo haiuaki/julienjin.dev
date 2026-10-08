@@ -16,7 +16,7 @@ const MENUS = {
         entries: [
             {
                 id: 'profile', title: 'PROFILE',
-                fields: [['NAME', 'Julien Jin'], ['ROLE', 'Software engineer'], ['BASED', '[City, Country]'], ['FOCUS', '[e.g. graphics · web performance]']],
+                fields: [['NAME', SITE_NAME], ['ROLE', 'Software engineer'], ['BASED', '[City, Country]'], ['FOCUS', '[e.g. graphics · web performance]']],
             },
             {
                 id: 'trajectory', title: 'TRAJECTORY',
@@ -210,6 +210,20 @@ function buildFields(pairs) {
     return fields;
 }
 
+/* A <div data-copy-of="some-id"> in a template stands for a block written
+   once elsewhere in the page (the contact channels live in the no-JS window),
+   so it is only ever edited in one place */
+function fillCopies(fragment) {
+    fragment.querySelectorAll('[data-copy-of]').forEach(slot => {
+        const source = document.getElementById(slot.dataset.copyOf);
+        if (!source) return slot.remove();
+        const copy = source.cloneNode(true);
+        copy.removeAttribute('id');
+        slot.replaceWith(copy);
+    });
+    return fragment;
+}
+
 /* Single-page window (e.g. contact): fields, then the page template */
 function buildPage(id, menu) {
     const page = createEl('article', 'dossier');
@@ -217,7 +231,7 @@ function buildPage(id, menu) {
     if (fields.children.length) page.append(fields);
     const body = createEl('div', 'dossier-body');
     const template = document.getElementById(`page-${id}`);
-    if (template) body.appendChild(markExternalLinks(template.content.cloneNode(true)));
+    if (template) body.appendChild(markExternalLinks(fillCopies(template.content.cloneNode(true))));
     page.append(body);
     return page;
 }
@@ -225,7 +239,7 @@ function buildPage(id, menu) {
 /* Clone an entry's template body, or a placeholder if it has none yet */
 function cloneEntryContent(entry) {
     const template = document.getElementById(`entry-${entry.id}`);
-    if (template) return markExternalLinks(template.content.cloneNode(true));
+    if (template) return markExternalLinks(fillCopies(template.content.cloneNode(true)));
     return createEl('p', 'term-line', '// no data');
 }
 

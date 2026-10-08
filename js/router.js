@@ -31,7 +31,6 @@ let ignorePops = 0;     /* popstates caused by our own history.go() rewinds */
 /* The tab title follows the view: "Stellar Core · Projects · Julien Jin".
    It names tabs, browser history entries and bookmarks, and screen readers
    read it when a tab is revisited. */
-const SITE_TITLE = 'Julien Jin';
 const titleCase = (text) => text.toLowerCase().replace(/(^|[\s\[(-])(\p{L})/gu, (m, gap, letter) => gap + letter.toUpperCase());
 
 function updateTitle(menuId, entryId) {
@@ -42,7 +41,7 @@ function updateTitle(menuId, entryId) {
         const label = astreFor(menuId)?.dataset.label || menuId;
         parts.push(titleCase(label.replace(/^\[(.*)\]$/, '$1')));
     }
-    parts.push(SITE_TITLE);
+    parts.push(SITE_NAME);
     document.title = parts.join(' · ');
 }
 

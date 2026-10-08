@@ -3,6 +3,12 @@ document.addEventListener('gesturestart', (e) => e.preventDefault());
 document.addEventListener('gesturechange', (e) => e.preventDefault());
 document.addEventListener('gestureend', (e) => e.preventDefault());
 
+/* The site owner's name, used by the scripts (home window title, tab titles,
+   profile). Pages that work without JavaScript (the <head> tags, the no-JS
+   window, 404.html) write it out themselves, since crawlers and link
+   previews don't run scripts. */
+const SITE_NAME = 'Julien Jin';
+
 const sunBtn = document.getElementById('sun-btn');
 const solarSystem = document.getElementById('solar-system');
 

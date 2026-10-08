@@ -4,7 +4,7 @@
    clicking its planet does; hovering or arrow-keying a row locks the
    crosshairs onto that planet, linking the list to the 3D scene. It closes
    while a planet is focused and reopens on the way back home. */
-const HOME_TITLE = 'JULIEN JIN';
+const HOME_TITLE = SITE_NAME.toUpperCase();
 const HOME_OPEN_DELAY = 1200; /* as the initial fade-in is well under way */
 
 const homeWindow = document.getElementById('home-window');
