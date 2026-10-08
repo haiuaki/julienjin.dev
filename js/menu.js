@@ -10,7 +10,9 @@
               that field's label
    page:      a single window instead of a list, built from the file's one
               <article>
-   meta:      text on the right of a page window's title bar */
+   meta:      text on the right of a page window's title bar
+   clockField: key of the field that gets the live local time after it, when
+              the entry has a data-timezone (contact: "Paris · 14:32 (UTC+2)") */
 const MENUS = {
     info: {
         fields: [['NAME', 'name'], ['ROLE', 'role'], ['BASED', 'based'], ['FOCUS', 'focus'],
@@ -27,6 +29,7 @@ const MENUS = {
     contact: {
         page: true,
         meta: 'CHANNEL OPEN',
+        clockField: 'based',
         fields: [['STATUS', 'status'], ['BASED', 'based'], ['REPLIES', 'replies'], ['PREFERRED', 'preferred']],
     },
 };
@@ -206,7 +209,9 @@ function buildFields(pairs) {
     pairs.forEach(([label, value]) => {
         if (!value) return;
         const field = createEl('div', 'dossier-field');
-        field.append(createEl('dt', null, label), createEl('dd', null, value));
+        const dd = createEl('dd');
+        dd.append(value); /* text, or nodes (e.g. a live clock) */
+        field.append(createEl('dt', null, label), dd);
         fields.appendChild(field);
     });
     return fields;
@@ -226,12 +231,56 @@ function fillCopies(fragment) {
     return fragment;
 }
 
+/* --- LOCAL TIME --- */
+/* "14:32 (UTC+2)" in an IANA time zone, from the browser's own time zone
+   data, so summer time is always right. Null for an unknown zone. */
+function localTime(zone, now = new Date()) {
+    const format = (withOffset) => new Intl.DateTimeFormat('en-GB', {
+        timeZone: zone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+        ...(withOffset && { timeZoneName: 'shortOffset' }),
+    }).formatToParts(now);
+    let parts;
+    try {
+        parts = format(true);
+    } catch {
+        /* Older browsers without offset names: the time alone */
+        try { parts = format(false); } catch { return null; }
+    }
+    const part = (type) => parts.find(p => p.type === type)?.value;
+    const offset = part('timeZoneName');
+    return `${part('hour')}:${part('minute')}${offset ? ` (${offset.replace('GMT', 'UTC')})` : ''}`;
+}
+
+/* Keep a clock element current, on each new minute, while it is shown */
+let clockTimer = null;
+function startClock(el, zone) {
+    clearTimeout(clockTimer);
+    const tick = () => {
+        el.textContent = localTime(zone);
+        clockTimer = setTimeout(() => { if (el.isConnected) tick(); }, 60000 - (Date.now() % 60000) + 50);
+    };
+    tick();
+}
+
 /* Single-page window (e.g. contact): fields, then the page's text */
 function buildPage(menu) {
     const page = createEl('article', 'dossier');
     const body = createEl('div', 'dossier-body');
     if (menu.content) {
-        const fields = buildFields(entryFields(menu, menu.content));
+        const pairs = entryFields(menu, menu.content);
+        const zone = menu.content.timezone;
+        if (zone && localTime(zone)) {
+            /* "Paris" -> "Paris · 14:32 (UTC+2)" */
+            const i = (menu.fields || []).findIndex(([, key]) => key === menu.clockField);
+            if (i >= 0 && pairs[i][1]) {
+                const clock = createEl('span', 'local-time');
+                startClock(clock, zone);
+                const value = document.createDocumentFragment();
+                value.append(`${pairs[i][1]} · `, clock);
+                pairs[i] = [pairs[i][0], value];
+            }
+        }
+        const fields = buildFields(pairs);
         if (fields.children.length) page.append(fields);
         body.appendChild(cloneEntryContent(menu.content));
     } else {
