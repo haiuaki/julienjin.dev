@@ -343,8 +343,15 @@ body.time-halted #sun-btn::before {
     /* Promote to own compositing layer for tear-free sub-pixel tracking */
     will-change: transform;
     
-    /* Sync 2D label creation with 3D planet fade-in */
-    animation: initial-fade-in 2.5s ease-in-out;
+    /* Glitch in one after another as the astres fade in, just before the
+       time switch (--i: label order, set by js/ui.js) */
+    animation: glitch-in 0.45s steps(1, end) calc(0.9s + var(--i, 0) * 0.12s) backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .planet-label {
+        animation: initial-fade-in 2.5s ease-in-out;
+    }
 }
 
 
@@ -445,29 +452,104 @@ body.planet-focused .astre-btn.active-planet {
 }
 
 
-/* --- TIME STATUS --- */
-#time-status {
+/* --- TIME SWITCH --- */
+/* The page's pause control: "[❚❚ HALT TIME]" while time runs, "[▶ RESUME
+   TIME]" once halted. Always on screen, also while reading: it sits in the
+   40px the windows leave free at the bottom. It glitches in just after the
+   home window powers on, like the menu rows. */
+#time-switch {
     position: fixed;
-    bottom: 24px;
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
     left: 50%;
     transform: translateX(-50%);
+    z-index: 45;
+    animation: glitch-in 0.45s steps(1, end) 1.5s both;
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+    min-height: 24px; /* WCAG 2.5.8 target size */
+    padding: 4px 10px;
+    background: none;
+    border: none;
+    font: inherit;
     font-size: 11px;
     letter-spacing: 3px;
+    white-space: nowrap;
     color: #888888;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s ease-out;
-    z-index: 45;
+    cursor: pointer;
+    transition: color 0.2s ease-out;
 }
 
-/* Blinks on like a status light, then holds */
-body.time-halted #time-status {
-    opacity: 1;
-    animation: status-on 0.6s steps(1, end);
+#time-switch:hover,
+#time-switch:focus-visible {
+    color: #ffffff;
 }
 
-body.planet-focused #time-status {
-    opacity: 0;
+#time-switch:focus-visible {
+    outline: 1px dashed rgba(120, 120, 120, 0.4);
+    outline-offset: -1px;
+}
+
+#time-switch svg {
+    width: 0.95em;
+    height: 0.95em;
+    margin-right: 0.7em;
+    fill: currentColor;
+    vertical-align: -0.12em;
+}
+
+/* Both labels share one grid cell, sized by the longer one, so the brackets
+   never move when the label changes; only the current label shows (hidden
+   text is also left out of the button's accessible name) */
+#time-switch .switch-labels {
+    display: inline-grid;
+    justify-items: center;
+}
+
+#time-switch .when-running,
+#time-switch .when-halted {
+    grid-area: 1 / 1;
+}
+
+#time-switch .when-halted,
+body.time-halted #time-switch .when-running {
+    visibility: hidden;
+}
+
+body.time-halted #time-switch .when-halted {
+    visibility: visible;
+}
+
+/* Halted reads as a status: a little brighter */
+body.time-halted #time-switch {
+    color: #cccccc;
+}
+
+/* Toggling: the label being shown glitches in. Only the visible label
+   carries the animation, so switching state starts it afresh. */
+body:not(.time-halted) #time-switch .when-running,
+body.time-halted #time-switch .when-halted {
+    animation: glitch-in 0.38s steps(1, end);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #time-switch {
+        animation: initial-fade-in 0.6s ease-out 1.5s both;
+    }
+
+    #time-switch .when-running,
+    #time-switch .when-halted {
+        animation: none !important;
+    }
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
 }
 
 @keyframes status-on {
@@ -596,8 +678,10 @@ body.planet-focused #crosshair-y {
 }
 
 /* Opening: each row glitches in like the dossier text, a beat after the one
-   above (js/home.js adds .rows-in; --row is the row's index) */
+   above (js/home.js adds .rows-in; --row is the row's index). No sideways
+   jitter here: four rows shifting together read as the whole menu moving. */
 #home-window.rows-in .menu-item {
+    --glitch-shift: 0px;
     animation: glitch-in 0.38s steps(1, end) both;
     animation-delay: calc(40ms + var(--row) * 35ms);
 }
@@ -950,37 +1034,6 @@ body.planet-focused .window-header {
     color: #888888;
 }
 
-/* The star's label says what it does: pause / play icons in brackets.
-   It makes the time stop findable (WCAG 2.2.2: continuous motion needs a
-   pause people can find), and floats like the astre labels, so its length
-   changing never moves anything else. Positioned by js/ui.js. */
-.sun-label .when-halted,
-body.time-halted .sun-label .when-running {
-    display: none;
-}
-
-body.time-halted .sun-label .when-halted {
-    display: inline;
-}
-
-.sun-label svg {
-    width: 0.95em;
-    height: 0.95em;
-    margin: 0 0.2em;
-    fill: currentColor;
-    vertical-align: -0.12em;
-}
-
-/* Gives way quickly while an astre's label passes over it */
-.sun-label {
-    transition: opacity 0.25s ease-out;
-}
-
-/* Gives way while an astre's label passes over it */
-.sun-label.is-covered:not(.active-planet) {
-    opacity: 0.12;
-}
-
 /* Keyboard hints are noise on touch-only devices */
 @media (hover: none) {
     .menu-keys,
@@ -1118,14 +1171,17 @@ body.time-halted .sun-label .when-halted {
     100% { opacity: 1; }
 }
 
-/* Jitter + red/cyan channel split, resolving to clean text */
+/* Jitter + red/cyan channel split, resolving to clean text. The jitter uses
+   `translate`, which adds to an element's own transform instead of replacing
+   it, so elements placed by transform (astre labels, the time switch) glitch
+   in place. --glitch-shift sets how far it jitters (3px by default). */
 @keyframes glitch-in {
     0%   { opacity: 0; }
-    15%  { opacity: 1;    transform: translateX(-3px); text-shadow: 2px 0 rgba(255, 60, 100, 0.55), -2px 0 rgba(60, 220, 255, 0.55); }
-    30%  { opacity: 0.25; transform: translateX(2px); }
-    45%  { opacity: 1;    transform: translateX(0);    text-shadow: -1px 0 rgba(255, 60, 100, 0.4), 1px 0 rgba(60, 220, 255, 0.4); }
+    15%  { opacity: 1;    translate: calc(-1 * var(--glitch-shift, 3px)) 0; text-shadow: 2px 0 rgba(255, 60, 100, 0.55), -2px 0 rgba(60, 220, 255, 0.55); }
+    30%  { opacity: 0.25; translate: calc(0.67 * var(--glitch-shift, 3px)) 0; }
+    45%  { opacity: 1;    translate: 0 0;    text-shadow: -1px 0 rgba(255, 60, 100, 0.4), 1px 0 rgba(60, 220, 255, 0.4); }
     60%  { opacity: 0.7;  text-shadow: none; }
-    100% { opacity: 1;    transform: none;            text-shadow: none; }
+    100% { opacity: 1;    translate: none;   text-shadow: none; }
 }
 
 /* Redraw line: sweeps down the reader when switching entries (js/menu.js) */
@@ -1455,10 +1511,15 @@ body.time-halted .sun-label .when-halted {
         padding: 1.25em 1em;
     }
 
-    /* The home menu takes the bottom edge, so the time tag moves to the top */
-    #time-status {
+    /* The home menu takes the bottom edge, so the time switch moves to the
+       top, above the windows (which start 44px down) */
+    #time-switch {
         bottom: auto;
-        top: calc(24px + env(safe-area-inset-top, 0px));
+        top: calc(16px + env(safe-area-inset-top, 0px));
+    }
+
+    body.planet-focused #time-switch {
+        top: calc(6px + env(safe-area-inset-top, 0px));
     }
 
     /* Bottom of the screen, within thumb reach; the list opens upward */

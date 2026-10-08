@@ -114,7 +114,8 @@
         <div id="solar-system">
 
             <!-- Interactive sun / time switch: a star with a lens streak that retracts when time halts -->
-            <button id="sun-btn" class="circle-btn size-large" aria-label="Halt or resume time">
+            <!-- Pointer shortcut only: #time-switch is the control keyboards and screen readers use -->
+            <button id="sun-btn" class="circle-btn size-large" tabindex="-1" aria-hidden="true">
                 <span class="sun-streak"></span>
             </button>
 
@@ -147,8 +148,21 @@
         </div>
     </header>
 
-    <!-- --- TIME STATUS --- -->
-    <div id="time-status" aria-live="polite">[ TIME HALTED ]</div>
+    <!-- --- TIME SWITCH --- -->
+    <!-- The page's pause control (WCAG 2.2.2): always on screen, and its
+         visible text is its name. The star and clicks on empty space are
+         pointer shortcuts for the same switch (js/timestop.js). Icons are
+         SVG: Unicode ⏸/▶ turn into colored emoji on Apple devices. -->
+    <button id="time-switch" type="button">
+        <span aria-hidden="true">[</span>
+        <span class="switch-labels">
+            <span class="when-running"><svg viewBox="0 0 10 10" aria-hidden="true"><rect x="2" y="1.5" width="2" height="7"/><rect x="6" y="1.5" width="2" height="7"/></svg>HALT TIME</span>
+            <span class="when-halted"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2.5 1.5 L8.5 5 L2.5 8.5 Z"/></svg>RESUME TIME</span>
+        </span>
+        <span aria-hidden="true">]</span>
+    </button>
+    <!-- Says what changed, for screen readers (filled by js/timestop.js) -->
+    <div id="time-announcer" class="visually-hidden" aria-live="polite"></div>
 
     <!-- CONTENT WINDOWS (BOUNDING BOXES) -->
     <!-- Each .term-window types its header, then opens its 4-corner frame independently.

@@ -76,14 +76,21 @@ canvas.addEventListener('transitioncancel', stopStarfieldMotion);
 /* --- STAR DRIFT --- */
 /* While a planet is focused, the field drifts slowly sideways and twinkles,
    like a slow camera pan behind the open window. It eases in and out, and
-   runs on its own: halting time does not stop it. */
+   halting time stills it too, so the time switch stops every motion. */
 const driftReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+let driftWanted = false; /* a planet is focused */
 let driftTarget = 0;  /* 0 = still, 1 = drifting */
 let driftAmount = 0;  /* Eased toward driftTarget each frame */
 let lastFrame = performance.now();
 
 function setStarDrift(on) {
-    driftTarget = on && !driftReducedMotion.matches ? 1 : 0;
+    driftWanted = on;
+    updateStarDrift();
+}
+
+/* Also called when time halts or resumes */
+function updateStarDrift() {
+    driftTarget = driftWanted && !isManuallyPaused && !driftReducedMotion.matches ? 1 : 0;
 }
 
 /* Advance the drift; returns true while it needs a redraw every frame */
