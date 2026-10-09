@@ -38,8 +38,8 @@ function recalculateCameraFocus() {
     const planetX = rect.x + rect.width / 2;
     const planetY = rect.y + rect.height / 2;
 
-    const screenCenterX = window.innerWidth / 2;
-    const screenCenterY = window.innerHeight / 2;
+    const screenCenterX = layoutWidth() / 2;
+    const screenCenterY = layoutHeight() / 2;
 
     const { x: targetX, y: targetY } = focusTarget();
 
@@ -83,4 +83,4 @@ renderLoop();
 
 /* Registered here rather than with the starfield's resize handler
    (js/canvas.js), which can fire before this script has loaded */
-window.addEventListener('resize', recalculateCameraFocus);
+onLayoutResize(recalculateCameraFocus);

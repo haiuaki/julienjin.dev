@@ -107,7 +107,7 @@ function buildIndex(menu) {
     menu.entries.forEach((entry, i) => {
         const btn = createEl('button', 'menu-item');
         btn.dataset.index = i;
-        btn.append(createEl('span', 'menu-num', pad(i + 1)), entry.title);
+        btn.append(createEl('span', 'menu-num', pad(i + 1)), createEl('span', 'menu-title', entry.title));
         if (menu.indexMeta && entry[menu.indexMeta]) {
             btn.append(createEl('span', 'menu-leader'), createEl('span', 'menu-meta', entry[menu.indexMeta]));
         }
@@ -145,7 +145,9 @@ function buildCloseButton() {
     const close = createEl('button', 'dossier-close');
     close.dataset.action = 'back';
     close.setAttribute('aria-label', 'Close entry');
-    close.append(createEl('span', 'close-wide', '[←]'), createEl('span', 'close-compact', '← INDEX'));
+    /* Wide screens: ← is also the key that closes it. Phones show the reader
+       alone, so it says what it does; "close" is in the button's name too */
+    close.append(createEl('span', 'close-wide', '[←]'), createEl('span', 'close-compact', 'CLOSE'));
     return close;
 }
 

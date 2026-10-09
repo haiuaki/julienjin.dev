@@ -1,8 +1,3 @@
-document.addEventListener('wheel', (e) => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
-document.addEventListener('gesturestart', (e) => e.preventDefault());
-document.addEventListener('gesturechange', (e) => e.preventDefault());
-document.addEventListener('gestureend', (e) => e.preventDefault());
-
 /* The site owner's name, used by the scripts (home window title, tab titles).
    Pages that work without JavaScript (the <head> tags, the no-JS
    window, 404.html) write it out themselves, since crawlers and link
@@ -66,3 +61,32 @@ let uiTimeouts = [];
 /* Orbit animations of the focused planet: frozen so it holds still in the
    corner, and left out of every speed change until the planet is released */
 let focusedOrbitAnims = [];
+
+/* The page's layout size (what CSS 100vw / 100vh / vmin use). Not
+   window.innerWidth/innerHeight: on phones those shrink to the zoomed-in
+   view while pinch-zoomed, which would squeeze everything placed with them. */
+const layoutWidth = () => document.documentElement.clientWidth;
+const layoutHeight = () => document.documentElement.clientHeight;
+
+/* Resize handlers only work when the layout itself changed: some browsers
+   also report pinch-zooming as a resize */
+function onLayoutResize(handler) {
+    let w = layoutWidth(), h = layoutHeight();
+    window.addEventListener('resize', () => {
+        if (layoutWidth() === w && layoutHeight() === h) return;
+        w = layoutWidth(); h = layoutHeight();
+        handler();
+    });
+}
+
+/* --- PINCH-ZOOM --- */
+/* Zooming is allowed (WCAG 1.4.4), but browsers redraw the 3D scene's layers
+   at the zoom level: the large decorative orbits alone would need gigabytes
+   on a phone zoomed in far, and Safari then crashes the page. While zoomed
+   in, the page sheds those layers (css .is-zoomed); zooming out restores them. */
+if (window.visualViewport) {
+    const ZOOMED_SCALE = 1.25;
+    const followZoom = () => document.documentElement.classList.toggle('is-zoomed', visualViewport.scale > ZOOMED_SCALE);
+    visualViewport.addEventListener('resize', followZoom);
+    followZoom();
+}

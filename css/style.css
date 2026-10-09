@@ -134,7 +134,7 @@ body {
     background-color: #1a1a1a;
     color: #fafafa;
     overflow: hidden;
-    touch-action: none;
+    touch-action: none; /* no page pinch-zoom on touch: windows enlarge their text instead (js/textzoom.js) */
     cursor: crosshair;
     box-shadow: inset 0 0 200px 50px rgba(0, 0, 0, 0.9);
 }
@@ -259,7 +259,7 @@ body {
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    touch-action: none;
+    touch-action: none; /* no page pinch-zoom on touch: windows enlarge their text instead (js/textzoom.js) */
 
     perspective: 1500px;
     /* Align perspective origin with system coordinates */
@@ -355,6 +355,18 @@ body.time-halted #sun-btn:hover::before {
 #solar-system *::before,
 #solar-system *::after {
     animation-delay: var(--system-time, 0ms) !important;
+}
+
+/* Pinch-zoomed in (js/globals.js): drop the costly layers. The decorative
+   orbits go; astres stop asking for their own sharp layers. */
+.is-zoomed .orbit-ring[class*="comet-"] {
+    display: none;
+}
+
+.is-zoomed .astre-btn,
+.is-zoomed .planet-label {
+    will-change: auto;
+    filter: none;
 }
 
 /* Halted time, before js/physics.js has frozen the orbits (index.html <head>) */
@@ -1013,7 +1025,9 @@ body.planet-focused #crosshair-y {
     --corner-h: calc(var(--header-font-size) * 0.521);
 
     /* Body text size: scales with the screen so the 80ch measure keeps its proportion on 4K */
-    --content-font: clamp(13px, 1vmin, 21px);
+    /* --text-zoom: a pinch on a window, on touch screens (js/textzoom.js).
+       Contents only: the title bars keep their size so the frames fit. */
+    --content-font: calc(clamp(13px, 1vmin, 21px) * var(--text-zoom, 1));
 
     /* Height of the header area above the content; flicker windows override it */
     --head-h: calc(var(--cursor-y) + var(--corner-h));
@@ -1151,7 +1165,7 @@ body.planet-focused .window-header {
     box-sizing: border-box;
     max-height: var(--content-max-h);
     overflow-y: auto;
-    /* Body disables touch gestures; re-allow vertical scrolling here */
+    /* Vertical scrolling only: a pinch here enlarges the text (js/textzoom.js) */
     touch-action: pan-y;
     scrollbar-width: thin;
     scrollbar-color: var(--panel-border) transparent;
@@ -1178,12 +1192,13 @@ body.planet-focused .window-header {
 
 /* Prompt-style lines: "> cat nebula-engine", "PROJECTS_DB //" */
 .term-line {
-    color: #888888;
+    color: #9a9a9a; /* 4.5:1+ on the panels (WCAG 1.4.3) */
 }
 
 /* Main window without a menu (planet placeholder content) */
 #content-window .window-content {
-    min-width: 24ch;
+    /* Never wider than the window (24ch grows with enlarged text on a phone) */
+    min-width: min(24ch, 100%);
     min-height: 6em;
 }
 
@@ -1211,7 +1226,7 @@ body.planet-focused .window-header {
     /* Same size and spacing as the rows: monospace columns only line up
        when the character widths match */
     letter-spacing: 1px;
-    color: #888888;
+    color: #9a9a9a; /* 4.5:1+ on the panels (WCAG 1.4.3) */
 }
 
 .menu-col-title {
@@ -1237,8 +1252,33 @@ body.planet-focused .window-header {
     font: inherit;
     letter-spacing: 1px;
     text-align: left;
-    white-space: nowrap;
+    /* Enlarged text on a phone (js/textzoom.js): long titles wrap, and when
+       even that is too wide, the leader and year move to a line of their own,
+       rather than spilling out of the window */
+    white-space: normal;
+    flex-wrap: wrap;
     cursor: pointer;
+}
+
+.menu-num,
+.menu-meta {
+    white-space: nowrap;
+}
+
+/* Enlarged text: the title takes the room next to its number and wraps
+   there (a small base size keeps it on the number's line); the year keeps
+   to the right, on the next line when it doesn't fit, without a leader */
+.text-zoomed .menu-title {
+    flex: 1 1 6ch;
+    min-width: 0;
+}
+
+.text-zoomed .menu-leader {
+    display: none;
+}
+
+.text-zoomed .menu-meta {
+    margin-left: auto;
 }
 
 /* Small triangles (selection marker, NAVIGATE toggle): one SVG shape
@@ -1288,7 +1328,7 @@ body.planet-focused .window-header {
 
 .menu-num,
 .menu-meta {
-    color: #888888;
+    color: #9a9a9a; /* 4.5:1+ on the panels (WCAG 1.4.3) */
 }
 
 /* Fixed number column so the header "NO" and "01" line up */
@@ -1314,14 +1354,15 @@ body.planet-focused .window-header {
     font-size: 0.85em;
     letter-spacing: 2px;
     white-space: nowrap;
-    color: #888888;
+    color: #9a9a9a; /* 4.5:1+ on the panels (WCAG 1.4.3) */
 }
 
 /* Keyboard hints are noise on touch-only devices */
 @media (hover: none) {
-    .menu-keys,
-    .menu-keys > [data-hint] {
-        visibility: hidden !important;
+    /* Out of the layout too: hidden but sized, they would hold windows wider
+       than a phone once the text is enlarged (js/textzoom.js) */
+    .menu-keys {
+        display: none !important;
     }
 }
 
@@ -1494,7 +1535,7 @@ body.planet-focused .window-header {
     padding: 0;
     background: none;
     border: none;
-    color: #888888;
+    color: #9a9a9a; /* 4.5:1+ on the panels (WCAG 1.4.3) */
     font: inherit;
     letter-spacing: inherit;
     cursor: pointer;
@@ -1539,8 +1580,9 @@ body.planet-focused .window-header {
 .dossier-field dt {
     display: flex;
     flex: 1;
-    min-width: 0;
-    color: #888888;
+    /* Never narrower than its own label, so a long value can't slide over it */
+    min-width: auto;
+    color: #9a9a9a; /* 4.5:1+ on the panels (WCAG 1.4.3) */
     letter-spacing: 1px;
 }
 
@@ -1559,6 +1601,30 @@ body.planet-focused .window-header {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+/* Enlarged text (js/textzoom.js): values wrap instead of being cut, and go
+   to the right of the next line when they don't fit; no leaders, like the
+   index rows */
+.text-zoomed .dossier-field {
+    flex-wrap: wrap;
+}
+
+.text-zoomed .dossier-field dt {
+    flex: none;
+    margin-right: 1ch;
+}
+
+.text-zoomed .dossier-field dt::after {
+    display: none;
+}
+
+.text-zoomed .dossier-field dd {
+    margin-left: auto;
+    text-align: right;
+    white-space: normal;
+    overflow: visible;
+    overflow-wrap: anywhere;
 }
 
 .dossier-body {
@@ -1599,7 +1665,7 @@ body.planet-focused .window-header {
 
 /* ↗ after links that open in a new tab */
 .ext-mark {
-    color: #888888;
+    color: #9a9a9a; /* 4.5:1+ on the panels (WCAG 1.4.3) */
 }
 
 /* Trajectory: dated rows, newest first */
@@ -1620,7 +1686,7 @@ body.planet-focused .window-header {
 
 .tl-when {
     grid-row: span 2;
-    color: #888888;
+    color: #9a9a9a; /* 4.5:1+ on the panels (WCAG 1.4.3) */
     letter-spacing: 1px;
     font-variant-numeric: tabular-nums;
 }
@@ -1645,7 +1711,7 @@ body.planet-focused .window-header {
 
 .now-list li::marker {
     content: '› ';
-    color: #888888;
+    color: #9a9a9a; /* 4.5:1+ on the panels (WCAG 1.4.3) */
 }
 
 /* Key hints stack in one cell: the line keeps the longest hint's width */
@@ -1725,7 +1791,7 @@ body.planet-focused .window-header {
 .nav-hint {
     display: inline-grid;
     justify-items: center;
-    color: #666666;
+    color: #9a9a9a; /* 4.5:1+ on the panels (WCAG 1.4.3) */
 }
 
 .nav-hint > span {

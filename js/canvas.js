@@ -38,8 +38,8 @@ let clientMouseX = -1000;
 let clientMouseY = -1000;
 
 function initStars() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.width = layoutWidth();
+    canvas.height = layoutHeight();
     stars = [];
     /* Calculate coordinate density */
     const numStars = Math.floor((canvas.width * canvas.height) / 4500); 
@@ -227,7 +227,7 @@ function drawStars(now) {
     }
 }
 
-window.addEventListener('resize', () => {
+onLayoutResize(() => {
     initStars();
     starsDirty = true;
 });

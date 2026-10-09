@@ -205,7 +205,7 @@ astreBtns.forEach((planet, i) => {
            was in its orbit (×1.4), and at least 2.2vmin so small astres still
            make a clear target. Follows whatever size the astre has on this
            screen, so the focus never shrinks it. */
-        const vminPx = Math.min(window.innerWidth, window.innerHeight) / 100;
+        const vminPx = Math.min(layoutWidth(), layoutHeight()) / 100;
         const visualTarget = Math.max(2.2 * vminPx, rect.width * FOCUS_GROWTH);
         
         const targetPhysicalSize = visualTarget / perspectiveScale;
@@ -324,7 +324,7 @@ function trackAllPositions(now) {
         const box = t.label.getBoundingClientRect();
         t.size = [Math.ceil(box.width), Math.ceil(box.height)];
     });
-    const viewW = window.innerWidth, viewH = window.innerHeight;
+    const viewW = layoutWidth(), viewH = layoutHeight();
 
     /* --- Write phase --- */
     trackers.forEach((t, i) => {
