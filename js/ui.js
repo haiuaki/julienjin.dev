@@ -358,6 +358,9 @@ function trackAllPositions(now) {
         const labelY = Math.min(Math.max(planetY + dy * LABEL_OFFSET + labelH * yPercent / 100, LABEL_MARGIN), viewH - labelH - LABEL_MARGIN);
         /* Drive position exclusively via transform — no left/top writes (same as crosshairs) */
         t.label.style.transform = `translate3d(${labelX}px, ${labelY}px, 0)`;
+        /* An astre off the screen (wide orbits, zoomed out): its label leaves
+           too, instead of sliding along the edge where it is kept */
+        t.label.classList.toggle('is-offscreen', planetX < 0 || planetX > viewW || planetY < 0 || planetY > viewH);
 
         /* Return: stay locked on the astre as it travels home, until faded */
         if (!focused && returnSweep && returnSweep.planet === t.planet && crossX && crossY) {

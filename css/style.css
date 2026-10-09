@@ -568,6 +568,12 @@ body.planet-focused #home-label {
     opacity: 1;
 }
 
+/* Its astre is off the screen (js/ui.js): fades out, and back in on return */
+.planet-label.is-offscreen {
+    opacity: 0 !important;
+    transition: opacity 0.25s ease-out;
+}
+
 /* "[projects]": the brackets are drawn here, not written in the label, so
    translators only see the word; "/ ''" keeps them out of what screen
    readers announce */
@@ -725,7 +731,7 @@ body.planet-focused .astre-btn.active-planet {
     background: none;
     border: none;
     font: inherit;
-    font-size: 11px;
+    font-size: 0.6875rem; /* 11px at the default size */
     letter-spacing: 3px;
     white-space: nowrap;
     color: #888888;
@@ -1016,7 +1022,10 @@ body.planet-focused #crosshair-y {
        Uses the same clamp() as .window-header (1.2vmin, 12–24px).
        × 1.75 = line-height (1.5) + half-leading (0.25) above the glyph on line 2,
        placing the corner block flush with the top of the █ character. */
-    --header-font-size: clamp(12px, 1.2vmin, 24px);
+    /* Sizes in rem follow the visitor's default font size (browser settings);
+       vmin lets them grow on large screens, up to the cap.
+       Titles: 13px floor (at the default 16px), 24px cap. */
+    --header-font-size: clamp(0.8125rem, 1.2vmin, 1.5rem);
     --cursor-y: calc(var(--header-font-size) * 1.75);
 
     /* Corner tick dimensions — reverse-engineered from the original hardcoded values
@@ -1027,7 +1036,8 @@ body.planet-focused #crosshair-y {
     /* Body text size: scales with the screen so the 80ch measure keeps its proportion on 4K */
     /* --text-zoom: a pinch on a window, on touch screens (js/textzoom.js).
        Contents only: the title bars keep their size so the frames fit. */
-    --content-font: calc(clamp(13px, 1vmin, 21px) * var(--text-zoom, 1));
+    /* Window text: 14.5px floor, 21px cap */
+    --content-font: calc(clamp(0.90625rem, 1vmin, 1.3125rem) * var(--text-zoom, 1));
 
     /* Height of the header area above the content; flicker windows override it */
     --head-h: calc(var(--cursor-y) + var(--corner-h));
