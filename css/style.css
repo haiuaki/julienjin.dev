@@ -509,7 +509,9 @@ body.time-halted #sun-btn:hover::before {
 #home-label {
     position: fixed;
     z-index: 55;
-    transform: translateY(-50%);
+    /* Centred on the line, then lifted a hair: the brackets reach lower than
+       they reach high, so the text's ink sits below its box's middle */
+    transform: translateY(calc(-50% - 0.08em));
     min-height: 24px; /* WCAG 2.5.8 target size */
     padding: 4px 6px;
     background: none;

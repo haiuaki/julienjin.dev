@@ -64,7 +64,7 @@ function placeHomeLabel(radius = homeLabelGap) {
     homeLabelGap = radius;
     const { x, y } = focusTarget();
     homeLabel.style.left = `${Math.round(x + radius + 6)}px`;
-    homeLabel.style.top = `${Math.round(y)}px`;
+    homeLabel.style.top = `${y}px`; /* exact: the line sits on a half pixel */
     if (crossX.style.maskImage) breakCrosshair(true);
 }
 
