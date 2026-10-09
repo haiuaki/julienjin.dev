@@ -297,10 +297,13 @@ body {
     position: absolute;
     inset: -70%;
     border-radius: 50%;
-    background: radial-gradient(circle closest-side, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0));
+    /* One gradient at hover strength; every state is an opacity of it, so
+       hovering fades like the astres' glow (gradients themselves can't
+       animate). Resting 0.44 of it = the halo's former 0.12 x 0.8. */
+    background: radial-gradient(circle closest-side, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0));
     pointer-events: none;
     transition: opacity 0.3s ease-out;
-    opacity: 0.8;
+    opacity: 0.44;
 }
 
 /* Lens streak: one long, soft horizontal flare through the core, like an
@@ -332,7 +335,12 @@ body.time-halted .sun-streak {
 }
 
 
+/* Halted: dimmer, resting (former 0.12 x 0.35) and hovered */
 body.time-halted #sun-btn::before {
+    opacity: 0.19;
+}
+
+body.time-halted #sun-btn:hover::before {
     opacity: 0.35;
 }
 
@@ -445,7 +453,6 @@ body.time-halted #sun-btn::before {
 
 #sun-btn:hover::before {
     opacity: 1;
-    background: radial-gradient(circle closest-side, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0));
 }
 
 /* Base Floating Label (Pure 2D Screenspace) */
