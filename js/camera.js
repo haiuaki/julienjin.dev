@@ -55,6 +55,8 @@ function recalculateCameraFocus() {
     spaceContainer.style.transition = `transform ${panDuration(FOCUS_PAN_MS)}ms ${CAMERA_EASE}`;
     if (starfield) starfield.style.transition = `transform ${panDuration(FOCUS_PAN_MS)}ms ${CAMERA_EASE}`;
 
+    placeHomeLabel();
+
     /* Keep the crosshairs locked on the focus target after the resize */
     const crossX = document.getElementById('crosshair-x');
     const crossY = document.getElementById('crosshair-y');

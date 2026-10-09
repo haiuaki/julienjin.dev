@@ -476,6 +476,86 @@ body.time-halted #sun-btn:hover::before {
     animation: glitch-in 0.45s steps(1, end) calc(0.9s + var(--i, 0) * 0.12s) backwards;
 }
 
+/* --- HOME LABEL --- */
+/* "[home]" on the open astre's horizontal crosshair, just right of the
+   astre, centred on the line, which breaks around it (placed by js/ui.js).
+   Styled like the astre labels; it fades in as the window opens and leaves
+   at once. */
+#home-label {
+    position: fixed;
+    z-index: 55;
+    transform: translateY(-50%);
+    min-height: 24px; /* WCAG 2.5.8 target size */
+    padding: 4px 6px;
+    background: none;
+    border: none;
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+    color: #888888;
+    white-space: nowrap;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease-out, visibility 0s linear 0.15s, color 0.2s ease-out;
+}
+
+body.planet-focused #home-label {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease-out 0.5s, visibility 0s, color 0.2s ease-out;
+}
+
+#home-label::before {
+    content: '['; /* browsers without the alt-text syntax */
+    content: '[' / '';
+}
+
+#home-label::after {
+    content: ']';
+    content: ']' / '';
+}
+
+#home-label:hover,
+#home-label:focus-visible {
+    color: #ffffff;
+}
+
+#home-label:focus-visible {
+    outline: 1px dashed rgba(250, 250, 250, 0.5);
+    outline-offset: 3px;
+}
+
+/* Keyboard focus on an astre: four corner marks lock onto it, like the
+   windows' corners (and the favicon), instead of an outline. A flat overlay
+   placed around the astre by js/ui.js (its 3D orbit clips its own box). */
+#astre-focus {
+    --tick: 4px;
+    --mark: rgba(250, 250, 250, 0.85);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 51;
+    pointer-events: none;
+    opacity: 0;
+    background:
+        linear-gradient(var(--mark), var(--mark)) top left / var(--tick) 1px,
+        linear-gradient(var(--mark), var(--mark)) top left / 1px var(--tick),
+        linear-gradient(var(--mark), var(--mark)) top right / var(--tick) 1px,
+        linear-gradient(var(--mark), var(--mark)) top right / 1px var(--tick),
+        linear-gradient(var(--mark), var(--mark)) bottom left / var(--tick) 1px,
+        linear-gradient(var(--mark), var(--mark)) bottom left / 1px var(--tick),
+        linear-gradient(var(--mark), var(--mark)) bottom right / var(--tick) 1px,
+        linear-gradient(var(--mark), var(--mark)) bottom right / 1px var(--tick);
+    background-repeat: no-repeat;
+    transition: opacity 0.15s ease-out;
+}
+
+#astre-focus.is-on {
+    opacity: 1;
+}
+
 /* "[projects]": the brackets are drawn here, not written in the label, so
    translators only see the word; "/ ''" keeps them out of what screen
    readers announce */
@@ -1720,11 +1800,15 @@ body.planet-focused .window-header {
     }
 
     /* The home menu takes the bottom edge, so the time switch moves to the
-       top. It stays in the same place in every view: the focused astre, its
-       crosshairs and the windows sit below it. */
+       top right. It stays in the same place in every view: the focused
+       astre, its crosshairs and the windows sit below it, and the
+       "[home]" label beside the astre has the top left to itself. */
     #time-switch {
         bottom: auto;
         top: calc(16px + env(safe-area-inset-top, 0px));
+        left: auto;
+        right: 8px;
+        transform: none;
     }
 
     /* Bottom of the screen, within thumb reach; the list opens upward */

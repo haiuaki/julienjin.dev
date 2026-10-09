@@ -107,6 +107,12 @@ function resetCamera() {
 
     document.querySelectorAll('.active-planet').forEach(el => el.classList.remove('active-planet'));
 
+    /* Astres back in the tab order; keyboard users land back on the astre */
+    const fromHomeLabel = document.activeElement === document.getElementById('home-label');
+    setAstresHidden(false);
+    breakCrosshair(false);
+    if (fromHomeLabel && returningPlanet) returningPlanet.focus({ preventScroll: true });
+
     /* Let the focused planet's orbit rejoin the others, unless time is halted */
     const releasedOrbit = focusedOrbitAnims;
     focusedOrbitAnims = [];

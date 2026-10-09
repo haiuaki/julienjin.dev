@@ -40,6 +40,79 @@ let crossShown = null;         /* center the crosshairs were last drawn on */
 let crossGlide = null;         /* { x, y, t0 }: where the current glide started */
 let crossHiddenAt = -Infinity; /* when the last hover ended (they fade from there) */
 
+/* --- HOME LABEL --- */
+/* While an astre is open, "[home]" sits on its horizontal crosshair, just
+   right of it, in the astre labels' format: the astre is now the way home,
+   visible and named (on its own it is only a small dot). The line breaks
+   around it, like the window titles cut into their frames. It is the control keyboards and screen readers use; the astre
+   stays a pointer shortcut, out of the tab order like the hidden ones. */
+const homeLabel = document.createElement('button');
+homeLabel.id = 'home-label';
+homeLabel.type = 'button';
+/* The visible word "home" is in the name (WCAG 2.5.3) */
+homeLabel.setAttribute('aria-label', 'Home, back to the solar system');
+homeLabel.textContent = 'home';
+/* Just before the windows: Tab goes from the way back into the window */
+document.getElementById('window-row').before(homeLabel);
+homeLabel.addEventListener('click', () => resetCamera());
+
+let homeLabelGap = 0; /* the focused astre's radius on screen */
+const HOME_LABEL_IN_MS = 500; /* matches its fade-in delay in style.css */
+
+/* Just right of the focused astre, centred on the horizontal crosshair */
+function placeHomeLabel(radius = homeLabelGap) {
+    homeLabelGap = radius;
+    const { x, y } = focusTarget();
+    homeLabel.style.left = `${Math.round(x + radius + 6)}px`;
+    homeLabel.style.top = `${Math.round(y)}px`;
+    if (crossX.style.maskImage) breakCrosshair(true);
+}
+
+/* Cut the horizontal crosshair where the label sits (a transparent gap, so
+   the scene shows through), or join it again */
+function breakCrosshair(open) {
+    if (!open) {
+        crossX.style.maskImage = crossX.style.webkitMaskImage = '';
+        return;
+    }
+    const r = homeLabel.getBoundingClientRect();
+    const gap = `linear-gradient(to right, #000 ${r.left}px, transparent ${r.left}px, transparent ${r.right}px, #000 ${r.right}px)`;
+    crossX.style.maskImage = crossX.style.webkitMaskImage = gap;
+}
+
+/* While an astre is open, every astre leaves the tab order and the
+   accessibility tree (the hidden ones aren't there to see; the focused one
+   is reached as the home label) */
+function setAstresHidden(hidden) {
+    astreBtns.forEach(btn => {
+        if (hidden) {
+            btn.tabIndex = -1;
+            btn.setAttribute('aria-hidden', 'true');
+        } else {
+            btn.removeAttribute('tabindex');
+            btn.removeAttribute('aria-hidden');
+        }
+    });
+}
+
+/* --- FOCUS MARKS --- */
+/* Keyboard focus on an astre: four corner marks lock onto it. A flat overlay
+   placed by the tracking loop, because anything drawn on the astre itself is
+   clipped by its 3D orbit. */
+const focusMarks = document.createElement('div');
+focusMarks.id = 'astre-focus';
+focusMarks.setAttribute('aria-hidden', 'true');
+document.body.appendChild(focusMarks);
+let focusMarked = null; /* the astre showing them */
+
+const showsFocusRing = (el) => {
+    try { return el.matches(':focus-visible'); } catch { return true; }
+};
+astreBtns.forEach(btn => {
+    btn.addEventListener('focus', () => { focusMarked = showsFocusRing(btn) ? btn : null; });
+    btn.addEventListener('blur', () => { if (focusMarked === btn) focusMarked = null; });
+});
+
 function drawCrosshairs(x, y) {
     crossShown = { x, y };
     crossX.style.transform = `translate3d(0, ${crosshairPos(y)}px, 0)`;
@@ -136,6 +209,7 @@ astreBtns.forEach((planet, i) => {
         const visualTarget = Math.max(2.2 * vminPx, rect.width * FOCUS_GROWTH);
         
         const targetPhysicalSize = visualTarget / perspectiveScale;
+        placeHomeLabel(visualTarget / 2);
         
         planet.style.setProperty('--active-planet-size', `${targetPhysicalSize}px`);
         planet.style.setProperty('--active-planet-offset', `-${targetPhysicalSize / 2}px`);
@@ -192,6 +266,11 @@ astreBtns.forEach((planet, i) => {
         /* Update body class for focus state */
         document.body.classList.add('planet-focused');
 
+        /* Keyboard users who opened it from the astre continue from the way back */
+        const hadFocus = document.activeElement === planet;
+        setAstresHidden(true);
+        if (hadFocus) homeLabel.focus({ preventScroll: true });
+
         /* Typewriter sequence */
         closeAllWindows();
         closeMenu();
@@ -215,6 +294,8 @@ astreBtns.forEach((planet, i) => {
             }
         }, WINDOW_OPEN_MS);
         uiTimeouts.push(t1);
+        /* The line breaks around "[home]" as it fades in (css #home-label) */
+        uiTimeouts.push(setTimeout(() => breakCrosshair(true), HOME_LABEL_IN_MS));
 
     });
 });
@@ -298,7 +379,15 @@ function trackAllPositions(now) {
             }
             drawCrosshairs(x, y);
         }
+
+        /* Corner marks around the keyboard-focused astre, with a little room */
+        if (t.planet === focusMarked) {
+            const size = Math.round(Math.max(rect.width, rect.height) + 12);
+            focusMarks.style.width = focusMarks.style.height = `${size}px`;
+            focusMarks.style.transform = `translate3d(${planetX - size / 2}px, ${planetY - size / 2}px, 0)`;
+        }
     });
+    focusMarks.classList.toggle('is-on', !!focusMarked && !focused);
 }
 requestAnimationFrame(trackAllPositions);
 
