@@ -166,7 +166,8 @@ body {
     :root { --visible-h: 100svh; }
 }
 
-/* Responsive scaling rules */
+/* Responsive scaling rules: the first-paint value. js/camera.js then fits
+   the system to the actual screen (fitSystem). */
 @media (max-width: 1200px) , (max-height: 800px) { :root { --system-scale: 1.25; } }
 @media (max-width: 900px) , (max-height: 700px) { :root { --system-scale: 0.85; } }
 @media (max-width: 700px) , (max-height: 550px) { :root { --system-scale: 0.75; } }
@@ -261,9 +262,21 @@ body {
     overflow: hidden;
     touch-action: none; /* no page pinch-zoom on touch: windows enlarge their text instead (js/textzoom.js) */
 
-    perspective: 1500px;
+    /* Grows with the screen like the vmin-sized orbits (1500px on a 900px-tall
+       laptop), so large or zoomed-out screens keep the laptop's proportions;
+       a fixed 1500px let the outer orbits swell towards the viewer there and
+       fling their astres off the screen. Phones keep 1500px. */
+    perspective: max(1500px, 166.67vmin);
     /* Align perspective origin with system coordinates */
     perspective-origin: var(--system-x) var(--system-y);
+}
+
+/* Points around each main orbit, measured to fit the system (js/camera.js) */
+.orbit-probe {
+    position: absolute;
+    width: 0;
+    height: 0;
+    pointer-events: none;
 }
 
 /* Main wrapper */
@@ -606,9 +619,12 @@ body.planet-focused #home-label {
 .planet-4 { --ring-size: 83vmin; --orbit-diag: 10deg; --orbit-tilt: 75deg; --start-angle: 0deg; --spin-duration: 25s; }
 
 /* Empty Comet Trails */
-.comet-1 { --ring-size: 1120px; --orbit-diag: 37deg; --orbit-tilt: 80deg; --start-angle: 90deg; --spin-duration: 40s; --planet-color: #444444; }
-.comet-2 { --ring-size: 1340px; --orbit-diag: -25deg; --orbit-tilt: 60deg; --start-angle: 300deg; --spin-duration: 60s; --planet-color: #444444; }
-.comet-3 { --ring-size: 1560px; --orbit-diag: 8deg; --orbit-tilt: 75deg; --start-angle: 150deg; --spin-duration: 80s; --planet-color: #444444; }
+/* Decorative orbits: fixed sizes, but growing with large or zoomed-out screens
+   like the vmin-sized main orbits (same value on a 900px-tall laptop), so they
+   keep their proportions instead of shrinking to the main orbits' size */
+.comet-1 { --ring-size: max(1120px, 124.44vmin); --orbit-diag: 37deg; --orbit-tilt: 80deg; --start-angle: 90deg; --spin-duration: 40s; --planet-color: #444444; }
+.comet-2 { --ring-size: max(1340px, 148.89vmin); --orbit-diag: -25deg; --orbit-tilt: 60deg; --start-angle: 300deg; --spin-duration: 60s; --planet-color: #444444; }
+.comet-3 { --ring-size: max(1560px, 173.33vmin); --orbit-diag: 8deg; --orbit-tilt: 75deg; --start-angle: 150deg; --spin-duration: 80s; --planet-color: #444444; }
 
 
 /* --- 9. PHYSICS ENGINE (KEYFRAMES) --- */
