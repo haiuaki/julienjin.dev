@@ -24,6 +24,7 @@ function setTextZoom(z) {
         document.documentElement.style.setProperty('--text-zoom', textZoom.toFixed(3));
         /* Enlarged: index rows may wrap (css .text-zoomed) */
         document.documentElement.classList.toggle('text-zoomed', textZoom > 1.15);
+        checkLeaders(); /* leaders follow which rows wrap (js/menu.js) */
     });
 }
 

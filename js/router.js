@@ -150,24 +150,26 @@ if (parseRoute().menuId) {
 }
 
 /* --- EXTERNAL LINKS --- */
-/* Links that leave the site (GitHub, LinkedIn, demos) and documents (CV)
-   open in a new tab, marked with ↗ so it is clear before clicking. The site
-   keeps its place either way, thanks to the addresses above. */
+/* Links open in the same tab: visitors choose a new tab themselves (Cmd/Ctrl-
+   click, long-press), the site keeps its place in the address so Back returns
+   to it, and phones hand LinkedIn/GitHub to their apps either way. Links that
+   leave the site (GitHub, LinkedIn, demos) are marked ↗, with "external site"
+   for screen readers. Called markExternalLinks on content as it is shown. */
 function markExternalLinks(root) {
     root.querySelectorAll('a[href]').forEach(a => {
         const url = new URL(a.getAttribute('href'), location.href);
         const leavesSite = /^https?:$/.test(url.protocol) && url.origin !== location.origin;
-        const isDocument = /\.pdf$/i.test(url.pathname);
-        if (!leavesSite && !isDocument) return;
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
-        if (!a.querySelector('.ext-mark')) {
-            const mark = document.createElement('span');
-            mark.className = 'ext-mark';
-            mark.setAttribute('aria-label', '(opens in a new tab)');
-            mark.textContent = ' ↗';
-            a.appendChild(mark);
-        }
+        if (!leavesSite || a.querySelector('.ext-mark')) return;
+        const mark = document.createElement('span');
+        mark.className = 'ext-mark';
+        const arrow = document.createElement('span');
+        arrow.setAttribute('aria-hidden', 'true');
+        arrow.textContent = '\u00a0↗'; /* non-breaking: never alone on a line */
+        const said = document.createElement('span');
+        said.className = 'visually-hidden';
+        said.textContent = ' (external site)';
+        mark.append(arrow, said);
+        a.appendChild(mark);
     });
     return root;
 }

@@ -137,6 +137,7 @@ function buildIndex(menu) {
     if (metaField) columns.append(createEl('span', 'menu-meta', metaField[0]));
 
     indexContent.replaceChildren(columns, list, status);
+    checkLeaders();
     return { list, count };
 }
 
@@ -194,6 +195,33 @@ function buildDossier(menu, i) {
 
 /* The section's [label, key] fields filled from an entry: [label, value] */
 const entryFields = (menu, entry) => (menu.fields || []).map(([label, key]) => [label, entry[key]]);
+
+/* --- LEADERS --- */
+/* Dotted leaders show while a row's two sides share a line; a row that had
+   to wrap (enlarged text, narrow window) drops its leader (css .is-wrapped).
+   Measured with every leader shown, so hiding one can't flip the result.
+   Runs when rows are built, the text size changes or the layout resizes. */
+function markWrappedRows() {
+    const rows = [...document.querySelectorAll('.term-window .menu-item, .term-window .dossier-field')];
+    rows.forEach(row => row.classList.remove('is-wrapped'));
+    rows.filter(row => {
+        const start = row.querySelector('.menu-num, dt'), end = row.querySelector('.menu-meta, dd');
+        if (!start || !end) return false;
+        const a = start.getBoundingClientRect(), b = end.getBoundingClientRect();
+        return a.height > 0 && b.top > a.top + a.height / 2;
+    }).forEach(row => row.classList.add('is-wrapped'));
+}
+
+let leaderCheck = 0;
+function checkLeaders() {
+    if (leaderCheck) return;
+    leaderCheck = requestAnimationFrame(() => {
+        leaderCheck = 0;
+        markWrappedRows();
+    });
+}
+onLayoutResize(checkLeaders);
+document.fonts && document.fonts.ready.then(checkLeaders);
 
 /* Label/value grid with dotted leaders; empty values are skipped */
 function buildFields(pairs) {
@@ -322,6 +350,7 @@ function openMenu(id, label) {
         menuState.els = null;
         indexWindow.classList.add('is-page');
         indexContent.replaceChildren(buildPage(menu));
+        checkLeaders();
         openWindow(indexWindow, label);
         setIndexMeta(menu.meta || '');
         return;
@@ -418,6 +447,7 @@ function openEntry(i, stayInReader = false, atEnd = false) {
     const switching = menuState.reading && readerWindow.classList.contains('is-open');
     const fromHeight = readerContent.offsetHeight;
     readerContent.replaceChildren(buildDossier(menu, i));
+    checkLeaders();
     readerContent.scrollTop = atEnd ? readerContent.scrollHeight : 0;
     updateReaderEnd();
     if (switching) redrawReader(fromHeight);

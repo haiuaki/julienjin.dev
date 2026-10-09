@@ -1313,18 +1313,20 @@ body.planet-focused .window-header {
 
 /* Enlarged text: the title takes the room next to its number and wraps
    there (a small base size keeps it on the number's line); the year keeps
-   to the right, on the next line when it doesn't fit, without a leader */
+   to the right, on the next line when it doesn't fit */
 .text-zoomed .menu-title {
     flex: 1 1 6ch;
     min-width: 0;
 }
 
-.text-zoomed .menu-leader {
-    display: none;
+.menu-item.is-wrapped .menu-meta {
+    margin-left: auto;
 }
 
-.text-zoomed .menu-meta {
-    margin-left: auto;
+/* The leader shows while title and year share a line; a row that wrapped
+   drops it (marked by js/menu.js, markWrappedRows) */
+.menu-item.is-wrapped .menu-leader {
+    display: none;
 }
 
 /* Small triangles (selection marker, NAVIGATE toggle): one SVG shape
@@ -1625,6 +1627,9 @@ body.planet-focused .window-header {
 
 .dossier-field dt {
     display: flex;
+    /* The leader sits on the label's baseline (then lifted to the capitals'
+       middle), like the index leaders, not at the bottom of the line box */
+    align-items: baseline;
     flex: 1;
     /* Never narrower than its own label, so a long value can't slide over it */
     min-width: auto;
@@ -1641,36 +1646,36 @@ body.planet-focused .window-header {
     transform: translateY(-0.3em);
 }
 
+/* Values never get cut: a long one wraps onto more lines, right-aligned,
+   beside its label and leader */
 .dossier-field dd {
+    flex: 0 1 auto;
+    min-width: 0;
     margin: 0;
     color: #e8e8e8;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    text-align: right;
+    overflow-wrap: anywhere;
 }
 
-/* Enlarged text (js/textzoom.js): values wrap instead of being cut, and go
-   to the right of the next line when they don't fit; no leaders, like the
-   index rows */
+/* Enlarged text (js/textzoom.js): a value that doesn't fit beside its
+   label goes to the right of the next line */
 .text-zoomed .dossier-field {
     flex-wrap: wrap;
 }
 
-.text-zoomed .dossier-field dt {
+.text-zoomed .dossier-field dd {
+    margin-left: auto;
+}
+
+/* The leader shows while label and value share a line; a row that wrapped
+   drops it (marked by js/menu.js, markWrappedRows) */
+.dossier-field.is-wrapped dt {
     flex: none;
     margin-right: 1ch;
 }
 
-.text-zoomed .dossier-field dt::after {
+.dossier-field.is-wrapped dt::after {
     display: none;
-}
-
-.text-zoomed .dossier-field dd {
-    margin-left: auto;
-    text-align: right;
-    white-space: normal;
-    overflow: visible;
-    overflow-wrap: anywhere;
 }
 
 .dossier-body {
@@ -1709,7 +1714,7 @@ body.planet-focused .window-header {
     outline: none;
 }
 
-/* ↗ after links that open in a new tab */
+/* ↗ after links that leave the site */
 .ext-mark {
     color: #9a9a9a; /* 4.5:1+ on the panels (WCAG 1.4.3) */
 }
@@ -1776,15 +1781,37 @@ body.planet-focused .window-header {
     visibility: visible;
 }
 
-/* Pane focus: while the reader has the keyboard, the index dims and the
-   reader's frame brightens */
-#content-window,
-#reader-window .flicker-frame {
-    transition: opacity 0.2s ease-out, border-color 0.2s ease-out;
+/* Pane focus: while the reader has the keyboard, its frame brightens and
+   the index recedes: its frame fades, and the whole window dims slightly.
+   Only to 90%: it can still be clicked, so its faintest text must keep
+   4.5:1 (WCAG 1.4.3), measured at 4.52:1 there (45% took it to about 2:1). */
+#content-window {
+    transition: opacity 0.2s ease-out;
 }
 
 #window-row.focus-reader #content-window {
-    opacity: 0.45;
+    opacity: 0.9;
+}
+
+#content-window .flicker-frame,
+#content-window .bar-line,
+#content-window .corner,
+#reader-window .flicker-frame {
+    transition: opacity 0.2s ease-out, border-color 0.2s ease-out, background-color 0.2s ease-out, filter 0.2s ease-out;
+}
+
+#window-row.focus-reader #content-window .flicker-frame,
+#window-row.focus-reader #content-window .bar-line {
+    border-color: rgba(120, 120, 120, 0.18);
+}
+
+#window-row.focus-reader #content-window .bar-line {
+    background-color: rgba(120, 120, 120, 0.18);
+}
+
+/* (brightness, not opacity: the corners' power-on animation holds their opacity) */
+#window-row.focus-reader #content-window .corner {
+    filter: brightness(0.4);
 }
 
 #window-row.focus-reader #reader-window .flicker-frame,
@@ -1814,14 +1841,13 @@ body.planet-focused .window-header {
     letter-spacing: 1px;
 }
 
-/* One line each, truncated on narrow screens instead of wrapping: capped at
-   their column, or a long title would size the button past it */
+/* Capped at their column, and wrapping there rather than cut with "…", so a
+   long title stays readable (prev aligned left, next right) */
 .dossier-nav button {
     min-width: 0;
     max-width: 100%;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    white-space: normal;
+    overflow-wrap: break-word; /* inside a word only if it alone is too wide */
     text-align: left;
 }
 
