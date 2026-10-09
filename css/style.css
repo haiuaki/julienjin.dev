@@ -136,6 +136,17 @@ body {
     overflow: hidden;
     touch-action: none; /* no page pinch-zoom on touch: windows enlarge their text instead (js/textzoom.js) */
     cursor: crosshair;
+}
+
+/* The dark vignette at the screen's edges, over the stars (js/canvas.js puts
+   it right after the star canvas). It used to be the body's own shadow, with
+   the canvas tucked behind the body (z-index -1): Safari on iPhone can give
+   the body its own layer, and then paints its background over such a canvas,
+   hiding the stars and the time-stop wave for good. */
+#vignette {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
     box-shadow: inset 0 0 200px 50px rgba(0, 0, 0, 0.9);
 }
 
@@ -240,7 +251,8 @@ body {
     position: fixed;
     top: 0; left: 0;
     width: 100vw; height: 100vh;
-    z-index: -1;
+    /* First in the page and positioned: the lowest layer above the page's
+       background, without a negative z-index (see #vignette) */
     pointer-events: none;
     background-color: transparent;
     transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1), transform 1.5s cubic-bezier(0.25, 1, 0.5, 1);

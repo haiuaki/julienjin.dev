@@ -1,6 +1,11 @@
 const canvas = document.createElement('canvas');
 canvas.id = 'starfield';
 document.body.insertBefore(canvas, document.body.firstChild);
+/* The edge vignette goes right above the stars (css #vignette) */
+const vignette = document.createElement('div');
+vignette.id = 'vignette';
+vignette.setAttribute('aria-hidden', 'true');
+canvas.after(vignette);
 
 /* Generate static pixel noise tile */
 const noiseCanvas = document.createElement('canvas');
@@ -33,6 +38,14 @@ document.body.style.backgroundSize = 'auto, cover';
 document.body.style.backgroundAttachment = 'fixed';
 
 const ctx = canvas.getContext('2d');
+
+/* Safety net: under graphics-memory pressure, phones (Safari) can drop a
+   canvas's content or its context. Redraw the stars when the context comes
+   back, and whenever the page is shown again. */
+canvas.addEventListener('contextlost', (e) => e.preventDefault()); /* allow it to be restored */
+canvas.addEventListener('contextrestored', () => { starsDirty = true; });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) starsDirty = true; });
+window.addEventListener('pageshow', () => { starsDirty = true; });
 let stars = [];
 let clientMouseX = -1000;
 let clientMouseY = -1000;
@@ -127,7 +140,10 @@ function distortSpace(x, y, halting) {
 /* Current wavefront, or null when no distortion is running */
 function currentWave(now) {
     if (!distortion) return null;
-    const p = Math.min((now - distortion.start) / DISTORT_MS, 1);
+    /* Clamped at 0 too: a frame's timestamp can be a few ms earlier than the
+       press that started the wave, and a negative radius makes the canvas
+       throw (which used to stop the starfield's loop for good) */
+    const p = Math.min(Math.max((now - distortion.start) / DISTORT_MS, 0), 1);
     const eased = 1 - Math.pow(1 - p, 2);
     /* Far enough to sweep past the farthest corner from the click */
     const maxRadius = Math.hypot(
@@ -145,6 +161,8 @@ function currentWave(now) {
 }
 
 function renderLoop(now = performance.now()) {
+    /* Next frame first: an unexpected error below can't stop the starfield */
+    requestAnimationFrame(renderLoop);
     const prev = lastFrame;
     const drifting = updateDrift(now);
     if (drifting) {
@@ -162,7 +180,6 @@ function renderLoop(now = performance.now()) {
         starsDirty = false;
         drawStars(now);
     }
-    requestAnimationFrame(renderLoop);
 }
 
 function drawStars(now) {
