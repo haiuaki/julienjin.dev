@@ -1,11 +1,18 @@
+/* Touch screens (index.html <head> marks them .lite) get a lighter scene: the
+   stars are drawn once into a picture on a plain layer instead of a live
+   canvas, and the time-stop wave is a simple ring. A live canvas there could
+   vanish for good under graphics-memory pressure (Safari on iPhone). */
+const liteScene = document.documentElement.classList.contains('lite');
 const canvas = document.createElement('canvas');
-canvas.id = 'starfield';
-document.body.insertBefore(canvas, document.body.firstChild);
+const starLayer = liteScene ? document.createElement('div') : canvas;
+starLayer.id = 'starfield';
+starLayer.setAttribute('aria-hidden', 'true');
+document.body.insertBefore(starLayer, document.body.firstChild);
 /* The edge vignette goes right above the stars (css #vignette) */
 const vignette = document.createElement('div');
 vignette.id = 'vignette';
 vignette.setAttribute('aria-hidden', 'true');
-canvas.after(vignette);
+starLayer.after(vignette);
 
 /* Generate static pixel noise tile */
 const noiseCanvas = document.createElement('canvas');
@@ -27,12 +34,14 @@ for (let i = 0; i < buffer32.length; i++) {
 }
 noiseCtx.putImageData(idata, 0, 0);
 
-/* Generate organic low-frequency grayscale SVG nebula clouds */
-const svgNebula = `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.005' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.10'/%3E%3C/svg%3E")`;
+/* Organic low-frequency grayscale nebula clouds: a picture rendered once from
+   an SVG noise filter (feTurbulence, baseFrequency 0.005, 3 octaves, 10%),
+   since computing that filter live at full-screen size is costly */
+const nebulaImage = `url("img/nebula.png")`;
 
 /* Assign composite background rendering properties */
 /* Apply composite background to document body to prevent canvas repaint recalculations */
-document.body.style.backgroundImage = `url(${noiseCanvas.toDataURL()}), ${svgNebula}`;
+document.body.style.backgroundImage = `url(${noiseCanvas.toDataURL()}), ${nebulaImage}`;
 document.body.style.backgroundBlendMode = 'normal, overlay';
 document.body.style.backgroundSize = 'auto, cover';
 document.body.style.backgroundAttachment = 'fixed';
@@ -131,10 +140,33 @@ function driftStars(dt) {
    when it resumes). Stars near the front are pushed along it, like light
    bending around a mass, and the front itself is drawn as a fading ring. */
 const DISTORT_MS = 800;
+const BEND_MS = 600; /* touch screens' starfield bend (bendStars) */
 let distortion = null;
 
 function distortSpace(x, y, halting) {
+    if (liteScene) {
+        bendStars(x, y, halting);
+        return;
+    }
     distortion = { x, y, halting, start: performance.now() };
+}
+
+/* Touch screens: the starfield itself bends, like the canvas wave pushes and
+   pulls the stars: the star picture swells slightly away from the tap (halt)
+   or draws in towards it (resume), then settles. One transform on the layer
+   that already exists, so the phone's graphics chip does it without
+   redrawing anything. The separate scale property leaves the camera's
+   parallax shift (transform) alone. */
+function bendStars(x, y, halting) {
+    starLayer.style.transformOrigin = `${x}px ${y}px`;
+    const peak = halting ? '1.03' : '0.97';
+    starLayer.animate([{ scale: '1' }, { scale: peak, offset: 0.35 }, { scale: '1' }], { duration: BEND_MS, easing: 'ease-out' });
+}
+
+/* Touch screens: the stars, drawn once into a picture */
+function paintStarPicture() {
+    drawStars(performance.now());
+    starLayer.style.backgroundImage = `url(${canvas.toDataURL()})`;
 }
 
 /* Current wavefront, or null when no distortion is running */
@@ -161,6 +193,11 @@ function currentWave(now) {
 }
 
 function renderLoop(now = performance.now()) {
+    /* Touch screens: one picture, no loop */
+    if (liteScene) {
+        paintStarPicture();
+        return;
+    }
     /* Next frame first: an unexpected error below can't stop the starfield */
     requestAnimationFrame(renderLoop);
     const prev = lastFrame;
@@ -188,8 +225,8 @@ function drawStars(now) {
     
     /* Map screen coordinates to canvas space */
     const rect = canvas.getBoundingClientRect();
-    const mouseX = clientMouseX === -1000 ? -1000 : (clientMouseX - rect.left) * (canvas.width / rect.width);
-    const mouseY = clientMouseY === -1000 ? -1000 : (clientMouseY - rect.top) * (canvas.height / rect.height);
+    const mouseX = clientMouseX === -1000 || !rect.width ? -1000 : (clientMouseX - rect.left) * (canvas.width / rect.width);
+    const mouseY = clientMouseY === -1000 || !rect.height ? -1000 : (clientMouseY - rect.top) * (canvas.height / rect.height);
     
     ctx.fillStyle = '#fafafa';
     const radius = 150;
@@ -247,5 +284,6 @@ function drawStars(now) {
 onLayoutResize(() => {
     initStars();
     starsDirty = true;
+    if (liteScene) paintStarPicture();
 });
 

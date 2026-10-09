@@ -53,6 +53,8 @@
         (function () {
             var root = document.documentElement;
             root.classList.add('js');
+            /* Touch screens get a lighter scene (style.css .lite, js/canvas.js) */
+            if (matchMedia('(pointer: coarse)').matches) root.classList.add('lite');
             try {
                 var store = sessionStorage, stored = store.getItem('isManuallyPaused');
                 var halted = stored === null ? matchMedia('(prefers-reduced-motion: reduce)').matches : stored === 'true';

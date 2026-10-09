@@ -33,7 +33,10 @@ if (isNaN(systemEpoch)) {
    the time switch at the top. Read at use time, so it follows resizes. */
 const compactLayout = window.matchMedia('(max-width: 900px)');
 function focusTarget() {
-    return compactLayout.matches ? { x: 28.5, y: 52.5 } : { x: 64.5, y: 58.5 };
+    if (!compactLayout.matches) return { x: 64.5, y: 58.5 };
+    /* Touch screens hide the time switch on an astre (nothing moves there in
+       the lighter scene), so the astre sits higher */
+    return document.documentElement.classList.contains('lite') ? { x: 28.5, y: 34.5 } : { x: 28.5, y: 52.5 };
 }
 
 /* Crosshairs are 1px lines drawn from their translate value, so their visual

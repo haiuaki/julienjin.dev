@@ -283,6 +283,31 @@ body {
     perspective-origin: var(--system-x) var(--system-y);
 }
 
+/* Lighter scene on touch screens (index.html <head>): no decorative comet
+   orbits, the largest layers of all, and mostly off a narrow screen anyway */
+.lite .orbit-ring[class*="comet-"] {
+    display: none;
+}
+
+/* On an astre, nothing moves in the lighter scene (other orbits hidden, the
+   open one frozen, no star drift), so there is nothing for the time switch to
+   pause (WCAG 2.2.2 covers moving content): it steps aside until home */
+.lite body.planet-focused #time-switch,
+.lite body.planet-focused #time-switch * {
+    /* the children too: the shown label sets its own visibility (the halted
+       label's would otherwise show through a hidden switch) */
+    visibility: hidden !important;
+}
+
+.lite body.planet-focused #time-switch {
+    opacity: 0;
+}
+
+/* The stars as a picture on touch screens (js/canvas.js) */
+.lite #starfield {
+    background-size: 100% 100%;
+}
+
 /* Points around each main orbit, measured to fit the system (js/camera.js) */
 .orbit-probe {
     position: absolute;
@@ -1945,6 +1970,16 @@ body.planet-focused .window-header {
         --row-inset: 82px; /* compact top (66) + bottom (16) */
         flex: 1 1 auto;
         min-width: 0;
+    }
+
+    /* Touch screens: no time switch on an astre, so everything sits higher
+       (astre and crosshairs at 34.5, see js/globals.js) */
+    .lite #window-row {
+        top: 50px;
+    }
+
+    .lite .term-window {
+        --row-inset: 66px; /* compact top (50) + bottom (16) */
     }
 
     .window-content {
