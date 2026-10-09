@@ -325,6 +325,12 @@ function trackAllPositions(now) {
         t.size = [Math.ceil(box.width), Math.ceil(box.height)];
     });
     const viewW = layoutWidth(), viewH = layoutHeight();
+    /* The home menu's frame (open or collapsed): labels under it are hidden,
+       since the panel is see-through and they would collide with its text
+       (enlarged text can make it cover the system) */
+    const homeWin = document.getElementById('home-window');
+    const menuBox = homeWin.classList.contains('is-open')
+        ? homeWin.querySelector('.flicker-frame').getBoundingClientRect() : null;
 
     /* --- Write phase --- */
     trackers.forEach((t, i) => {
@@ -361,6 +367,8 @@ function trackAllPositions(now) {
         /* An astre off the screen (wide orbits, zoomed out): its label leaves
            too, instead of sliding along the edge where it is kept */
         t.label.classList.toggle('is-offscreen', planetX < 0 || planetX > viewW || planetY < 0 || planetY > viewH);
+        t.label.classList.toggle('is-under-menu', !!menuBox && labelX < menuBox.right && labelX + labelW > menuBox.left
+            && labelY < menuBox.bottom && labelY + labelH > menuBox.top);
 
         /* Return: stay locked on the astre as it travels home, until faded */
         if (!focused && returnSweep && returnSweep.planet === t.planet && crossX && crossY) {

@@ -581,8 +581,10 @@ body.planet-focused #home-label {
     opacity: 1;
 }
 
-/* Its astre is off the screen (js/ui.js): fades out, and back in on return */
-.planet-label.is-offscreen {
+/* Its astre is off the screen, or the label is under the open home menu
+   (js/ui.js): fades out, and back in when clear */
+.planet-label.is-offscreen,
+.planet-label.is-under-menu {
     opacity: 0 !important;
     transition: opacity 0.25s ease-out;
 }
@@ -994,6 +996,24 @@ body.planet-focused #crosshair-y {
     50%  { opacity: 0.8; }
     75%  { opacity: 0; }
     100% { opacity: 0; }
+}
+
+/* The content's top margin used to escape the window (margin collapsing):
+   the window sat a title-bar lower and the text started under the title, but
+   the scroll area then began above the frame, so a full menu (enlarged text,
+   phone held sideways) spilled past it. The same look, built on purpose: the
+   window keeps its content's margins inside and takes them as its own
+   (title-bar height above, a corner below), and the text's padding gives
+   them back. */
+#home-window {
+    display: flow-root;
+    margin-top: var(--head-h);
+    margin-bottom: var(--corner-h); /* phones: the menu is anchored by its bottom */
+}
+
+#home-window .window-content {
+    padding-top: calc(1.5em - var(--head-h));
+    padding-bottom: calc(1.5em - var(--corner-h)); /* the bottom margin escaped too */
 }
 
 /* Window titles normally show only during focus; the home title is always visible */
@@ -1889,6 +1909,11 @@ body.planet-focused .window-header {
 
     .window-content {
         padding: 1.25em 1em;
+    }
+
+    #home-window .window-content {
+        padding-top: calc(1.25em - var(--head-h));
+        padding-bottom: calc(1.25em - var(--corner-h));
     }
 
     /* The home menu takes the bottom edge, so the time switch moves to the
