@@ -155,7 +155,12 @@ if (isPhysicsPaused) {
     
     /* Force 0 playback rate if DOM parses in paused state */
     clockAnimations().forEach(anim => { anim.playbackRate = 0; });
-} else {
+} else if (!document.documentElement.style.getPropertyValue('--system-time')) {
+    /* Usually already set before the first paint (index.html <head>); setting
+       it again now would push every orbit ahead by the page's load time */
     let runningTimeMs = Date.now() - systemEpoch;
     document.documentElement.style.setProperty('--system-time', `-${runningTimeMs}ms`);
 }
+/* The orbits were held still by CSS until now (index.html <head>); the
+   playback rate holds them from here */
+document.documentElement.classList.remove('halted-at-load');

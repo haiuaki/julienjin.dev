@@ -44,8 +44,24 @@
     <link rel="preload" href="/fonts/IBMPlexMono-Regular-Latin1.woff2" as="font" type="font/woff2" crossorigin>
     
     <link rel="stylesheet" href="css/style.css">
-    <!-- Marks that JavaScript runs, before the first paint, so the no-JS window never flashes -->
-    <script>document.documentElement.classList.add('js');</script>
+    <!-- Before the first paint: mark that JavaScript runs (so the no-JS window
+         never flashes), and put the orbits where this visit's clock has them
+         (js/globals.js keeps that clock), so phones that paint before running
+         the scripts don't show the astres at their default places first.
+         Halted time also holds them still until js/physics.js takes over. -->
+    <script>
+        (function () {
+            var root = document.documentElement;
+            root.classList.add('js');
+            try {
+                var store = sessionStorage, stored = store.getItem('isManuallyPaused');
+                var halted = stored === null ? matchMedia('(prefers-reduced-motion: reduce)').matches : stored === 'true';
+                var epoch = parseInt(store.getItem('systemEpoch'), 10), pausedAt = parseInt(store.getItem('pauseTimestamp'), 10);
+                if (!isNaN(epoch)) root.style.setProperty('--system-time', -((halted && !isNaN(pausedAt) ? pausedAt : Date.now()) - epoch) + 'ms');
+                if (halted) root.classList.add('halted-at-load');
+            } catch (e) { /* storage blocked: js/physics.js sets it all */ }
+        })();
+    </script>
 </head>
 <body>
 

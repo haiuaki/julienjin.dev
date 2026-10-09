@@ -349,6 +349,13 @@ body.time-halted #sun-btn::before {
     animation-delay: var(--system-time, 0ms) !important;
 }
 
+/* Halted time, before js/physics.js has frozen the orbits (index.html <head>) */
+.halted-at-load #solar-system *,
+.halted-at-load #solar-system *::before,
+.halted-at-load #solar-system *::after {
+    animation-play-state: paused !important;
+}
+
 
 /* --- 7. ORBIT COMPONENTS --- */
 
