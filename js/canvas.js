@@ -34,16 +34,8 @@ for (let i = 0; i < buffer32.length; i++) {
 }
 noiseCtx.putImageData(idata, 0, 0);
 
-/* Organic low-frequency grayscale nebula clouds: a picture rendered once from
-   an SVG noise filter (feTurbulence, baseFrequency 0.005, 3 octaves, 10%),
-   since computing that filter live at full-screen size is costly */
-const nebulaImage = `url("img/nebula.png")`;
-
-/* Assign composite background rendering properties */
-/* Apply composite background to document body to prevent canvas repaint recalculations */
-document.body.style.backgroundImage = `url(${noiseCanvas.toDataURL()}), ${nebulaImage}`;
-document.body.style.backgroundBlendMode = 'normal, overlay';
-document.body.style.backgroundSize = 'auto, cover';
+/* Apply the noise to the document body to prevent canvas repaint recalculations */
+document.body.style.backgroundImage = `url(${noiseCanvas.toDataURL()})`;
 document.body.style.backgroundAttachment = 'fixed';
 
 const ctx = canvas.getContext('2d');
