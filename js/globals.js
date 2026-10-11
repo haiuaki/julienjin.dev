@@ -4,6 +4,12 @@
    previews don't run scripts. */
 const SITE_NAME = 'Julien Jin';
 
+/* Titles are written in capitals ("STELLAR CORE"). Where words are read
+   rather than seen (tab titles, the names screen readers give the window
+   headings) they are in normal case, "Stellar Core": some screen readers
+   spell out a word in capitals letter by letter. */
+const titleCase = (text) => text.toLowerCase().replace(/(^|[\s\[(-])(\p{L})/gu, (m, gap, letter) => gap + letter.toUpperCase());
+
 const sunBtn = document.getElementById('sun-btn');
 const solarSystem = document.getElementById('solar-system');
 

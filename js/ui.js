@@ -498,10 +498,11 @@ function scrambleHeader(win, text, holdMs = 0) {
    Flicker windows (data-open="flicker") instead power on at once
    while their label decodes. */
 /* A window title is typed or decoded letter by letter; screen readers get the
-   final title as its name from the start, never the frames in between */
+   final title as its name from the start, never the frames in between, and in
+   normal case (titleCase in globals.js) */
 function nameHeader(win, text) {
     const header = win.querySelector('.window-header');
-    if (text) header.setAttribute('aria-label', text);
+    if (text) header.setAttribute('aria-label', titleCase(text));
     else header.removeAttribute('aria-label');
 }
 

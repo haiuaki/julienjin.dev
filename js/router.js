@@ -31,8 +31,6 @@ let ignorePops = 0;     /* popstates caused by our own history.go() rewinds */
 /* The tab title follows the view: "Stellar Core · Projects · Julien Jin".
    It names tabs, browser history entries and bookmarks, and screen readers
    read it when a tab is revisited. */
-const titleCase = (text) => text.toLowerCase().replace(/(^|[\s\[(-])(\p{L})/gu, (m, gap, letter) => gap + letter.toUpperCase());
-
 function updateTitle(menuId, entryId) {
     const parts = [];
     if (menuId) {
