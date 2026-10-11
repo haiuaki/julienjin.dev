@@ -404,7 +404,8 @@ function openMenu(id, label) {
     menuState.els = buildIndex(menu);
     updateCount();
     openWindow(indexWindow, label);
-    setIndexMeta(`${pad(menu.entries.length)} FILES`);
+    const total = menu.entries.length;
+    setIndexMeta(`${pad(total)} ${total === 1 ? 'FILE' : 'FILES'}`);
 }
 
 /* Highlight an entry in the index */
