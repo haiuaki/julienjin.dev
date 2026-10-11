@@ -2063,3 +2063,44 @@ body.planet-focused .window-header {
         display: none;
     }
 }
+
+/* --- FORCED COLORS (Windows High Contrast) --- */
+/* That mode swaps every colour for the visitor's theme and drops gradients:
+   the astres and the star (gradients) would vanish, and the triangles and
+   focus marks (shapes filled with background colour) with them. The scene is
+   kept as drawn, like an image, on the page's dark ground (the grain left out)
+   so it shows in light and dark themes alike; the windows take the theme's
+   colours on a solid ground, and the triangles its text colour. Last in the
+   file so it overrides the rules it adjusts. */
+@media (forced-colors: active) {
+    html {
+        forced-color-adjust: none;
+        background-color: #161616;
+    }
+
+    body {
+        forced-color-adjust: auto;
+        background: transparent;
+    }
+
+    #space-container,
+    #crosshair-x,
+    #crosshair-y,
+    #astre-focus {
+        forced-color-adjust: none;
+    }
+
+    .term-window {
+        forced-color-adjust: auto;
+    }
+
+    .term-window.is-open {
+        background-color: Canvas;
+    }
+
+    .menu-item::before,
+    .toggle-arrow {
+        forced-color-adjust: none;
+        background-color: CanvasText;
+    }
+}
