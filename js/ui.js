@@ -133,6 +133,8 @@ astreBtns.forEach((planet, i) => {
     floatingLabel.id = `astre-label-${i}`;
     floatingLabel.textContent = labelText;
     planet.setAttribute('aria-labelledby', floatingLabel.id);
+    /* Heard through the button it names, not on its own */
+    floatingLabel.setAttribute('aria-hidden', 'true');
     floatingLabel.style.setProperty('--i', i); /* glitches in after the labels before it */
     document.body.appendChild(floatingLabel);
     
@@ -495,10 +497,19 @@ function scrambleHeader(win, text, holdMs = 0) {
 /* Full sequence: type the label, drop the cursor, open the frame.
    Flicker windows (data-open="flicker") instead power on at once
    while their label decodes. */
+/* A window title is typed or decoded letter by letter; screen readers get the
+   final title as its name from the start, never the frames in between */
+function nameHeader(win, text) {
+    const header = win.querySelector('.window-header');
+    if (text) header.setAttribute('aria-label', text);
+    else header.removeAttribute('aria-label');
+}
+
 function openWindow(win, labelText) {
     clearWindowTimers(win);
     win.classList.remove('is-open');
     win.querySelector('.window-header').textContent = '';
+    nameHeader(win, labelText);
 
     if (win.dataset.open === 'flicker') {
         void win.offsetWidth; /* Restart the CSS power-on animations */
@@ -532,6 +543,7 @@ function retitleWindow(win, labelText) {
         return;
     }
     clearWindowTimers(win);
+    nameHeader(win, labelText);
     if (win.dataset.open === 'flicker') {
         scrambleHeader(win, labelText);
         return;
@@ -545,6 +557,7 @@ function closeWindow(win) {
     clearWindowTimers(win);
     win.classList.remove('is-open', 'is-quiet');
     win.querySelector('.window-header').textContent = '';
+    nameHeader(win, null);
     const meta = win.querySelector('.window-meta');
     if (meta) meta.replaceChildren();
 }

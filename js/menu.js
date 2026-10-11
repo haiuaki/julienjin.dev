@@ -166,6 +166,7 @@ function buildDossier(menu, i) {
     body.appendChild(cloneEntryContent(entry));
 
     const nav = createEl('nav', 'dossier-nav');
+    nav.setAttribute('aria-label', 'Previous and next entries');
     const navButton = (j, className, text) => {
         const btn = createEl('button', className, text);
         btn.dataset.index = j;

@@ -877,6 +877,17 @@ body.time-halted #time-switch .when-halted {
     100% { opacity: 1; }
 }
 
+/* A closed window's title is empty: out of the page, so screen readers don't
+   list a blank heading */
+.window-header:empty {
+    display: none;
+}
+
+/* Without JavaScript the no-JS window has its own h1 */
+html:not(.js) #site-title {
+    display: none;
+}
+
 /* --- NO-SCRIPT FALLBACK --- */
 /* A still window centered over the frozen scene (index.html .no-script).
    It covers the whole screen, so the scene's dead buttons can't be clicked.
@@ -1139,6 +1150,9 @@ body.planet-focused #crosshair-y {
     position: absolute;
     top: 0;
     left: 0;
+    /* Some titles are headings (h2, h3): no heading margins or bold */
+    margin: 0;
+    font-weight: inherit;
     font-family: 'IBM Plex Mono', monospace;
     color: #fafafa;
     /* Scales with the viewport so text stays readable on 4K without being overwhelming on small screens */

@@ -106,7 +106,7 @@
         <section id="home-window" class="term-window flicker-window" data-open="flicker">
             <div class="window-bar">
                 <span class="bar-line bar-edge"></span>
-                <div class="window-header"></div>
+                <div class="window-header" aria-hidden="true"></div>
                 <span class="bar-line"></span>
                 <div class="window-meta"></div>
                 <span class="bar-line bar-edge"></span>
@@ -137,7 +137,7 @@
             </button>
 
             <!-- Orbital navigation rings -->
-            <nav id="main-nav">
+            <nav id="main-nav" aria-label="Solar system">
                 
                 <!-- Main Navigation Planets -->
                 <div class="orbit-ring planet-1">
@@ -169,7 +169,12 @@
     <!-- CONTENT WINDOWS (BOUNDING BOXES) -->
     <!-- Each .term-window types its header, then opens its 4-corner frame independently.
          Both size to their content; the row lays them out side by side. -->
-    <div id="window-row">
+    <!-- The page's main content: the windows -->
+    <main id="window-row">
+        <!-- The page's main heading, for screen readers and search engines, in
+             every view (the home window that shows the name closes on an astre);
+             window titles are the headings below it: a section (h2), an entry (h3) -->
+        <h1 class="visually-hidden" id="site-title">Julien Jin</h1>
 
         <!-- Main window: menu index, or a planet's own content.
              data-open picks the opening: "flicker" (CRT power-on), or remove it and
@@ -179,7 +184,7 @@
             <!-- Title bar: the title and meta slot are cut into the frame's top border -->
             <div class="window-bar">
                 <span class="bar-line bar-edge"></span>
-                <div class="window-header"></div>
+                <h2 class="window-header"></h2>
                 <span class="bar-line"></span>
                 <div class="window-meta"></div>
                 <span class="bar-line bar-edge"></span>
@@ -200,7 +205,7 @@
             <!-- Title bar: the title and meta slot are cut into the frame's top border -->
             <div class="window-bar">
                 <span class="bar-line bar-edge"></span>
-                <div class="window-header"></div>
+                <h3 class="window-header"></h3>
                 <span class="bar-line"></span>
                 <div class="window-meta"></div>
                 <span class="bar-line bar-edge"></span>
@@ -215,7 +220,7 @@
             </div>
         </section>
 
-    </div>
+    </main>
 
     <!-- --- TIME SWITCH --- -->
     <!-- After the windows in the page, so Tab reaches it last: on an astre
