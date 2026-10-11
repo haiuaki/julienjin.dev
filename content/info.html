@@ -2,9 +2,20 @@
      One <article> per entry, in the order the index lists them:
        id          the entry's address (#/info/<id>): lowercase, dashes
        data-title  the title in the index and the reader
-       data-*      the details shown above the text; which ones, and their
-               labels, are set for this section in MENUS (js/menu.js)
-	 The article's content is the text shown in the reader. -->
+     The article's content is the text shown in the reader.
+
+     Details shown above the text (each optional, in this order):
+       data-name      NAME
+       data-role      ROLE
+       data-based     BASED
+       data-focus     FOCUS
+       data-span      SPAN
+       data-current   CURRENT
+       data-updated   UPDATED
+
+     To add a detail, write it on the article: data-key="…".
+     To make a new key, add ['LABEL', 'key'] to this section's fields in
+     MENUS (js/menu.js). -->
 
 <article id="profile"
          data-title="PROFILE"

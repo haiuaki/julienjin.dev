@@ -5,9 +5,10 @@
    in one file.
    fields:    details shown above an entry's text, as [label, key], where key
               is the entry's data-{key} attribute; entries without a value
-              for a field skip it
-   indexMeta: key shown at the end of each index row; its column header is
-              that field's label
+              for a field skip it, and a value that is a web address
+              (https://...) shows as a link
+   indexMeta: [label, key] shown at the end of each index row: label as
+              the column header, the entry's data-{key} on each row
    page:      a single window instead of a list, built from the file's one
               <article>
    meta:      text on the right of a page window's title bar
@@ -19,12 +20,13 @@ const MENUS = {
             ['SPAN', 'span'], ['CURRENT', 'current'], ['UPDATED', 'updated']],
     },
     projects: {
-        fields: [['YEAR', 'year'], ['ROLE', 'role'], ['STACK', 'stack'], ['STATUS', 'status']],
-        indexMeta: 'year',
+        fields: [['ROLE', 'role'], ['STACK', 'stack'], ['TEAM', 'team'], ['SOURCE', 'source'],
+            ['STATUS', 'status']],
+        indexMeta: ['LANG', 'lang'],
     },
     lab: {
-        fields: [['YEAR', 'year'], ['MEDIUM', 'medium'], ['STATUS', 'status']],
-        indexMeta: 'year',
+        fields: [['DATE', 'date'], ['MEDIUM', 'medium'], ['STATUS', 'status']],
+        indexMeta: ['DATE', 'date'],
     },
     contact: {
         page: true,
@@ -108,8 +110,9 @@ function buildIndex(menu) {
         const btn = createEl('button', 'menu-item');
         btn.dataset.index = i;
         btn.append(createEl('span', 'menu-num', pad(i + 1)), createEl('span', 'menu-title', entry.title));
-        if (menu.indexMeta && entry[menu.indexMeta]) {
-            btn.append(createEl('span', 'menu-leader'), createEl('span', 'menu-meta', entry[menu.indexMeta]));
+        const meta = menu.indexMeta && entry[menu.indexMeta[1]];
+        if (meta) {
+            btn.append(createEl('span', 'menu-leader'), createEl('span', 'menu-meta', meta));
         }
         const li = createEl('li');
         li.appendChild(btn);
@@ -133,8 +136,7 @@ function buildIndex(menu) {
     const columns = createEl('div', 'menu-columns');
     /* "#", not "NO", which read as "no title" */
     columns.append(createEl('span', 'menu-num', '#'), createEl('span', 'menu-col-title', 'TITLE'));
-    const metaField = (menu.fields || []).find(([, key]) => key === menu.indexMeta);
-    if (metaField) columns.append(createEl('span', 'menu-meta', metaField[0]));
+    if (menu.indexMeta) columns.append(createEl('span', 'menu-meta', menu.indexMeta[0]));
 
     indexContent.replaceChildren(columns, list, status);
     checkLeaders();
@@ -204,7 +206,17 @@ const entryFields = (menu, entry) => (menu.fields || []).map(([label, key]) => [
    Runs when rows are built, the text size changes or the layout resizes. */
 function markWrappedRows() {
     const rows = [...document.querySelectorAll('.term-window .menu-item, .term-window .dossier-field')];
-    rows.forEach(row => row.classList.remove('is-wrapped'));
+    rows.forEach(row => row.classList.remove('is-wrapped', 'is-stacked'));
+    /* A list value that doesn't fit on one line beside its label stacks two
+       items per line instead (css .is-stacked); measured first, as stacking
+       changes how wide the value is */
+    rows.filter(row => {
+        const lines = row.querySelectorAll('.value-line');
+        if (lines.length < 2) return false;
+        const label = row.querySelector('dt').getBoundingClientRect();
+        const first = lines[0].getBoundingClientRect(), last = lines[lines.length - 1].getBoundingClientRect();
+        return last.top > first.top + first.height / 2 || first.top > label.top + label.height / 2;
+    }).forEach(row => row.classList.add('is-stacked'));
     rows.filter(row => {
         const start = row.querySelector('.menu-num, dt'), end = row.querySelector('.menu-meta, dd');
         if (!start || !end) return false;
@@ -224,6 +236,37 @@ function checkLeaders() {
 onLayoutResize(checkLeaders);
 document.fonts && document.fonts.ready.then(checkLeaders);
 
+/* Names shown for links to these sites; others show their address
+   without "www." (example.com) */
+const SITE_NAMES = {
+    'github.com': 'GitHub',
+};
+
+/* A web address becomes a link showing the site's name (GitHub ↗, the
+   arrow added by markExternalLinks); a mistyped one stays plain text.
+   A list value ("Go · Next.js · Docker") becomes its items in pairs, one
+   span per pair, so a list too long for its line can stack two items per
+   line (markWrappedRows). Other values are kept as they are. */
+function fieldValue(value) {
+    if (typeof value !== 'string') return [value];
+    if (/^https?:\/\//.test(value)) {
+        try {
+            const host = new URL(value).hostname.replace(/^www\./, '');
+            const link = createEl('a', null, SITE_NAMES[host] || host);
+            link.href = value;
+            return [link];
+        } catch { /* not a valid address: shown as text */ }
+    }
+    const items = value.split(/\s+·\s+/);
+    if (items.length < 3) return [value];
+    const nodes = [];
+    for (let i = 0; i < items.length; i += 2) {
+        if (i) nodes.push(createEl('span', 'value-sep', ' · '));
+        nodes.push(createEl('span', 'value-line', items.slice(i, i + 2).join(' · ')));
+    }
+    return nodes;
+}
+
 /* Label/value grid with dotted leaders; empty values are skipped */
 function buildFields(pairs) {
     const fields = createEl('dl', 'dossier-fields');
@@ -231,11 +274,11 @@ function buildFields(pairs) {
         if (!value) return;
         const field = createEl('div', 'dossier-field');
         const dd = createEl('dd');
-        dd.append(value); /* text, or nodes (e.g. a live clock) */
+        dd.append(...fieldValue(value)); /* text, or nodes (e.g. a live clock) */
         field.append(createEl('dt', null, label), dd);
         fields.appendChild(field);
     });
-    return fields;
+    return markExternalLinks(fields);
 }
 
 /* A <div data-copy-of="some-id"> in an entry stands for a block written

@@ -1289,7 +1289,7 @@ body.planet-focused .window-header {
     margin: 0 0 1em;
 }
 
-/* Prompt-style lines: "> cat nebula-engine", "PROJECTS_DB //" */
+/* Prompt-style lines: "// no signal", "// no data" */
 .term-line {
     color: #9a9a9a; /* 4.5:1+ on the panels (WCAG 1.4.3) */
 }
@@ -1437,7 +1437,7 @@ body.planet-focused .window-header {
     min-width: 2ch;
 }
 
-/* Dotted leader between title and meta: "01 NEBULA ENGINE ····· 2026" */
+/* Dotted leader between title and meta: "01 TITLE ····· 2026" */
 .menu-leader {
     flex: 1;
     min-width: 3ch;
@@ -1669,6 +1669,7 @@ body.planet-focused .window-header {
 
 .dossier-field {
     display: flex;
+    flex-wrap: wrap;
     align-items: baseline;
     min-width: 0;
 }
@@ -1685,7 +1686,8 @@ body.planet-focused .window-header {
     letter-spacing: 1px;
 }
 
-.dossier-field dt::after {
+.dossier-field dt::after,
+.dossier-field.is-stacked .value-line:first-child::before {
     content: '';
     flex: 1;
     min-width: 2ch;
@@ -1694,25 +1696,16 @@ body.planet-focused .window-header {
     transform: translateY(-0.3em);
 }
 
-/* Values never get cut: a long one wraps onto more lines, right-aligned,
-   beside its label and leader */
+/* Values never get cut: one that doesn't fit beside its label goes whole
+   to the right of the next line (wrapping inside it beside the leader would
+   leave a gap and split the value), and wraps there only if still too long */
 .dossier-field dd {
     flex: 0 1 auto;
     min-width: 0;
-    margin: 0;
+    margin: 0 0 0 auto;
     color: #e8e8e8;
     text-align: right;
     overflow-wrap: anywhere;
-}
-
-/* Enlarged text (js/textzoom.js): a value that doesn't fit beside its
-   label goes to the right of the next line */
-.text-zoomed .dossier-field {
-    flex-wrap: wrap;
-}
-
-.text-zoomed .dossier-field dd {
-    margin-left: auto;
 }
 
 /* The leader shows while label and value share a line; a row that wrapped
@@ -1723,6 +1716,43 @@ body.planet-focused .window-header {
 }
 
 .dossier-field.is-wrapped dt::after {
+    display: none;
+}
+
+/* List values: a list that doesn't fit on one line stacks two items per
+   line, right-aligned under the first pair, which stays on the label's line
+   with its leader (marked by js/menu.js, markWrappedRows). The value fills
+   the rest of the row and draws the leader in its first line, so the leader
+   runs up to the first pair however long the pairs below are */
+.dossier-field.is-stacked .value-line {
+    display: block;
+}
+
+.dossier-field.is-stacked dt {
+    flex: none;
+}
+
+.dossier-field.is-stacked dt::after {
+    display: none;
+}
+
+.dossier-field.is-stacked dd {
+    flex: 1 1 auto;
+}
+
+.dossier-field.is-stacked .value-line:first-child {
+    display: flex;
+    align-items: baseline;
+    justify-content: flex-end;
+}
+
+/* A stacked list that still doesn't fit beside its label goes below it,
+   without a leader, like any wrapped row */
+.dossier-field.is-stacked.is-wrapped .value-line:first-child::before {
+    display: none;
+}
+
+.dossier-field.is-stacked .value-sep {
     display: none;
 }
 

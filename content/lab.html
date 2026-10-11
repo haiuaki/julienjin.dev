@@ -1,15 +1,26 @@
 <!-- Lab content, loaded by js/menu.js.
-     One <article> per entry, in the order the index lists them:
+     One <article> per entry, in the order the index lists them (newest
+     first, like a log):
        id          the entry's address (#/lab/<id>): lowercase, dashes
        data-title  the title in the index and the reader
-       data-*      the details shown above the text; which ones, and their
-               labels, are set for this section in MENUS (js/menu.js)
-	 The article's content is the text shown in the reader. -->
+     The article's content is the text shown in the reader.
+
+     Details shown above the text (each optional, in this order):
+       data-date      DATE the entry was started, written 2026-10-12
+                      (also at the end of the index row)
+       data-medium    MEDIUM
+       data-status    STATUS: Ongoing, Paused, Done or Shelved
+
+     To add a detail, write it on the article: data-key="…".
+     To make a new key, add ['LABEL', 'key'] to this section's fields in
+     MENUS (js/menu.js). -->
 
 <article id="making-of"
          data-title="MAKING OF"
-         data-year="2026"
-         data-medium="HTML • CSS • JS"
-         data-status="On this site">
-    <p>// coming soon</p>
+         data-date="2026-09-12"
+         data-medium="HTML · CSS · JS"
+         data-status="Ongoing">
+    <p>This site: a small solar system you navigate. Each section is a planet; choosing one turns the camera to it and opens a terminal window with its contents. The sun is a switch: it stops time, and every orbit with it.</p>
+    <p>It is plain HTML, CSS and JavaScript, with no framework and no build step. Each section's entries live in their own HTML file, one article per entry, so adding one is a single edit.</p>
+    <p>Most of the work went into making it hold up everywhere. Phones get a lighter scene, with the stars drawn once instead of live, because Safari can drop a live canvas under memory pressure. The whole site works from the keyboard, follows reduced-motion and high-contrast settings, stays readable with enlarged text, and still shows the contact details with JavaScript turned off.</p>
 </article>
