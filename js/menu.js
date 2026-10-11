@@ -146,9 +146,9 @@ function buildCloseButton() {
     const close = createEl('button', 'dossier-close');
     close.dataset.action = 'back';
     close.setAttribute('aria-label', 'Close entry');
-    /* Wide screens: ← is also the key that closes it. Phones show the reader
-       alone, so it says what it does; "close" is in the button's name too */
-    close.append(createEl('span', 'close-wide', '[←]'), createEl('span', 'close-compact', 'CLOSE'));
+    /* Says what it does, on every screen ("close" is in its name too); on wide
+       screens ← does the same, as the index's key hints say */
+    close.textContent = 'CLOSE';
     return close;
 }
 

@@ -1656,11 +1656,6 @@ body.planet-focused .window-header {
     outline-offset: 2px;
 }
 
-/* "[←]" in the reader's title bar on wide screens, "← INDEX" where the reader replaces the index */
-.close-compact {
-    display: none;
-}
-
 /* Label/value grid with dotted leaders: "YEAR ........ 2026" */
 .dossier-fields {
     display: grid;
@@ -2044,14 +2039,6 @@ body.planet-focused .window-header {
 
     .menu-status {
         justify-content: flex-end;
-    }
-
-    .close-wide {
-        display: none;
-    }
-
-    .close-compact {
-        display: inline;
     }
 
     .dossier-fields {
