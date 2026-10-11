@@ -2017,6 +2017,14 @@ body.planet-focused .window-header {
         transform: none;
     }
 
+    /* Touch screens hide it on an astre (nothing moves there), so it never
+       meets "[home]" and goes back to the centre, like on desktop */
+    .lite #time-switch {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+    }
+
     /* Bottom of the screen, within thumb reach; the list opens upward */
     #home-nav {
         top: auto;
