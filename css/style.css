@@ -1679,6 +1679,9 @@ body.planet-focused .window-header {
     /* The leader sits on the label's baseline (then lifted to the capitals'
        middle), like the index leaders, not at the bottom of the line box */
     align-items: baseline;
+    /* Lines packed at the top: a field stretched to its row's height (by a
+       taller neighbour) would otherwise spread its lines apart */
+    align-content: flex-start;
     flex: 1;
     /* Never narrower than its own label, so a long value can't slide over it */
     min-width: auto;
