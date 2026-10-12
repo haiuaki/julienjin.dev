@@ -21,7 +21,7 @@
 const MENUS = {
     info: {
         fields: [['NAME', 'name'], ['ROLE', 'role'], ['BASED', 'based'], ['FOCUS', 'focus'],
-            ['SPAN', 'span'], ['CURRENT', 'current'], ['UPDATED', 'updated']],
+            ['UPDATED', 'updated']],
     },
     projects: {
         fields: [['ROLE', 'role'], ['STACK', 'stack'], ['TEAM', 'team'], ['SOURCE', 'source'],

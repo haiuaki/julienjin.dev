@@ -9,8 +9,6 @@
        data-role      ROLE
        data-based     BASED
        data-focus     FOCUS
-       data-span      SPAN
-       data-current   CURRENT
        data-updated   UPDATED
 
      To add a detail, write it on the article: data-key="…".
@@ -20,31 +18,33 @@
 <article id="profile"
          data-title="PROFILE"
          data-name="Julien Jin"
-         data-role="Software engineer"
+         data-role="Software Engineer Student"
          data-based="Paris, France"
          data-focus="Backend · Systems · Infrastructure">
-    <p>Software engineer trained at 42 Paris, building with C, C++, and Go. I like working close to the metal — networking, concurrency, memory management — and shipping infrastructure that holds up under pressure.</p>
+    <p>Software engineer student at 42 Paris, building with C, C++, and Go. I like knowing how things work underneath: memory, networking, running things in parallel. Most of all, I like building systems that hold up under pressure.</p>
     <p>Outside of code, I teach English and occasionally work as an interpreter.</p>
 </article>
 
 <article id="trajectory"
-         data-title="TRAJECTORY"
-         data-span="2021 — NOW"
-         data-current="42 Paris">
+         data-title="TRAJECTORY">
+    <!-- Ongoing roles first, then newest first.
+		 • ongoing: class="now" (filled marker)
+		 • one-off events: class="event" (diamond), dated by month (MAR 2025);
+         • finished roles: no class (hollow marker), dated by year -->
     <ol class="timeline">
-        <li><span class="tl-when">2025 — NOW</span><span class="tl-what">IT Architecture Expert · 42 Paris</span><span class="tl-note">Common Core: ft_transcendence, webserv, minishell, Inception.</span></li>
-        <li><span class="tl-when">2024 — NOW</span><span class="tl-what">English Instructor · AVES English</span><span class="tl-note">Remote lessons for a Japanese online school; personalized curriculum design.</span></li>
-        <li><span class="tl-when">OCT 24 · MAR 25</span><span class="tl-what">Multilingual Interpreter · Paris Fashion Week</span><span class="tl-note">Real-time FR/EN/JP interpretation on-site for international stakeholders.</span></li>
-        <li><span class="tl-when">2024</span><span class="tl-what">Guest Relations · Cloud Native Days France</span><span class="tl-note">Liaison between attendees and operations at a DevOps conference.</span></li>
+        <li class="now"><span class="tl-when">SINCE 2025</span><span class="tl-what">Software Engineering Student · 42 Paris</span><span class="tl-note">Selective, project-based software engineering program: systems in C and C++, networking, containers, backend development. Leads to the IT Architecture Expert certificate (RNCP level 7, Master's level).</span></li>
+        <li class="now"><span class="tl-when">SINCE 2024</span><span class="tl-what">English Instructor · AVES English</span><span class="tl-note">Remote lessons for a Japanese online school, personalized curriculum design.</span></li>
+        <li class="event"><span class="tl-when">FEB 2026</span><span class="tl-what">Guest Relations Volunteer · Cloud Native Days France</span><span class="tl-note">Liaison between attendees and operations at a DevOps conference.</span></li>
+        <li class="event"><span class="tl-when">MAR 2025</span><span class="tl-what">Multilingual Interpreter · Paris Fashion Week</span><span class="tl-note">Two seasons, Oct 2024 and Mar 2025: on-site FR/EN/JP interpretation for international stakeholders.</span></li>
         <li><span class="tl-when">2021 — 2024</span><span class="tl-what">Undergraduate Studies in Physics · Paris-Cité University</span><span class="tl-note">Physics and medical pathway.</span></li>
     </ol>
 </article>
 
-<article id="now"
-         data-title="NOW"
+<article id="on-my-desk"
+         data-title="ON MY DESK"
          data-updated="OCT 2026">
     <ul class="now-list">
         <li>Building this site: a navigable solar system with a time switch.</li>
-        <li>Looking for a backend or systems engineering position.</li>
+        <li>Looking for a software engineering role, backend-leaning and open to full-stack.</li>
     </ul>
 </article>

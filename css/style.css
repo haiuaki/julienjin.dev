@@ -1773,6 +1773,11 @@ body.planet-focused .window-header {
     line-height: 1.7;
 }
 
+/* No fields above (an entry without details): no gap to keep from them */
+.dossier > .dossier-body:first-child {
+    margin-top: 0;
+}
+
 /* Single-page window (contact): a fixed reading width instead of a list's */
 #content-window.is-page .window-content {
     width: calc(64ch + 3.5em);
@@ -1816,20 +1821,64 @@ body.planet-focused .window-header {
     color: #9a9a9a; /* 4.5:1+ on the panels (WCAG 1.4.3) */
 }
 
-/* Trajectory: dated rows, newest first */
+/* Trajectory: dated rows, newest first, on a rail of markers: filled for
+   ongoing roles (.now), a diamond for one-off events (.event), hollow for
+   finished roles. Drawn shapes, not characters: the site font has none,
+   and system fonts draw them differently. */
 .timeline {
+    --tl-gap: 1.1em;
+    --tl-mark: 0.55em;
     list-style: none;
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 1.1em;
+    gap: var(--tl-gap);
 }
 
 .timeline li {
+    position: relative;
     display: grid;
-    grid-template-columns: 15ch 1fr;
+    grid-template-columns: 13ch 1fr; /* "2021 — 2024" with its letter spacing */
     column-gap: 2ch;
+    padding-left: 3ch;
+}
+
+/* Marker, centred on the first line (line-height 1.7, .dossier-body) */
+.timeline li::before {
+    content: '';
+    position: absolute;
+    left: 0.5ch;
+    top: calc(0.85em - var(--tl-mark) / 2);
+    width: var(--tl-mark);
+    height: var(--tl-mark);
+    box-sizing: border-box;
+    border: 1px solid #9a9a9a;
+    border-radius: 50%;
+}
+
+.timeline li.now::before {
+    background: #e8e8e8;
+    border-color: #e8e8e8;
+}
+
+.timeline li.event::before {
+    border-radius: 0;
+    transform: rotate(45deg) scale(0.85);
+}
+
+/* Rail: from below each marker down to the next one */
+.timeline li::after {
+    content: '';
+    position: absolute;
+    left: calc(0.5ch + var(--tl-mark) / 2 - 0.5px);
+    top: calc(0.85em + var(--tl-mark) / 2 + 0.3em);
+    bottom: calc(0.3em - var(--tl-gap) - 0.85em + var(--tl-mark) / 2);
+    border-left: 1px solid var(--panel-border);
+}
+
+.timeline li:last-child::after {
+    display: none;
 }
 
 .tl-when {
@@ -2122,6 +2171,13 @@ body.planet-focused .window-header {
    colours on a solid ground, and the triangles its text colour. Last in the
    file so it overrides the rules it adjusts. */
 @media (forced-colors: active) {
+    /* The filled marker keeps its fill in the theme's text colour */
+    .timeline li.now::before {
+        forced-color-adjust: none;
+        background: CanvasText;
+        border-color: CanvasText;
+    }
+
     html {
         forced-color-adjust: none;
         background-color: #161616;
