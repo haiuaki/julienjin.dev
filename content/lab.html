@@ -10,6 +10,7 @@
                       (also at the end of the index row)
        data-medium    MEDIUM
        data-status    STATUS: Ongoing, Paused, Done or Shelved
+       data-source    SOURCE (a link to the code)
 
      To add a detail, write it on the article: data-key="…".
      To make a new key, add ['LABEL', 'key'] to this section's fields in
@@ -19,7 +20,8 @@
          data-title="BUILDING THIS SITE"
          data-date="2026-09-12"
          data-medium="HTML · CSS · JS"
-         data-status="Ongoing">
+         data-status="Ongoing"
+         data-source="https://github.com/haiuaki/julienjin.dev">
     <p>This site: a small solar system you navigate. Each section is a planet; choosing one turns the camera to it and opens a terminal window with its contents. The sun is a switch: it stops time, and every orbit with it.</p>
     <p>It is plain HTML, CSS and JavaScript, with no framework and no build step. Each section's entries live in their own HTML file, one article per entry, so adding one is a single edit.</p>
     <p>Most of the work went into making it hold up everywhere. Phones get a lighter scene, with the stars drawn once instead of live, because Safari can drop a live canvas under memory pressure. The whole site works from the keyboard, follows reduced-motion and high-contrast settings, stays readable with enlarged text, and still shows the contact details with JavaScript turned off.</p>

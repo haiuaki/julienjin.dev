@@ -25,7 +25,7 @@ const MENUS = {
         indexMeta: ['LANG', 'lang'],
     },
     lab: {
-        fields: [['DATE', 'date'], ['MEDIUM', 'medium'], ['STATUS', 'status']],
+        fields: [['DATE', 'date'], ['MEDIUM', 'medium'], ['STATUS', 'status'], ['SOURCE', 'source']],
         indexMeta: ['DATE', 'date'],
     },
     contact: {
