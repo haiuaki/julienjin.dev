@@ -535,6 +535,14 @@ function openWindow(win, labelText) {
     });
 }
 
+/* openWindow after a pause, cancelled like the window's other timers
+   (closing it, or opening it again) */
+function openWindowAfter(win, labelText, delayMs) {
+    clearWindowTimers(win);
+    if (!delayMs) return openWindow(win, labelText);
+    windowTimers.get(win).push(setTimeout(() => openWindow(win, labelText), delayMs));
+}
+
 /* Retype the header of an open window without replaying its frame */
 function retitleWindow(win, labelText) {
     /* Still mid-sequence: cancelling its timers would leave the frame closed,

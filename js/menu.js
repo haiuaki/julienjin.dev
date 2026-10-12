@@ -9,9 +9,13 @@
               (https://...) shows as a link
    indexMeta: [label, key] shown at the end of each index row: label as
               the column header, the entry's data-{key} on each row
-   page:      a single window instead of a list, built from the file's one
+   page:      a single page instead of a list, built from the file's one
               <article>
-   meta:      text on the right of a page window's title bar
+   side:      id of a block in the page (index.html) that, on wide screens,
+              takes the main window while the page opens beside it in the
+              reader, so the page fills the row like a list and its entry
+   pageTitle: title of that reader window
+   meta:      text on the right of a page's main title bar
    clockField: key of the field that gets the live local time after it, when
               the entry has a data-timezone (contact: "Paris · 14:32 (UTC+2)") */
 const MENUS = {
@@ -30,9 +34,12 @@ const MENUS = {
     },
     contact: {
         page: true,
+        side: 'contact-channels',
+        pageTitle: 'TRANSMISSION',
         meta: 'CHANNEL OPEN',
         clockField: 'based',
-        fields: [['STATUS', 'status'], ['BASED', 'based'], ['REPLIES', 'replies'], ['PREFERRED', 'preferred']],
+        fields: [['STATUS', 'status'], ['WORK', 'work'], ['LANGUAGES', 'languages'], ['BASED', 'based'],
+            ['REPLIES', 'replies']],
     },
 };
 
@@ -76,9 +83,9 @@ const readerContent = readerWindow.querySelector('.window-content');
 const indexMeta = indexWindow.querySelector('.window-meta');
 const readerMeta = readerWindow.querySelector('.window-meta');
 
-/* id: open menu key, index: selected entry (-1 = none), reading: reader open,
-   els: rendered index nodes */
-const menuState = { id: null, index: -1, reading: false, els: null, pane: 'index' };
+/* id: open menu key, label: its window title, index: selected entry
+   (-1 = none), reading: reader open, els: rendered index nodes */
+const menuState = { id: null, label: null, index: -1, reading: false, els: null, pane: 'index' };
 
 /* The reader can take keyboard focus, so arrows / Space / Page keys scroll it natively */
 readerContent.tabIndex = -1;
@@ -283,16 +290,60 @@ function buildFields(pairs) {
 
 /* A <div data-copy-of="some-id"> in an entry stands for a block written
    once elsewhere in the page (the contact channels live in the no-JS window),
-   so it is only ever edited in one place */
-function fillCopies(fragment) {
+   so it is only ever edited in one place. omit: the id of a block shown in
+   a window of its own, left out here. Email links in a copy get a copy
+   button (the block itself is also the no-JS window, where it couldn't
+   work). */
+function fillCopies(fragment, omit) {
     fragment.querySelectorAll('[data-copy-of]').forEach(slot => {
         const source = document.getElementById(slot.dataset.copyOf);
-        if (!source) return slot.remove();
+        if (!source || slot.dataset.copyOf === omit) return slot.remove();
         const copy = source.cloneNode(true);
         copy.removeAttribute('id');
+        copy.querySelectorAll('a[href^="mailto:"]').forEach(addCopyButton);
         slot.replaceWith(copy);
     });
     return fragment;
+}
+
+/* "[copy]" after an email link: copies the address, for visitors whose
+   mail link opens the wrong app (webmail) or nothing. Says "[copied]" for
+   a moment, and screen readers hear it through a status line. */
+function addCopyButton(link) {
+    const address = link.getAttribute('href').replace(/^mailto:/, '').split('?')[0];
+    const button = createEl('button', 'copy-button', '[copy]');
+    button.type = 'button';
+    button.setAttribute('aria-label', 'Copy email address');
+    const said = createEl('span', 'visually-hidden');
+    said.setAttribute('role', 'status');
+    let reset = 0;
+    button.addEventListener('click', async () => {
+        let copied = false;
+        try {
+            await navigator.clipboard.writeText(address);
+            copied = true;
+        } catch {
+            /* No clipboard access (older browsers): copy through a selection */
+            const field = createEl('textarea');
+            field.value = address;
+            field.setAttribute('readonly', '');
+            field.style.position = 'fixed';
+            field.style.opacity = '0';
+            document.body.appendChild(field);
+            field.select();
+            try { copied = document.execCommand('copy'); } catch { /* not copied */ }
+            field.remove();
+            button.focus({ preventScroll: true });
+        }
+        button.textContent = copied ? '[copied]' : '[copy failed]';
+        said.textContent = copied ? 'Email address copied' : 'Could not copy the email address';
+        clearTimeout(reset);
+        reset = setTimeout(() => {
+            button.textContent = '[copy]';
+            said.textContent = '';
+        }, 2000);
+    });
+    link.after(' ', button, said);
 }
 
 /* --- LOCAL TIME --- */
@@ -326,8 +377,9 @@ function startClock(el, zone) {
     tick();
 }
 
-/* Single-page window (e.g. contact): fields, then the page's text */
-function buildPage(menu) {
+/* Single page (e.g. contact): fields, then the page's text, without the
+   block whose id is omit */
+function buildPage(menu, omit) {
     const page = createEl('article', 'dossier');
     const body = createEl('div', 'dossier-body');
     if (menu.content) {
@@ -346,7 +398,7 @@ function buildPage(menu) {
         }
         const fields = buildFields(pairs);
         if (fields.children.length) page.append(fields);
-        body.appendChild(cloneEntryContent(menu.content));
+        body.appendChild(cloneEntryContent(menu.content, omit));
     } else {
         body.appendChild(createEl('p', 'term-line', '// no signal'));
     }
@@ -355,11 +407,11 @@ function buildPage(menu) {
 }
 
 /* A fresh copy of an entry's text, or a placeholder if it has none yet */
-function cloneEntryContent(entry) {
+function cloneEntryContent(entry, omit) {
     if (!entry.body.children.length) return createEl('p', 'term-line', '// no data');
     const copy = document.createDocumentFragment();
     entry.body.childNodes.forEach(node => copy.appendChild(document.importNode(node, true)));
-    return markExternalLinks(fillCopies(copy));
+    return markExternalLinks(fillCopies(copy, omit));
 }
 
 function menuButtons() {
@@ -386,17 +438,14 @@ function openMenu(id, label) {
         return;
     }
     menuState.id = id;
+    menuState.label = label;
     menuState.index = -1;
     menuState.reading = false;
     syncRoute(id, null);
 
     if (menu.page) {
         menuState.els = null;
-        indexWindow.classList.add('is-page');
-        indexContent.replaceChildren(buildPage(menu));
-        checkLeaders();
-        openWindow(indexWindow, label);
-        setIndexMeta(menu.meta || '');
+        showPage(menu, label);
         return;
     }
 
@@ -407,6 +456,56 @@ function openMenu(id, label) {
     const total = menu.entries.length;
     setIndexMeta(`${pad(total)} ${total === 1 ? 'FILE' : 'FILES'}`);
 }
+
+const SIDE_KEY_HINT = '↑↓ SELECT · ← HOME';
+
+/* The page's window powers on once the main window's title has decoded */
+const PAGE_PAIR_DELAY_MS = POWER_ON_DARK_MS + SCRAMBLE_FRAMES * SCRAMBLE_FRAME;
+
+/* A page with a side block (contact) shows it in the main window, and the
+   page in the reader beside it, on wide screens. Compact screens show one
+   window at a time, so there the page keeps everything in the main one. */
+function showPage(menu, label) {
+    const paired = Boolean(menu.side) && !compactQuery.matches;
+    indexWindow.classList.toggle('is-page', !paired);
+    readerWindow.classList.toggle('is-page', paired);
+    if (paired) {
+        const side = createEl('div', 'page-side');
+        const slot = createEl('div');
+        slot.dataset.copyOf = menu.side;
+        side.append(slot);
+        /* Key hints like an index's: ↑/↓ step through the links */
+        const keys = createEl('span', 'menu-keys');
+        keys.dataset.state = 'browse';
+        const hint = createEl('span', null, SIDE_KEY_HINT);
+        hint.dataset.hint = 'browse';
+        keys.append(hint);
+        const status = createEl('div', 'menu-status');
+        status.append(keys);
+        side.append(status);
+        indexContent.replaceChildren(markExternalLinks(fillCopies(side)));
+        readerContent.replaceChildren(buildPage(menu, menu.side));
+    } else {
+        indexContent.replaceChildren(buildPage(menu));
+        readerContent.replaceChildren();
+    }
+    checkLeaders();
+    openWindow(indexWindow, label);
+    setIndexMeta(menu.meta || '');
+    if (paired) {
+        readerWindow.style.minHeight = '';
+        openWindowAfter(readerWindow, menu.pageTitle || '', reducedMotion.matches ? 0 : PAGE_PAIR_DELAY_MS);
+    } else {
+        closeWindow(readerWindow);
+    }
+}
+
+/* Crossing the compact width with a paired page open rebuilds it for the
+   new layout */
+compactQuery.addEventListener('change', () => {
+    const menu = MENUS[menuState.id];
+    if (menu && menu.page && menu.side) showPage(menu, menuState.label);
+});
 
 /* Highlight an entry in the index */
 function selectEntry(i) {
@@ -528,12 +627,14 @@ function closeEntry() {
 /* Called by ui.js before focusing a planet and by resetCamera() */
 function closeMenu() {
     menuState.id = null;
+    menuState.label = null;
     menuState.index = -1;
     menuState.reading = false;
     menuState.els = null;
     menuState.pane = 'index';
     windowRow.classList.remove('is-reading', 'focus-reader');
     indexWindow.classList.remove('is-page');
+    readerWindow.classList.remove('is-page');
     indexContent.replaceChildren();
     readerContent.replaceChildren();
 }
@@ -601,8 +702,20 @@ document.addEventListener('keydown', (e) => {
         return;
     }
 
-    /* Single-page windows have nothing to select */
-    if (!menuState.els) return;
+    /* Pages have nothing to select; beside a paired page, ↑/↓ step through
+       the side block's links (the reader scrolls itself when focused) */
+    if (!menuState.els) {
+        if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+        if (!readerWindow.classList.contains('is-page') || readerWindow.contains(document.activeElement)) return;
+        const links = [...indexContent.querySelectorAll('a[href]')];
+        if (!links.length) return;
+        e.preventDefault();
+        const at = links.indexOf(document.activeElement);
+        const step = e.key === 'ArrowDown' ? 1 : -1;
+        const next = at === -1 ? (step === 1 ? 0 : links.length - 1) : (at + step + links.length) % links.length;
+        links[next].focus();
+        return;
+    }
 
     /* Reader pane: the focused reader scrolls itself. A fresh ↓ at the very
        end (or ↑ at the top) continues to the next (previous) entry; key

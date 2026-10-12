@@ -1465,6 +1465,11 @@ body.planet-focused .window-header {
     .menu-keys {
         display: none !important;
     }
+
+    /* A page's side block has nothing else on its status line */
+    .page-side .menu-status {
+        display: none;
+    }
 }
 
 /* --- FLICKER WINDOW --- */
@@ -1632,7 +1637,8 @@ body.planet-focused .window-header {
 }
 
 .dossier-close,
-.dossier-nav button {
+.dossier-nav button,
+.copy-button {
     padding: 0;
     background: none;
     border: none;
@@ -1645,13 +1651,16 @@ body.planet-focused .window-header {
 .dossier-close:hover,
 .dossier-close:focus-visible,
 .dossier-nav button:hover,
-.dossier-nav button:focus-visible {
+.dossier-nav button:focus-visible,
+.copy-button:hover,
+.copy-button:focus-visible {
     color: #ffffff;
 }
 
 /* Same focus ring as the index rows instead of the browser default */
 .dossier-close:focus-visible,
-.dossier-nav button:focus-visible {
+.dossier-nav button:focus-visible,
+.copy-button:focus-visible {
     outline: 1px dashed var(--panel-border);
     outline-offset: 2px;
 }
@@ -1670,6 +1679,9 @@ body.planet-focused .window-header {
 .dossier-field {
     display: flex;
     flex-wrap: wrap;
+    /* Lines packed at the top: a field stretched to its row's height (by a
+       taller neighbour) would otherwise spread its lines apart */
+    align-content: flex-start;
     align-items: baseline;
     min-width: 0;
 }
@@ -1679,9 +1691,6 @@ body.planet-focused .window-header {
     /* The leader sits on the label's baseline (then lifted to the capitals'
        middle), like the index leaders, not at the bottom of the line box */
     align-items: baseline;
-    /* Lines packed at the top: a field stretched to its row's height (by a
-       taller neighbour) would otherwise spread its lines apart */
-    align-content: flex-start;
     flex: 1;
     /* Never narrower than its own label, so a long value can't slide over it */
     min-width: auto;
@@ -1771,8 +1780,15 @@ body.planet-focused .window-header {
 }
 
 /* A page's fields read as one column: label ············ value */
-#content-window.is-page .dossier-fields {
+#content-window.is-page .dossier-fields,
+#reader-window.is-page .dossier-fields {
     grid-template-columns: 1fr;
+}
+
+/* A page's side block (contact channels) alone in the main window */
+.page-side .dossier-fields.channels {
+    margin-top: 0;
+    padding-bottom: 0;
 }
 
 /* Contact channels: one column of label ···· link */
