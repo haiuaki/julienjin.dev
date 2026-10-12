@@ -163,5 +163,8 @@
         addEventListener('resize', () => { seed(); if (still) frame(performance.now()); });
         requestAnimationFrame(frame);
     </script>
+    <!-- Vercel Web Analytics: visit counts without cookies or personal data.
+         Served by Vercel itself, so only on the deployed site (missing locally) -->
+    <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
