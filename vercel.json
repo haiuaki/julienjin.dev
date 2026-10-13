@@ -3,6 +3,14 @@
     {
       "source": "/content/(.*)",
       "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }]
+    },
+    {
+      "source": "/cv.pdf",
+      "headers": [{ "key": "Content-Disposition", "value": "inline; filename=\"Julien-Jin-CV.pdf\"" }]
+    },
+    {
+      "source": "/cv-fr.pdf",
+      "headers": [{ "key": "Content-Disposition", "value": "inline; filename=\"Julien-Jin-CV-FR.pdf\"" }]
     }
   ]
 }
