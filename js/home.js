@@ -1,0 +1,223 @@
+/* --- HOME WINDOW --- */
+/* The site's identity and main navigation: a terminal window with the name in
+   its title bar and one row per planet. Opening a row does exactly what
+   clicking its planet does; hovering or arrow-keying a row locks the
+   crosshairs onto that planet, linking the list to the 3D scene. It closes
+   while a planet is focused and reopens on the way back home. */
+const HOME_TITLE = SITE_NAME.toUpperCase();
+const HOME_OPEN_DELAY = 1200; /* as the initial fade-in is well under way */
+
+const homeWindow = document.getElementById('home-window');
+const homeContent = homeWindow.querySelector('.window-content');
+
+let homeRows = null;     /* row buttons, built once */
+let homeTargeted = -1;   /* selected row (▸), driven by hover or ↑/↓ */
+let homeLocked = -1;     /* planet whose crosshairs the list is holding */
+let homeLast = -1;       /* section the visitor last opened */
+
+/* The full power-on plays once per browser session; returns are quiet */
+const HOME_SEEN_KEY = 'homeSeen';
+
+/* The section list starts collapsed so the sky is explored first. It opens
+   from its toggle, ↑/↓, tabbing into it, or after a quiet spell; once open it
+   stays open for the rest of the visit. The links stay in the page while
+   collapsed (only visually hidden), so screen readers always reach them. */
+const HOME_EXPANDED_KEY = 'homeExpanded';
+/* Closed by hand: the visitor chose the sky, so the menu never pops open by
+   itself again this visit, and stays closed when they come back home */
+const HOME_DISMISSED_KEY = 'homeDismissed';
+const HOME_IDLE_MS = 8000;
+let homeToggle = null;
+let homeIdleTimer = null;
+
+function buildHome() {
+    homeToggle = createEl('button', 'home-toggle');
+    homeToggle.setAttribute('aria-controls', 'home-sections');
+    /* The triangle is a shape (css .toggle-arrow), hidden from screen readers:
+       aria-expanded already says whether the list is open */
+    const arrow = createEl('span', 'toggle-arrow');
+    arrow.setAttribute('aria-hidden', 'true');
+    homeToggle.append(arrow, 'NAVIGATE');
+
+    const list = createEl('ul', 'menu-list');
+    astreBtns.forEach((planet, i) => {
+        const btn = createEl('button', 'menu-item');
+        btn.dataset.planet = i;
+        btn.style.setProperty('--row', i);
+        const label = (planet.dataset.label || '').toUpperCase();
+        btn.append(createEl('span', 'menu-num', pad(i + 1)), label);
+        const li = createEl('li');
+        li.appendChild(btn);
+        list.appendChild(li);
+    });
+
+    const status = createEl('div', 'menu-status');
+    status.append(createEl('span', 'menu-keys', '↑↓ SELECT · → OPEN'));
+
+    const sections = createEl('div', 'home-sections');
+    sections.id = 'home-sections';
+    /* No column header: the toggle already names the list and 01-04 count it */
+    sections.append(list, status);
+
+    homeContent.replaceChildren(homeToggle, sections);
+    homeRows = [...list.querySelectorAll('.menu-item')];
+    setExpanded(sessionStorage.getItem(HOME_EXPANDED_KEY) === 'true', false);
+}
+
+/* animate: open with the frame growing and the rows glitching in one after
+   another (like the dossier text), close with the rows flickering off first */
+const ROW_OFF_MS = 180;
+let homeCloseTimer = null;
+
+function setExpanded(expanded, animate = true) {
+    clearTimeout(homeCloseTimer);
+    homeWindow.classList.remove('rows-off');
+    const visible = homeWindow.classList.contains('is-open');
+    const changing = expanded !== homeExpanded();
+    animate = animate && visible && changing && !reducedMotion.matches;
+
+    if (!expanded && animate) {
+        /* Rows flicker off, then the frame closes up */
+        homeWindow.classList.remove('rows-in');
+        homeWindow.classList.add('rows-off');
+        homeCloseTimer = setTimeout(() => {
+            homeWindow.classList.remove('rows-off');
+            const from = homeContent.offsetHeight;
+            applyExpanded(false);
+            animateWindowHeight(homeContent, from, 140);
+        }, ROW_OFF_MS);
+        return;
+    }
+
+    const from = homeContent.offsetHeight;
+    applyExpanded(expanded);
+    if (expanded && animate) {
+        animateWindowHeight(homeContent, from, 160);
+        /* Restart the row glitch (it only plays while this class is on) */
+        homeWindow.classList.remove('rows-in');
+        void homeWindow.offsetWidth;
+        homeWindow.classList.add('rows-in');
+    }
+}
+
+function applyExpanded(expanded) {
+    homeWindow.classList.toggle('is-collapsed', !expanded);
+    homeToggle.setAttribute('aria-expanded', String(expanded));
+    if (expanded) {
+        sessionStorage.setItem(HOME_EXPANDED_KEY, 'true');
+        clearTimeout(homeIdleTimer);
+    }
+}
+
+const homeExpanded = () => !homeWindow.classList.contains('is-collapsed');
+
+/* Safety net for visitors who don't explore: open after a quiet spell.
+   Any input restarts the wait; it only runs while home is showing. */
+function armIdleExpand() {
+    clearTimeout(homeIdleTimer);
+    if (homeExpanded() || document.body.classList.contains('planet-focused')) return;
+    if (sessionStorage.getItem(HOME_DISMISSED_KEY)) return;
+    homeIdleTimer = setTimeout(() => {
+        if (!document.body.classList.contains('planet-focused')) setExpanded(true);
+    }, HOME_IDLE_MS);
+}
+['pointermove', 'pointerdown', 'keydown', 'wheel', 'touchstart'].forEach(type =>
+    document.addEventListener(type, () => { if (homeIdleTimer) armIdleExpand(); }, { passive: true }));
+
+function openHome() {
+    if (document.body.classList.contains('planet-focused')) return;
+    if (!homeRows) buildHome();
+
+    if (sessionStorage.getItem(HOME_SEEN_KEY)) {
+        /* Quiet return: a short fade, no flicker or decode */
+        closeWindow(homeWindow);
+        homeWindow.querySelector('.window-header').textContent = HOME_TITLE;
+        homeWindow.classList.add('is-quiet', 'is-open');
+    } else {
+        sessionStorage.setItem(HOME_SEEN_KEY, 'true');
+        homeWindow.classList.remove('is-quiet');
+        openWindow(homeWindow, HOME_TITLE);
+    }
+
+    /* Keep the section the visitor came from selected, so ↓ or → continues from it */
+    if (homeLast >= 0) selectRow(homeLast);
+    armIdleExpand();
+}
+
+/* Mark a row as selected (▸) without touching the crosshairs */
+function selectRow(i) {
+    homeTargeted = i;
+    homeRows.forEach((row, j) => {
+        if (j === i) row.setAttribute('aria-current', 'true');
+        else row.removeAttribute('aria-current');
+    });
+}
+
+/* Point the crosshairs at a planet through its own hover handlers (-1 = none) */
+function lockPlanet(i) {
+    if (i === homeLocked) return;
+    if (homeLocked >= 0) astreBtns[homeLocked].dispatchEvent(new MouseEvent('mouseleave'));
+    homeLocked = i;
+    if (i >= 0) astreBtns[i].dispatchEvent(new MouseEvent('mouseenter'));
+}
+
+function targetPlanet(i) {
+    selectRow(i);
+    lockPlanet(i);
+}
+
+function openSection(i) {
+    targetPlanet(-1);
+    astreBtns[i].click();
+}
+
+/* Remember the last section, whether it was opened from a row or its planet */
+astreBtns.forEach((planet, i) => planet.addEventListener('click', () => { homeLast = i; }));
+
+/* --- INPUT --- */
+homeContent.addEventListener('click', (e) => {
+    if (e.target.closest('.home-toggle')) {
+        if (homeExpanded()) {
+            setExpanded(false);
+            sessionStorage.setItem(HOME_EXPANDED_KEY, 'false');
+            sessionStorage.setItem(HOME_DISMISSED_KEY, 'true');
+        } else {
+            setExpanded(true);
+        }
+        return;
+    }
+    const row = e.target.closest('[data-planet]');
+    if (row) openSection(+row.dataset.planet);
+});
+
+homeContent.addEventListener('mouseover', (e) => {
+    const row = e.target.closest('[data-planet]');
+    if (row) targetPlanet(+row.dataset.planet);
+});
+
+homeContent.addEventListener('mouseleave', () => targetPlanet(-1));
+
+/* Tabbing onto a hidden section link opens the list */
+homeContent.addEventListener('focusin', (e) => {
+    if (e.target.closest('.home-sections') && !homeExpanded()) setExpanded(true);
+});
+
+/* ↑/↓ select a section, →/Enter open it (Enter is the focused button's own click) */
+document.addEventListener('keydown', (e) => {
+    if (!homeRows || document.body.classList.contains('planet-focused')) return;
+    if (e.key === 'ArrowRight' && homeTargeted >= 0) {
+        e.preventDefault();
+        openSection(homeTargeted);
+        return;
+    }
+    if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+    e.preventDefault();
+    if (!homeExpanded()) setExpanded(true);
+    const n = homeRows.length;
+    const step = e.key === 'ArrowDown' ? 1 : -1;
+    const next = homeTargeted === -1 ? (step === 1 ? 0 : n - 1) : (homeTargeted + step + n) % n;
+    targetPlanet(next);
+    homeRows[next].focus({ preventScroll: true });
+});
+
+setTimeout(openHome, HOME_OPEN_DELAY);

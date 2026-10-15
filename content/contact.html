@@ -1,0 +1,29 @@
+<!-- Contact content, loaded by js/menu.js. A single page, no list:
+     one <article>, its content is the page text.
+
+     Details shown above the text (each optional, in this order):
+       data-status     STATUS
+       data-work       WORK (e.g. On-site · Hybrid · Remote)
+       data-languages  LANGUAGES
+       data-based      BASED
+       data-replies    REPLIES
+       data-timezone   not shown itself: an IANA time zone (e.g. Europe/Paris)
+                       whose current time is shown after BASED, summer time
+                       included
+
+     To add a detail, write it on the article: data-key="…".
+     To make a new key, add ['LABEL', 'key'] to this section's fields in
+     MENUS (js/menu.js). -->
+
+<article id="contact"
+         data-status="Open to work"
+         data-work="Hybrid · Remote · On-site"
+         data-languages="English · French"
+         data-based="Paris"
+         data-timezone="Europe/Paris"
+         data-replies="Within 48h">
+    <p>Looking for a full-time software engineering position or a 4–6 month internship: backend-leaning, open to full-stack. Tell me about the role, the team and the timeline, and I'll get back to you. Questions about any of my projects are welcome too.</p>
+    <!-- The links themselves live in index.html (#contact-channels),
+         where the no-JS window shows them too -->
+    <div data-copy-of="contact-channels"></div>
+</article>

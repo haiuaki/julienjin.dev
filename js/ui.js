@@ -1,0 +1,576 @@
+const astreBtns = document.querySelectorAll('.astre-btn');
+const crossX = document.getElementById('crosshair-x');
+const crossY = document.getElementById('crosshair-y');
+
+/* Planet/label pairs updated by the single shared rAF loop */
+const trackers = [];
+/* Labels finish fading out 1.5s after focus (0.3s delay + 1.2s fade); stop tracking after that */
+const LABEL_FADE_MS = 800;
+
+const FOCUS_GROWTH = 1.4; /* the focused astre grows by this much in the corner */
+const LABEL_MARGIN = 6; /* labels keep this distance from the screen edges */
+document.fonts && document.fonts.ready.then(() => trackers.forEach(t => { t.size = null; }));
+/* Label sizes are cached for the tracking loop; measured again whenever a
+   label's size changes (web fonts arriving, or a browser translating the
+   page: "[lab]" becomes "[laboratoire]"), so they stay placed by their width */
+const labelResize = new ResizeObserver(entries => entries.forEach(entry => {
+    const tracker = trackers.find(t => t.label === entry.target);
+    if (tracker) tracker.size = null;
+}));
+let labelsHiddenAt = Infinity;
+
+/* Crosshair return after leaving a planet: the astre starts in the corner,
+   right under the crosshairs, so they simply stay locked on its live position
+   as the camera carries it home and its orbit starts moving again, until
+   they have faded out */
+const RETURN_FADE_END_MS = 950; /* matches the delayed opacity fade in resetCamera() */
+let returnSweep = null;
+
+function startReturnSweep(planet) {
+    returnSweep = { planet, t0: performance.now() };
+}
+
+/* Switching targets while the crosshairs are showing (row to row in the
+   home menu, or astre to astre): they glide over instead of jumping. The new
+   astre keeps orbiting, so the glide eases toward its live position. When
+   the crosshairs were hidden they simply appear on the target. */
+const CROSS_GLIDE_MS = 220;
+const CROSS_FADE_MS = 200; /* matches their opacity transition */
+let crossShown = null;         /* center the crosshairs were last drawn on */
+let crossGlide = null;         /* { x, y, t0 }: where the current glide started */
+let crossHiddenAt = -Infinity; /* when the last hover ended (they fade from there) */
+
+/* --- HOME LABEL --- */
+/* While an astre is open, "[home]" sits on its horizontal crosshair, just
+   right of it, in the astre labels' format: the astre is now the way home,
+   visible and named (on its own it is only a small dot). The line breaks
+   around it, like the window titles cut into their frames. It is the control keyboards and screen readers use; the astre
+   stays a pointer shortcut, out of the tab order like the hidden ones. */
+const homeLabel = document.createElement('button');
+homeLabel.id = 'home-label';
+homeLabel.type = 'button';
+/* The visible word "home" is in the name (WCAG 2.5.3) */
+homeLabel.setAttribute('aria-label', 'Home, back to the solar system');
+homeLabel.textContent = 'home';
+/* Just before the windows: Tab goes from the way back into the window */
+document.getElementById('window-row').before(homeLabel);
+homeLabel.addEventListener('click', () => resetCamera());
+
+let homeLabelGap = 0; /* the focused astre's radius on screen */
+const HOME_LABEL_IN_MS = 500; /* matches its fade-in delay in style.css */
+
+/* Just right of the focused astre, centred on the horizontal crosshair */
+function placeHomeLabel(radius = homeLabelGap) {
+    homeLabelGap = radius;
+    const { x, y } = focusTarget();
+    homeLabel.style.left = `${Math.round(x + radius + 6)}px`;
+    homeLabel.style.top = `${y}px`; /* exact: the line sits on a half pixel */
+    if (crossX.style.maskImage) breakCrosshair(true);
+}
+
+/* Cut the horizontal crosshair where the label sits (a transparent gap, so
+   the scene shows through), or join it again */
+function breakCrosshair(open) {
+    if (!open) {
+        crossX.style.maskImage = crossX.style.webkitMaskImage = '';
+        return;
+    }
+    const r = homeLabel.getBoundingClientRect();
+    const gap = `linear-gradient(to right, #000 ${r.left}px, transparent ${r.left}px, transparent ${r.right}px, #000 ${r.right}px)`;
+    crossX.style.maskImage = crossX.style.webkitMaskImage = gap;
+}
+
+/* While an astre is open, every astre leaves the tab order and the
+   accessibility tree (the hidden ones aren't there to see; the focused one
+   is reached as the home label) */
+function setAstresHidden(hidden) {
+    astreBtns.forEach(btn => {
+        if (hidden) {
+            btn.tabIndex = -1;
+            btn.setAttribute('aria-hidden', 'true');
+        } else {
+            btn.removeAttribute('tabindex');
+            btn.removeAttribute('aria-hidden');
+        }
+    });
+}
+
+/* --- FOCUS MARKS --- */
+/* Keyboard focus on an astre: four corner marks lock onto it. A flat overlay
+   placed by the tracking loop, because anything drawn on the astre itself is
+   clipped by its 3D orbit. */
+const focusMarks = document.createElement('div');
+focusMarks.id = 'astre-focus';
+focusMarks.setAttribute('aria-hidden', 'true');
+document.body.appendChild(focusMarks);
+let focusMarked = null; /* the astre showing them */
+
+const showsFocusRing = (el) => {
+    try { return el.matches(':focus-visible'); } catch { return true; }
+};
+astreBtns.forEach(btn => {
+    btn.addEventListener('focus', () => { focusMarked = showsFocusRing(btn) ? btn : null; });
+    btn.addEventListener('blur', () => { if (focusMarked === btn) focusMarked = null; });
+});
+
+function drawCrosshairs(x, y) {
+    crossShown = { x, y };
+    crossX.style.transform = `translate3d(0, ${crosshairPos(y)}px, 0)`;
+    crossY.style.transform = `translate3d(${crosshairPos(x)}px, 0, 0)`;
+}
+
+astreBtns.forEach((planet, i) => {
+    /* Retrieve label string from dataset */
+    const labelText = planet.getAttribute('data-label');
+    if (!labelText) return;
+
+    /* Generate a dedicated 2D screenspace label for this planet. Plain word
+       only: CSS draws the brackets, so a browser translating the page gets a
+       clean word (brackets in the text got reordered, or the word skipped).
+       It also names the astre's button, in whatever language it shows. */
+    const floatingLabel = document.createElement('div');
+    floatingLabel.className = 'planet-label';
+    floatingLabel.id = `astre-label-${i}`;
+    floatingLabel.textContent = labelText;
+    planet.setAttribute('aria-labelledby', floatingLabel.id);
+    /* Heard through the button it names, not on its own */
+    floatingLabel.setAttribute('aria-hidden', 'true');
+    floatingLabel.style.setProperty('--i', i); /* glitches in after the labels before it */
+    document.body.appendChild(floatingLabel);
+    
+    /* Hover triggers for dynamic crosshair tracking */
+    planet.addEventListener('mouseenter', () => {
+        if (!document.body.classList.contains('planet-focused')) {
+            const showing = document.body.classList.contains('crosshairs-active')
+                || returnSweep || performance.now() - crossHiddenAt < CROSS_FADE_MS;
+            crossGlide = showing && crossShown && !reducedMotion.matches
+                ? { ...crossShown, t0: performance.now() } : null;
+            /* Hovering takes the crosshairs over from a return sweep */
+            returnSweep = null;
+            planet.classList.add('is-hovered');
+            document.body.classList.add('crosshairs-active');
+
+            /* Set transition styles once on hover */
+            if (crossX && crossY) {
+                crossX.style.transition = 'opacity 0.2s ease-out';
+                crossY.style.transition = 'opacity 0.2s ease-out';
+            }
+        }
+    });
+
+    planet.addEventListener('mouseleave', () => {
+        planet.classList.remove('is-hovered');
+        if (!document.body.classList.contains('planet-focused')) {
+            document.body.classList.remove('crosshairs-active');
+            crossHiddenAt = performance.now();
+        }
+    });
+
+    /* Register with the shared tracking loop (see trackAllPositions below) */
+    trackers.push({ planet, label: floatingLabel });
+    labelResize.observe(floatingLabel);
+
+    
+    planet.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        if (document.body.classList.contains('planet-focused')) {
+            if (planet.classList.contains('active-planet')) {
+                resetCamera();
+            }
+            return;
+        }
+
+        /* Isolate this specific planet and label for the CSS dimming effect */
+        planet.classList.add('active-planet');
+        floatingLabel.classList.add('active-planet');
+
+        /* Freeze only this planet's orbit so it holds still in the corner. The rest
+           of the system is faded out, and time itself keeps running: focusing a
+           planet is not a time stop. */
+        const orbit = planet.closest('.orbit-ring');
+        focusedOrbitAnims = [...orbit.getAnimations(), ...planet.getAnimations()].filter(anim =>
+            CLOCK_ANIMATIONS.includes(anim.animationName)
+        );
+        focusedOrbitAnims.forEach(anim => { anim.playbackRate = 0; });
+        /* Restart any speed easing in progress without the frozen orbit */
+        animateSpeed(isPhysicsPaused ? 0 : 1);
+
+        /* The starfield drifts behind the open window */
+        setStarDrift(true);
+
+        /* Calculate perspective scale to maintain uniform visual size */
+        const rect = planet.getBoundingClientRect();
+        const perspectiveScale = rect.width / planet.offsetWidth;
+
+        /* Focused (home button) size on screen: always larger than the astre
+           was in its orbit (×1.4), and at least 2.2vmin so small astres still
+           make a clear target. Follows whatever size the astre has on this
+           screen, so the focus never shrinks it. */
+        const vminPx = Math.min(layoutWidth(), layoutHeight()) / 100;
+        const visualTarget = Math.max(2.2 * vminPx, rect.width * FOCUS_GROWTH);
+        
+        const targetPhysicalSize = visualTarget / perspectiveScale;
+        placeHomeLabel(visualTarget / 2);
+        
+        planet.style.setProperty('--active-planet-size', `${targetPhysicalSize}px`);
+        planet.style.setProperty('--active-planet-offset', `-${targetPhysicalSize / 2}px`);
+
+        /* Calculate translation vectors for camera focus */
+        const planetX = rect.x + rect.width / 2;
+        const planetY = rect.y + rect.height / 2;
+        
+        /* Define target screen coordinates */
+        const { x: targetX, y: targetY } = focusTarget();
+
+        /* Calculate delta vector */
+        const dx = targetX - planetX;
+        const dy = targetY - planetY;
+
+        /* Reset container margins */
+        /* Reduced motion: a cut instead of the pan (js/camera.js) */
+        const panMs = panDuration(FOCUS_PAN_MS);
+        cutScene(true);
+        solarSystem.style.transition = `margin ${panMs}ms ${CAMERA_EASE}`;
+        solarSystem.style.marginLeft = '0px';
+        solarSystem.style.marginTop = '0px';
+
+        /* Apply transforms to space container */
+        const spaceContainer = document.getElementById('space-container');
+        spaceContainer.style.transition = `transform ${panMs}ms ${CAMERA_EASE}`;
+        spaceContainer.style.transform = `translate(${dx}px, ${dy}px) scale(1)`;
+
+        /* Apply fractional translation to starfield for parallax effect */
+        const starfield = document.getElementById('starfield');
+        if (starfield) {
+            /* Same duration as the pan, so the parallax doesn't trail behind it */
+            starfield.style.transition = `transform ${panMs}ms ${CAMERA_EASE}`;
+            starfield.style.transform = `translate(${dx * 0.15}px, ${dy * 0.15}px) scale(1)`;
+        }
+
+        /* Set crosshair positions and sweep them to the target coordinates */
+        if (crossX && crossY) {
+            /* Disable crosshair active class (opacity is inherited by planet-focused) */
+            document.body.classList.remove('crosshairs-active');
+
+            crossX.style.transform = `translate3d(0, ${crosshairPos(planetY)}px, 0)`;
+            crossY.style.transform = `translate3d(${crosshairPos(planetX)}px, 0, 0)`;
+
+            void crossX.offsetWidth; /* Force synchronous layout recalculation */
+
+            crossX.style.transition = `transform ${panMs}ms ${CAMERA_EASE}, opacity 0.2s ease-out`;
+            crossY.style.transition = `transform ${panMs}ms ${CAMERA_EASE}, opacity 0.2s ease-out`;
+            crossX.style.transform = `translate3d(0, ${crosshairPos(targetY)}px, 0)`;
+            crossY.style.transform = `translate3d(${crosshairPos(targetX)}px, 0, 0)`;
+        }
+
+
+        /* Update body class for focus state */
+        document.body.classList.add('planet-focused');
+
+        /* Keyboard users who opened it from the astre continue from the way back */
+        const hadFocus = document.activeElement === planet;
+        setAstresHidden(true);
+        if (hadFocus) homeLabel.focus({ preventScroll: true });
+
+        /* Typewriter sequence */
+        closeAllWindows();
+        closeMenu();
+
+        /* "projects" -> "PROJECTS": the window frame now encloses the title */
+        const labelText = (planet.getAttribute('data-label') || 'DATA').toUpperCase();
+        const menuId = planet.dataset.menu;
+
+        /* Clear existing sequence timers */
+        uiTimeouts.forEach(clearTimeout);
+        uiTimeouts = [];
+
+        /* Open the window as the camera settles */
+        let t1 = setTimeout(() => {
+            if (menuId) {
+                /* Hand over to the menu module (index window + reader) */
+                openMenu(menuId, labelText);
+            } else {
+                /* Standard behavior: open the main window with the planet label */
+                openWindow(document.getElementById('content-window'), labelText);
+            }
+        }, WINDOW_OPEN_MS);
+        uiTimeouts.push(t1);
+        /* The line breaks around "[home]" as it fades in (css #home-label) */
+        uiTimeouts.push(setTimeout(() => breakCrosshair(true), HOME_LABEL_IN_MS));
+
+    });
+});
+
+/* Single tracking loop for every planet label and the hover crosshairs.
+   All layout reads happen first, then all style writes, so the browser
+   computes layout at most once per frame instead of once per planet. */
+function trackAllPositions(now) {
+    requestAnimationFrame(trackAllPositions);
+
+    const focused = document.body.classList.contains('planet-focused');
+    if (!focused) labelsHiddenAt = Infinity;
+    else if (labelsHiddenAt === Infinity) labelsHiddenAt = now + LABEL_FADE_MS;
+    /* Labels are fully invisible: skip all work until focus is released */
+    if (now > labelsHiddenAt) return;
+
+    /* --- Read phase --- */
+    /* Calculate true physical center of the solar system (The Sun) */
+    const sunRect = sunBtn.getBoundingClientRect();
+    const centerX = sunRect.x + sunRect.width / 2;
+    const centerY = sunRect.y + sunRect.height / 2;
+    const rects = trackers.map(t => t.planet.getBoundingClientRect());
+    /* Label sizes are fixed (measured once, again after web fonts load) */
+    trackers.forEach(t => {
+        if (t.size) return;
+        const box = t.label.getBoundingClientRect();
+        t.size = [Math.ceil(box.width), Math.ceil(box.height)];
+    });
+    const viewW = layoutWidth(), viewH = layoutHeight();
+    /* The home menu's frame (open or collapsed): labels under it are hidden,
+       since the panel is see-through and they would collide with its text
+       (enlarged text can make it cover the system) */
+    const homeWin = document.getElementById('home-window');
+    const menuBox = homeWin.classList.contains('is-open')
+        ? homeWin.querySelector('.flicker-frame').getBoundingClientRect() : null;
+
+    /* --- Write phase --- */
+    trackers.forEach((t, i) => {
+        const rect = rects[i];
+        const planetX = rect.x + rect.width / 2;
+        const planetY = rect.y + rect.height / 2;
+
+        /* Calculate normalized vector from Sun to Planet */
+        let dx = planetX - centerX;
+        let dy = planetY - centerY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist > 0) {
+            dx /= dist;
+            dy /= dist;
+        }
+
+        /* Shift label anchor based on orbital vector */
+        const xPercent = (dx * 50) - 50;
+        const yPercent = (dy * 50) - 50;
+
+        /* Derive offset from the planet's actual rendered screen-space radius.
+           On large/4K displays the perspective depth effect makes near-planets
+           visually bigger, so the offset grows with them and never overlaps. */
+        const screenRadius = Math.max(rect.width, rect.height) / 2;
+        const LABEL_OFFSET = screenRadius + 8;
+        /* Label box anchored outward from the astre, then nudged back inside
+           the screen when the astre swings close to an edge (phones) */
+        const [labelW, labelH] = t.size;
+        const labelX = Math.min(Math.max(planetX + dx * LABEL_OFFSET + labelW * xPercent / 100, LABEL_MARGIN), viewW - labelW - LABEL_MARGIN);
+        const labelY = Math.min(Math.max(planetY + dy * LABEL_OFFSET + labelH * yPercent / 100, LABEL_MARGIN), viewH - labelH - LABEL_MARGIN);
+        /* Drive position exclusively via transform — no left/top writes (same as crosshairs) */
+        t.label.style.transform = `translate3d(${labelX}px, ${labelY}px, 0)`;
+        /* An astre off the screen (wide orbits, zoomed out): its label leaves
+           too, instead of sliding along the edge where it is kept */
+        t.label.classList.toggle('is-offscreen', planetX < 0 || planetX > viewW || planetY < 0 || planetY > viewH);
+        t.label.classList.toggle('is-under-menu', !!menuBox && labelX < menuBox.right && labelX + labelW > menuBox.left
+            && labelY < menuBox.bottom && labelY + labelH > menuBox.top);
+
+        /* Return: stay locked on the astre as it travels home, until faded */
+        if (!focused && returnSweep && returnSweep.planet === t.planet && crossX && crossY) {
+            drawCrosshairs(planetX, planetY);
+            if (now - returnSweep.t0 > RETURN_FADE_END_MS) returnSweep = null;
+        }
+
+        /* Dynamically update crosshairs if hovered */
+        if (!focused && crossX && crossY && t.planet.classList.contains('is-hovered')) {
+            let x = planetX, y = planetY;
+            if (crossGlide) {
+                const k = Math.max(0, now - crossGlide.t0) / CROSS_GLIDE_MS;
+                if (k >= 1) crossGlide = null;
+                else {
+                    const ease = 1 - Math.pow(1 - k, 3); /* ease-out cubic */
+                    x = crossGlide.x + (planetX - crossGlide.x) * ease;
+                    y = crossGlide.y + (planetY - crossGlide.y) * ease;
+                }
+            }
+            drawCrosshairs(x, y);
+        }
+
+        /* Corner marks around the keyboard-focused astre, with a little room */
+        if (t.planet === focusMarked) {
+            const size = Math.round(Math.max(rect.width, rect.height) + 12);
+            focusMarks.style.width = focusMarks.style.height = `${size}px`;
+            focusMarks.style.transform = `translate3d(${planetX - size / 2}px, ${planetY - size / 2}px, 0)`;
+        }
+    });
+    focusMarks.classList.toggle('is-on', !!focusMarked && !focused);
+}
+requestAnimationFrame(trackAllPositions);
+
+/* --- TERMINAL WINDOWS --- */
+/* Each .term-window types its header, drops the cursor to a new line, then
+   splits that cursor block into its 4-corner frame (.is-open). Timers are kept
+   per window so the index and the reader can animate independently. */
+const windowTimers = new Map();
+
+const TYPE_INTERVAL = 60; /* Keystroke interval */
+const TYPE_HOLD = 300;    /* Pause before the cursor drops / the frame opens */
+
+function clearWindowTimers(win) {
+    /* Timeout and interval ids share one pool, so clearTimeout cancels both */
+    (windowTimers.get(win) || []).forEach(clearTimeout);
+    windowTimers.set(win, []);
+}
+
+/* Type text into a window's header, then run onDone */
+function typeHeader(win, text, onDone) {
+    const header = win.querySelector('.window-header');
+    const timers = windowTimers.get(win);
+    let typeIndex = 0;
+    const typing = setInterval(() => {
+        if (typeIndex < text.length) {
+            header.textContent = `${text.substring(0, typeIndex + 1)}█`;
+            typeIndex++;
+            return;
+        }
+        clearInterval(typing);
+        onDone(header);
+    }, TYPE_INTERVAL);
+    timers.push(typing);
+}
+
+/* Decode effect for flicker windows: letters lock in left to right out of
+   random glyphs, then the header settles on the label. Only letters scramble:
+   numbers and separators ("02 · ") stay fixed from the first frame. */
+const SCRAMBLE_GLYPHS = '!<>-_\\/[]{}=+*^?#%&$01';
+const SCRAMBLES = /[A-Z]/i;
+const SCRAMBLE_FRAME = 30;  /* ms per frame */
+const SCRAMBLE_FRAMES = 14; /* frames until the last character locks */
+/* The power-on flicker (0.5s) is dark for its first 40% (css flicker-in) */
+const POWER_ON_DARK_MS = 200;
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+/* Resize a window's content from one height to its new natural height over
+   the camera easing; returns the duration (0 when skipped) */
+const heightAnims = new WeakMap(); /* content -> its latest height animation */
+
+function animateWindowHeight(content, from, duration) {
+    const to = content.offsetHeight;
+    if (reducedMotion.matches || from === to) return 0;
+    const anim = content.animate([{ height: `${from}px` }, { height: `${to}px` }], { duration, easing: CAMERA_EASE });
+    /* While growing, the content is briefly taller than its box: a scrollbar
+       would appear (visible with a mouse, or "always show scroll bars") and
+       widen the window for a moment. Hidden until the height has caught up. */
+    content.style.overflowY = 'hidden';
+    heightAnims.set(content, anim);
+    const restore = () => {
+        if (heightAnims.get(content) === anim) content.style.overflowY = '';
+    };
+    anim.onfinish = restore;
+    anim.oncancel = restore;
+    return duration;
+}
+
+/* holdMs: keep every letter scrambled this long before decoding starts, so
+   a window powering on decodes while its title is on screen */
+function scrambleHeader(win, text, holdMs = 0) {
+    const header = win.querySelector('.window-header');
+    if (reducedMotion.matches) {
+        header.textContent = text;
+        return;
+    }
+    const holdFrames = Math.round(holdMs / SCRAMBLE_FRAME);
+    const draw = (frame) => {
+        const locked = Math.floor(text.length * Math.max(0, frame - holdFrames) / SCRAMBLE_FRAMES);
+        let out = text.slice(0, locked);
+        for (let i = locked; i < text.length; i++) {
+            out += SCRAMBLES.test(text[i]) ? SCRAMBLE_GLYPHS[Math.random() * SCRAMBLE_GLYPHS.length | 0] : text[i];
+        }
+        header.textContent = out;
+        return locked >= text.length;
+    };
+    let frame = 0;
+    draw(frame);
+    const scramble = setInterval(() => {
+        if (draw(++frame)) clearInterval(scramble);
+    }, SCRAMBLE_FRAME);
+    windowTimers.get(win).push(scramble);
+}
+
+/* Full sequence: type the label, drop the cursor, open the frame.
+   Flicker windows (data-open="flicker") instead power on at once
+   while their label decodes. */
+/* A window title is typed or decoded letter by letter; screen readers get the
+   final title as its name from the start, never the frames in between, and in
+   normal case (titleCase in globals.js) */
+function nameHeader(win, text) {
+    const header = win.querySelector('.window-header');
+    if (text) header.setAttribute('aria-label', titleCase(text));
+    else header.removeAttribute('aria-label');
+}
+
+function openWindow(win, labelText) {
+    clearWindowTimers(win);
+    win.classList.remove('is-open');
+    win.querySelector('.window-header').textContent = '';
+    nameHeader(win, labelText);
+
+    if (win.dataset.open === 'flicker') {
+        void win.offsetWidth; /* Restart the CSS power-on animations */
+        win.classList.add('is-open');
+        /* The title bar's power-on flicker (flicker-in) keeps it dark for its
+           first 40%: hold the scramble until it lights up */
+        scrambleHeader(win, labelText, POWER_ON_DARK_MS);
+        return;
+    }
+
+    typeHeader(win, labelText, (header) => {
+        const timers = windowTimers.get(win);
+        timers.push(setTimeout(() => {
+            /* Drop cursor to new line */
+            header.textContent = `${labelText}\n█`;
+            timers.push(setTimeout(() => {
+                /* The cursor block becomes the corners: trigger the frame */
+                header.textContent = `${labelText}\n `;
+                win.classList.add('is-open');
+            }, TYPE_HOLD));
+        }, TYPE_HOLD));
+    });
+}
+
+/* openWindow after a pause, cancelled like the window's other timers
+   (closing it, or opening it again) */
+function openWindowAfter(win, labelText, delayMs) {
+    clearWindowTimers(win);
+    if (!delayMs) return openWindow(win, labelText);
+    windowTimers.get(win).push(setTimeout(() => openWindow(win, labelText), delayMs));
+}
+
+/* Retype the header of an open window without replaying its frame */
+function retitleWindow(win, labelText) {
+    /* Still mid-sequence: cancelling its timers would leave the frame closed,
+       so restart the full open sequence with the new label instead */
+    if (!win.classList.contains('is-open')) {
+        openWindow(win, labelText);
+        return;
+    }
+    clearWindowTimers(win);
+    nameHeader(win, labelText);
+    if (win.dataset.open === 'flicker') {
+        scrambleHeader(win, labelText);
+        return;
+    }
+    typeHeader(win, labelText, (header) => {
+        header.textContent = `${labelText}\n `;
+    });
+}
+
+function closeWindow(win) {
+    clearWindowTimers(win);
+    win.classList.remove('is-open', 'is-quiet');
+    win.querySelector('.window-header').textContent = '';
+    nameHeader(win, null);
+    const meta = win.querySelector('.window-meta');
+    if (meta) meta.replaceChildren();
+}
+
+function closeAllWindows() {
+    document.querySelectorAll('.term-window').forEach(closeWindow);
+}

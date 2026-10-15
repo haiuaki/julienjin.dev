@@ -1,0 +1,281 @@
+/* Touch screens (index.html <head> marks them .lite) get a lighter scene: the
+   stars are drawn once into a picture on a plain layer instead of a live
+   canvas, and the time-stop wave is a simple ring. A live canvas there could
+   vanish for good under graphics-memory pressure (Safari on iPhone). */
+const liteScene = document.documentElement.classList.contains('lite');
+const canvas = document.createElement('canvas');
+const starLayer = liteScene ? document.createElement('div') : canvas;
+starLayer.id = 'starfield';
+starLayer.setAttribute('aria-hidden', 'true');
+document.body.insertBefore(starLayer, document.body.firstChild);
+/* The edge vignette goes right above the stars (css #vignette) */
+const vignette = document.createElement('div');
+vignette.id = 'vignette';
+vignette.setAttribute('aria-hidden', 'true');
+starLayer.after(vignette);
+
+/* Generate static pixel noise tile */
+const noiseCanvas = document.createElement('canvas');
+noiseCanvas.width = 256; 
+noiseCanvas.height = 256;
+const noiseCtx = noiseCanvas.getContext('2d');
+const idata = noiseCtx.createImageData(256, 256);
+const buffer32 = new Uint32Array(idata.data.buffer);
+for (let i = 0; i < buffer32.length; i++) {
+    /* Pixel rendering probability condition */
+    if (Math.random() < 0.25) {
+        /* Constrain grayscale bounds to background color delta */
+        const gray = 20 + (Math.random() * 12) | 0;
+        /* Assign ABGR buffer value */
+        buffer32[i] = (255 << 24) | (gray << 16) | (gray << 8) | gray;
+    } else {
+        buffer32[i] = 0; /* Fully transparent */
+    }
+}
+noiseCtx.putImageData(idata, 0, 0);
+
+/* Apply the noise to the document body to prevent canvas repaint recalculations */
+document.body.style.backgroundImage = `url(${noiseCanvas.toDataURL()})`;
+document.body.style.backgroundAttachment = 'fixed';
+
+const ctx = canvas.getContext('2d');
+
+/* Safety net: under graphics-memory pressure, phones (Safari) can drop a
+   canvas's content or its context. Redraw the stars when the context comes
+   back, and whenever the page is shown again. */
+canvas.addEventListener('contextlost', (e) => e.preventDefault()); /* allow it to be restored */
+canvas.addEventListener('contextrestored', () => { starsDirty = true; });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) starsDirty = true; });
+window.addEventListener('pageshow', () => { starsDirty = true; });
+let stars = [];
+let clientMouseX = -1000;
+let clientMouseY = -1000;
+
+function initStars() {
+    canvas.width = layoutWidth();
+    canvas.height = layoutHeight();
+    stars = [];
+    /* Calculate coordinate density */
+    const numStars = Math.floor((canvas.width * canvas.height) / 4500); 
+    
+    for (let i = 0; i < numStars; i++) {
+        stars.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            size: Math.random() * 1.5,
+            baseAlpha: Math.random() * 0.3 + 0.20,
+            /* Drift speed and twinkle phase, used while a planet is focused */
+            depth: Math.random(),
+            phase: Math.random() * Math.PI * 2
+        });
+    }
+}
+
+/* Redraw only when something visible changed: mouse moved, resize, the
+   camera parallax is shifting the canvas under a stationary cursor, the
+   stars are drifting, or a time-stop distortion is rippling through. */
+let starsDirty = true;
+let starfieldMoving = false;
+canvas.addEventListener('transitionrun', (e) => {
+    if (e.propertyName === 'transform') starfieldMoving = true;
+});
+const stopStarfieldMotion = (e) => {
+    if (e.propertyName !== 'transform') return;
+    starfieldMoving = false;
+    starsDirty = true;
+};
+canvas.addEventListener('transitionend', stopStarfieldMotion);
+canvas.addEventListener('transitioncancel', stopStarfieldMotion);
+
+/* --- STAR DRIFT --- */
+/* While a planet is focused, the field drifts slowly sideways and twinkles,
+   like a slow camera pan behind the open window. It eases in and out, and
+   follows the time switch like the orbits: halting time stills it, and with
+   reduced motion it waits, like everything else, until the visitor resumes
+   time themselves (time starts halted then, see js/globals.js). */
+let driftWanted = false; /* a planet is focused */
+let driftTarget = 0;  /* 0 = still, 1 = drifting */
+let driftAmount = 0;  /* Eased toward driftTarget each frame */
+let lastFrame = performance.now();
+
+function setStarDrift(on) {
+    driftWanted = on;
+    updateStarDrift();
+}
+
+/* Also called when time halts or resumes */
+function updateStarDrift() {
+    driftTarget = driftWanted && !isManuallyPaused ? 1 : 0;
+}
+
+/* Advance the drift; returns true while it needs a redraw every frame */
+function updateDrift(now) {
+    const dt = Math.min(now - lastFrame, 50);
+    lastFrame = now;
+    if (driftAmount === driftTarget) return driftAmount > 0;
+
+    const ease = 1 - Math.pow(1 - 0.05, dt / (1000 / 60));
+    driftAmount += (driftTarget - driftAmount) * ease;
+    if (Math.abs(driftTarget - driftAmount) < 0.005) driftAmount = driftTarget;
+    return true;
+}
+
+function driftStars(dt) {
+    stars.forEach(star => {
+        star.x -= (8 + star.depth * 14) * driftAmount * dt / 1000;
+        if (star.x < -2) star.x += canvas.width + 4;
+    });
+}
+
+/* --- TIME-STOP DISTORTION --- */
+/* A wavefront sweeps from the click point (outward when time halts, inward
+   when it resumes). Stars near the front are pushed along it, like light
+   bending around a mass, and the front itself is drawn as a fading ring. */
+const DISTORT_MS = 800;
+const BEND_MS = 600; /* touch screens' starfield bend (bendStars) */
+let distortion = null;
+
+function distortSpace(x, y, halting) {
+    if (liteScene) {
+        bendStars(x, y, halting);
+        return;
+    }
+    distortion = { x, y, halting, start: performance.now() };
+}
+
+/* Touch screens: the starfield itself bends, like the canvas wave pushes and
+   pulls the stars: the star picture swells slightly away from the tap (halt)
+   or draws in towards it (resume), then settles. One transform on the layer
+   that already exists, so the phone's graphics chip does it without
+   redrawing anything. The separate scale property leaves the camera's
+   parallax shift (transform) alone. */
+function bendStars(x, y, halting) {
+    starLayer.style.transformOrigin = `${x}px ${y}px`;
+    const peak = halting ? '1.03' : '0.97';
+    starLayer.animate([{ scale: '1' }, { scale: peak, offset: 0.35 }, { scale: '1' }], { duration: BEND_MS, easing: 'ease-out' });
+}
+
+/* Touch screens: the stars, drawn once into a picture */
+function paintStarPicture() {
+    drawStars(performance.now());
+    starLayer.style.backgroundImage = `url(${canvas.toDataURL()})`;
+}
+
+/* Current wavefront, or null when no distortion is running */
+function currentWave(now) {
+    if (!distortion) return null;
+    /* Clamped at 0 too: a frame's timestamp can be a few ms earlier than the
+       press that started the wave, and a negative radius makes the canvas
+       throw (which used to stop the starfield's loop for good) */
+    const p = Math.min(Math.max((now - distortion.start) / DISTORT_MS, 0), 1);
+    const eased = 1 - Math.pow(1 - p, 2);
+    /* Far enough to sweep past the farthest corner from the click */
+    const maxRadius = Math.hypot(
+        Math.max(distortion.x, canvas.width - distortion.x),
+        Math.max(distortion.y, canvas.height - distortion.y)
+    );
+    return {
+        x: distortion.x,
+        y: distortion.y,
+        radius: (distortion.halting ? eased : 1 - eased) * maxRadius,
+        /* Push outward on halt, pull inward on resume; fades as it travels */
+        push: (distortion.halting ? 1 : -1) * 26 * (1 - p),
+        alpha: 1 - p,
+    };
+}
+
+function renderLoop(now = performance.now()) {
+    /* Touch screens: one picture, no loop */
+    if (liteScene) {
+        paintStarPicture();
+        return;
+    }
+    /* Next frame first: an unexpected error below can't stop the starfield */
+    requestAnimationFrame(renderLoop);
+    const prev = lastFrame;
+    const drifting = updateDrift(now);
+    if (drifting) {
+        driftStars(Math.min(now - prev, 50));
+        /* One last redraw once the drift has settled back to still */
+        if (driftAmount === 0) starsDirty = true;
+    }
+    if (distortion && now - distortion.start > DISTORT_MS) {
+        distortion = null;
+        starsDirty = true;
+    }
+    /* Highlight depends on the canvas rect only while the cursor is on screen */
+    const panning = starfieldMoving && clientMouseX !== -1000;
+    if (starsDirty || distortion || drifting || panning) {
+        starsDirty = false;
+        drawStars(now);
+    }
+}
+
+function drawStars(now) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const wave = currentWave(now);
+    
+    /* Map screen coordinates to canvas space */
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = clientMouseX === -1000 || !rect.width ? -1000 : (clientMouseX - rect.left) * (canvas.width / rect.width);
+    const mouseY = clientMouseY === -1000 || !rect.height ? -1000 : (clientMouseY - rect.top) * (canvas.height / rect.height);
+    
+    ctx.fillStyle = '#fafafa';
+    const radius = 150;
+    const radiusSq = radius * radius;
+    
+    stars.forEach(star => {
+        /* Soft twinkle (60–100% brightness), blended in with the drift */
+        const twinkle = 0.8 + 0.2 * Math.sin(now / 900 + star.phase);
+        let alpha = star.baseAlpha * (1 - driftAmount * (1 - twinkle));
+        let x = star.x;
+        let y = star.y;
+
+        /* Displace stars riding the wavefront (gaussian band around its radius) */
+        if (wave) {
+            const wx = x - wave.x;
+            const wy = y - wave.y;
+            const dist = Math.hypot(wx, wy) || 1;
+            const band = (dist - wave.radius) / 70;
+            const shift = wave.push * Math.exp(-band * band);
+            x += (wx / dist) * shift;
+            y += (wy / dist) * shift;
+        }
+        
+        /* Check if mouse is active */
+        if (mouseX !== -1000) {
+            let dx = mouseX - x;
+            let dy = mouseY - y;
+            let distSq = dx * dx + dy * dy;
+            
+            /* Use squared distance check for performance */
+            if (distSq < radiusSq) {
+                let dist = Math.sqrt(distSq);
+                let intensity = 1 - (dist / radius);
+                alpha = star.baseAlpha + intensity * (1 - star.baseAlpha);
+            }
+        }
+        
+        ctx.globalAlpha = alpha;
+        ctx.fillRect(x - star.size, y - star.size, star.size * 2, star.size * 2);
+    });
+
+    /* The wavefront itself: a thin ring with a fainter echo just behind it */
+    if (wave) {
+        ctx.strokeStyle = '#fafafa';
+        ctx.lineWidth = 1.5;
+        [[1, 0.5], [0.93, 0.2]].forEach(([scale, opacity]) => {
+            ctx.globalAlpha = opacity * wave.alpha;
+            ctx.beginPath();
+            ctx.arc(wave.x, wave.y, wave.radius * scale, 0, Math.PI * 2);
+            ctx.stroke();
+        });
+    }
+}
+
+onLayoutResize(() => {
+    initStars();
+    starsDirty = true;
+    if (liteScene) paintStarPicture();
+});
+

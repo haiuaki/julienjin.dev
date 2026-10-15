@@ -1,0 +1,55 @@
+<!-- Projects content, loaded by js/menu.js.
+     One <article> per entry, in the order the index lists them:
+       id          the entry's address (#/projects/<id>): lowercase, dashes
+       data-title  the title in the index and the reader
+       data-lang   the main language, at the end of the index row
+     The article's content is the text shown in the reader.
+
+     Details shown above the text (each optional, in this order):
+       data-role      ROLE
+       data-stack     STACK
+       data-team      TEAM
+       data-source    SOURCE (a link to the code)
+       data-status    STATUS
+
+     To add a detail, write it on the article: data-key="…".
+     To make a new key, add ['LABEL', 'key'] to this section's fields in
+     MENUS (js/menu.js). -->
+
+<article id="transcendence"
+         data-title="TRANSCENDENCE"
+         data-lang="GO"
+         data-role="Backend · WebSockets"
+         data-stack="Go · Next.js · PostgreSQL · Docker"
+         data-team="Team of 4"
+         data-source="https://github.com/haiuaki/ft_transcendence">
+    <p>A web-based 3D coworking and study space with real-time presence, live chat, user profiles with friend management, OAuth authentication, and an integrated AI chatbot. I engineered the Go WebSocket hub for real-time spatial sync, the JWT authentication system with email verification, TOTP-based two-factor authentication, and the chat and friendship features.</p>
+</article>
+
+<article id="webserv"
+         data-title="WEBSERV"
+         data-lang="C++"
+         data-stack="C++98 · Sockets · CGI"
+         data-team="Solo"
+         data-source="https://github.com/haiuaki/webserv">
+    <p>A custom HTTP/1.1 server written from scratch in C++98, inspired by NGINX. Handles multiple concurrent connections via I/O multiplexing, serves static content, executes CGI scripts, and processes GET, POST, and DELETE methods based on a configuration file. Built with a full test suite for config parsing and request handling.</p>
+</article>
+
+<article id="inception"
+         data-title="INCEPTION"
+         data-lang="DOCKER"
+         data-stack="Docker · NGINX · MariaDB · WordPress"
+         data-team="Solo"
+         data-source="https://github.com/haiuaki/Inception">
+    <p>A complete LEMP stack deployed entirely from scratch using Docker containers. Every Dockerfile is built from a base image, with no pre-made images. NGINX serves as a TLS-terminating reverse proxy over an isolated internal network, with MariaDB and WordPress orchestrated via Docker Compose. Includes dedicated developer and user documentation.</p>
+</article>
+
+<article id="minishell"
+         data-title="MINISHELL"
+         data-lang="C"
+         data-role="Lexer · Parser · Expansion"
+         data-stack="C · Unix"
+         data-team="Team of 2"
+         data-source="https://github.com/haiuaki/minishell">
+    <p>A Bash-like Unix shell implementing pipes, redirections, heredocs, environment variable expansion, and signal handling, with no external parsing libraries and zero memory leaks. I designed the lexer/parser pipeline and the full expansion system. Also implemented: logical operators, subshells, and wildcard globbing.</p>
+</article>

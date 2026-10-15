@@ -1,12 +1,260 @@
 <!doctype html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8" />
-	<meta name="author" content="Julien Jin" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>Julien Jin</title>
+    <!-- --- METADATA & RESOURCES --- -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Julien Jin">
+
+    <title>Julien Jin</title>
+
+    <!-- Icons: SVG for modern browsers, .ico for Safari and for the /favicon.ico
+         browsers request on their own, PNG for phone home screens -->
+    <link rel="icon" href="/favicon.ico" sizes="32x32">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+    <!-- --- LINK PREVIEWS --- -->
+    <!-- Read by search engines and by apps that build a card when the link is
+         shared (LinkedIn, Slack, iMessage, X, Discord). They don't run
+         JavaScript, so every #/ address shares this same card. The image is
+         1200×630 and must be an absolute URL. -->
+    <meta name="description" content="Julien Jin. A portfolio you explore like a solar system: projects, experiments and ways to get in touch.">
+    <link rel="canonical" href="https://julienjin.dev/">
+    <meta name="theme-color" content="#161616">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Julien Jin">
+    <meta property="og:url" content="https://julienjin.dev/">
+    <meta property="og:title" content="Julien Jin">
+    <meta property="og:description" content="A portfolio you explore like a solar system: projects, experiments and ways to get in touch.">
+    <meta property="og:image" content="https://julienjin.dev/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="The name Julien Jin next to a small solar system of orbiting stars.">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Julien Jin">
+    <meta name="twitter:description" content="A portfolio you explore like a solar system: projects, experiments and ways to get in touch.">
+    <meta name="twitter:image" content="https://julienjin.dev/og-image.jpg">
+    <meta name="twitter:image:alt" content="The name Julien Jin next to a small solar system of orbiting stars.">
+    
+    <!-- IBM Plex Mono is served from this site (css/style.css, fonts/): no
+         third-party requests. The regular text set is fetched right away. -->
+    <link rel="preload" href="/fonts/IBMPlexMono-Regular-Latin1.woff2" as="font" type="font/woff2" crossorigin>
+    
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Before the first paint: mark that JavaScript runs (so the no-JS window
+         never flashes), and put the orbits where this visit's clock has them
+         (js/globals.js keeps that clock), so phones that paint before running
+         the scripts don't show the astres at their default places first.
+         Halted time also holds them still until js/physics.js takes over. -->
+    <script>
+        (function () {
+            var root = document.documentElement;
+            root.classList.add('js');
+            /* Touch screens get a lighter scene (style.css .lite, js/canvas.js) */
+            if (matchMedia('(pointer: coarse)').matches) root.classList.add('lite');
+            try {
+                var store = sessionStorage, stored = store.getItem('isManuallyPaused');
+                var halted = stored === null ? matchMedia('(prefers-reduced-motion: reduce)').matches : stored === 'true';
+                var epoch = parseInt(store.getItem('systemEpoch'), 10), pausedAt = parseInt(store.getItem('pauseTimestamp'), 10);
+                if (!isNaN(epoch)) root.style.setProperty('--system-time', -((halted && !isNaN(pausedAt) ? pausedAt : Date.now()) - epoch) + 'ms');
+                if (halted) root.classList.add('halted-at-load');
+            } catch (e) { /* storage blocked: js/physics.js sets it all */ }
+        })();
+    </script>
 </head>
 <body>
-	// coming soon
+
+    <!-- Without JavaScript the scene can't move or open anything: a still
+         window over the frozen system says so and keeps the essentials one
+         click away. Hidden by CSS as soon as JavaScript runs.
+         The channels list (#contact-channels) is the only copy of the contact
+         links: the [contact] page shows it too, so edit them here. -->
+    <main class="no-script">
+        <section class="term-window flicker-window is-open" aria-labelledby="no-script-title">
+            <div class="window-bar">
+                <span class="bar-line bar-edge"></span>
+                <h1 class="window-header" id="no-script-title">JULIEN JIN</h1>
+                <span class="bar-line"></span>
+                <div class="window-meta">NO SIGNAL</div>
+                <span class="bar-line bar-edge"></span>
+            </div>
+            <div class="flicker-frame"></div>
+            <div class="corner corner-tl"></div>
+            <div class="corner corner-tr"></div>
+            <div class="corner corner-bl"></div>
+            <div class="corner corner-br"></div>
+
+            <div class="window-content">
+                <p>This system runs on JavaScript, which is turned off in this browser. Turn it on to explore, or reach me directly:</p>
+                <dl class="dossier-fields channels" id="contact-channels">
+                    <div class="dossier-field"><dt>EMAIL</dt><dd><a href="mailto:contact@julienjin.dev">contact@julienjin.dev</a></dd></div>
+                    <div class="dossier-field"><dt>GITHUB</dt><dd><a href="https://github.com/haiuaki">github.com/haiuaki</a></dd></div>
+                    <div class="dossier-field"><dt>LINKEDIN</dt><dd><a href="https://www.linkedin.com/in/julien-jin">linkedin.com/in/julien-jin</a></dd></div>
+                    <!-- Both PDFs are built and pushed by `job-applications` CI -->
+                    <div class="dossier-field"><dt>CV</dt><dd><a href="cv.pdf" hreflang="en" aria-label="CV in English (PDF)">[EN]</a> · <a href="cv-fr.pdf" hreflang="fr" aria-label="CV in French (PDF)">[FR]</a></dd></div>
+                </dl>
+            </div>
+        </section>
+    </main>
+
+    <!-- Home window: name and role in its title bar, one row per planet (js/home.js).
+         First in the page so Tab and screen readers reach the sections first;
+         its position on screen is set in CSS. -->
+    <nav id="home-nav" aria-label="Site sections">
+        <section id="home-window" class="term-window flicker-window" data-open="flicker">
+            <div class="window-bar">
+                <span class="bar-line bar-edge"></span>
+                <div class="window-header" aria-hidden="true"></div>
+                <span class="bar-line"></span>
+                <div class="window-meta"></div>
+                <span class="bar-line bar-edge"></span>
+            </div>
+            <div class="flicker-frame"></div>
+            <div class="corner corner-tl"></div>
+            <div class="corner corner-tr"></div>
+            <div class="corner corner-bl"></div>
+            <div class="corner corner-br"></div>
+            <div class="window-content"></div>
+        </section>
+    </nav>
+
+    <!-- --- 3D SOLAR SYSTEM NAVIGATION --- -->
+    <!-- --- TARGETING CROSSHAIRS --- -->
+    <div id="crosshair-x"></div>
+    <div id="crosshair-y"></div>
+
+    <header id="space-container">
+
+        <!-- Main coordinate anchor -->
+        <div id="solar-system">
+
+            <!-- Interactive sun / time switch: a star with a lens streak that retracts when time halts -->
+            <!-- Pointer shortcut only: #time-switch is the control keyboards and screen readers use -->
+            <button id="sun-btn" class="circle-btn size-large" tabindex="-1" aria-hidden="true">
+                <span class="sun-streak"></span>
+            </button>
+
+            <!-- Orbital navigation rings -->
+            <nav id="main-nav" aria-label="Solar system">
+                
+                <!-- Main Navigation Planets -->
+                <div class="orbit-ring planet-1">
+                    <button class="astre-btn size-small bg-theme" data-label="info" data-menu="info"></button>
+                </div>
+                
+                <div class="orbit-ring planet-2">
+                    <button class="astre-btn size-small bg-theme" data-label="projects" data-menu="projects"></button>
+                </div>
+                
+                <div class="orbit-ring planet-3">
+                    <button class="astre-btn size-small bg-theme" data-label="lab" data-menu="lab"></button>
+                </div>
+
+                <div class="orbit-ring planet-4">
+                    <button class="astre-btn size-small bg-theme" data-label="contact" data-menu="contact"></button>
+                </div>
+
+                <!-- Decorative Comet Trails -->
+				<div class="orbit-ring comet-1"></div>
+				<div class="orbit-ring comet-2"></div>
+				<div class="orbit-ring comet-3"></div>
+
+            </nav>
+        </div>
+    </header>
+
+
+    <!-- CONTENT WINDOWS (BOUNDING BOXES) -->
+    <!-- Each .term-window types its header, then opens its 4-corner frame independently.
+         Both size to their content; the row lays them out side by side. -->
+    <!-- The page's main content: the windows -->
+    <main id="window-row">
+        <!-- The page's main heading, for screen readers and search engines, in
+             every view (the home window that shows the name closes on an astre);
+             window titles are the headings below it: a section (h2), an entry (h3) -->
+        <h1 class="visually-hidden" id="site-title">Julien Jin</h1>
+
+        <!-- Main window: menu index, or a planet's own content.
+             data-open picks the opening: "flicker" (CRT power-on), or remove it and
+             use class "corner-window" with a bare .window-header and the panel-clip
+             markup for the corner unfold. -->
+        <section id="content-window" class="term-window flicker-window" data-open="flicker">
+            <!-- Title bar: the title and meta slot are cut into the frame's top border -->
+            <div class="window-bar">
+                <span class="bar-line bar-edge"></span>
+                <h2 class="window-header"></h2>
+                <span class="bar-line"></span>
+                <div class="window-meta"></div>
+                <span class="bar-line bar-edge"></span>
+            </div>
+            <div class="flicker-frame"></div>
+            <div class="corner corner-tl"></div>
+            <div class="corner corner-tr"></div>
+            <div class="corner corner-bl"></div>
+            <div class="corner corner-br"></div>
+            <div class="window-content">
+                <!-- Menu index is rendered in here by js/menu.js -->
+            </div>
+        </section>
+
+        <!-- Reader window: opens beside the index when an entry is picked.
+             Powers on with a flicker instead of the corner unfolding. -->
+        <section id="reader-window" class="term-window flicker-window" data-open="flicker">
+            <!-- Title bar: the title and meta slot are cut into the frame's top border -->
+            <div class="window-bar">
+                <span class="bar-line bar-edge"></span>
+                <h3 class="window-header"></h3>
+                <span class="bar-line"></span>
+                <div class="window-meta"></div>
+                <span class="bar-line bar-edge"></span>
+            </div>
+            <div class="flicker-frame"></div>
+            <div class="corner corner-tl"></div>
+            <div class="corner corner-tr"></div>
+            <div class="corner corner-bl"></div>
+            <div class="corner corner-br"></div>
+            <div class="window-content">
+                <!-- Entry content is cloned in here by js/menu.js -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- --- TIME SWITCH --- -->
+    <!-- After the windows in the page, so Tab reaches it last: on an astre
+         "[home]", then the window, then this (its place on screen is CSS) -->
+    <!-- The page's pause control (WCAG 2.2.2): always on screen, and its
+         visible text is its name. The star and clicks on empty space are
+         pointer shortcuts for the same switch (js/timestop.js). Icons are
+         SVG: Unicode ⏸/▶ turn into colored emoji on Apple devices. -->
+    <button id="time-switch" type="button">
+        <span aria-hidden="true">[</span>
+        <span class="switch-labels">
+            <span class="when-running"><svg viewBox="0 0 10 10" aria-hidden="true"><rect x="2" y="1.5" width="2" height="7"/><rect x="6" y="1.5" width="2" height="7"/></svg>HALT TIME</span>
+            <span class="when-halted"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2.5 1.5 L8.5 5 L2.5 8.5 Z"/></svg>RESUME TIME</span>
+        </span>
+        <span aria-hidden="true">]</span>
+    </button>
+    <!-- Says what changed, for screen readers (filled by js/timestop.js) -->
+    <div id="time-announcer" class="visually-hidden" aria-live="polite"></div>
+
+    <!-- --- SYSTEM INITIALIZATION SCRIPTS --- -->
+    <script src="js/globals.js"></script>
+    <script src="js/canvas.js"></script>
+    <script src="js/camera.js"></script>
+    <script src="js/physics.js"></script>
+    <script src="js/timestop.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/textzoom.js"></script>
+    <script src="js/home.js"></script>
+    <script src="js/router.js"></script>
+    <!-- Vercel Web Analytics: visit counts without cookies or personal data.
+         Served by Vercel itself, so only on the deployed site (missing locally) -->
+    <script defer src="/_vercel/insights/script.js"></script>
+
 </body>
 </html>

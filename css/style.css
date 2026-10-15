@@ -1,0 +1,2221 @@
+/* --- 0. FONT --- */
+/* IBM Plex Mono, served from this site (fonts/, SIL Open Font License, see
+   fonts/OFL.txt) rather than Google Fonts, so no visitor data goes to a
+   third party. IBM's official web files, split by character set: a browser
+   only downloads the sets a page uses (Latin1: text; Pi: arrows). 600 also
+   serves `bold`. */
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/IBMPlexMono-Regular-Latin1.woff2") format("woff2");
+    unicode-range: U+0020-007E, U+00A0-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2013-2014, U+2018-201A, U+201C-201E, U+2020-2022, U+2026, U+2030, U+2039-203A, U+2044, U+20AC, U+2122, U+2212, U+FB01-FB02;
+}
+
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/IBMPlexMono-Regular-Latin2.woff2") format("woff2");
+    unicode-range: U+0100-0101, U+0104-0130, U+0132-0151, U+0154-017F, U+018F, U+0192, U+01A0-01A1, U+01AF-01B0, U+01FA-01FF, U+0218-021B, U+0237, U+0259, U+1E80-1E85, U+1E9E, U+20A1, U+20A4, U+20A6, U+20A8-20AA, U+20AD-20AE, U+20B1-20B2, U+20B4-20B5, U+20B8-20BA, U+20BD, U+20BF;
+}
+
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/IBMPlexMono-Regular-Latin3.woff2") format("woff2");
+    unicode-range: U+0102-0103, U+01CD-01DC, U+1E0C-1E0D, U+1E12-1E13, U+1E24-1E25, U+1E36-1E37, U+1E3C-1E3D, U+1E40-1E47, U+1E4A-1E4B, U+1E62-1E63, U+1E6C-1E6D, U+1E70-1E71, U+1E92-1E93, U+1EA0-1EF9, U+20AB;
+}
+
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/IBMPlexMono-Regular-Pi.woff2") format("woff2");
+    unicode-range: U+03C0, U+0E3F, U+2000-200D, U+2010-2012, U+2015, U+2028-2029, U+202F, U+2032-2033, U+203E, U+205F, U+2070, U+2074-2079, U+2080-2089, U+2113, U+2116, U+2126, U+212E, U+2150-2151, U+2153-215E, U+2190-2199, U+21A9-21AA, U+21B0-21B3, U+21B6-21B7, U+21BA-21BB, U+21C4, U+21C6, U+2202, U+2206, U+220F, U+2211, U+2215, U+2219-221A, U+221E, U+222B, U+2236, U+2248, U+2260, U+2264-2265, U+2400-2421, U+2500-259F, U+25CA, U+2713, U+274C, U+2B0E-2B11, U+3000, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("../fonts/IBMPlexMono-Medium-Latin1.woff2") format("woff2");
+    unicode-range: U+0020-007E, U+00A0-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2013-2014, U+2018-201A, U+201C-201E, U+2020-2022, U+2026, U+2030, U+2039-203A, U+2044, U+20AC, U+2122, U+2212, U+FB01-FB02;
+}
+
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("../fonts/IBMPlexMono-Medium-Latin2.woff2") format("woff2");
+    unicode-range: U+0100-0101, U+0104-0130, U+0132-0151, U+0154-017F, U+018F, U+0192, U+01A0-01A1, U+01AF-01B0, U+01FA-01FF, U+0218-021B, U+0237, U+0259, U+1E80-1E85, U+1E9E, U+20A1, U+20A4, U+20A6, U+20A8-20AA, U+20AD-20AE, U+20B1-20B2, U+20B4-20B5, U+20B8-20BA, U+20BD, U+20BF;
+}
+
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("../fonts/IBMPlexMono-Medium-Latin3.woff2") format("woff2");
+    unicode-range: U+0102-0103, U+01CD-01DC, U+1E0C-1E0D, U+1E12-1E13, U+1E24-1E25, U+1E36-1E37, U+1E3C-1E3D, U+1E40-1E47, U+1E4A-1E4B, U+1E62-1E63, U+1E6C-1E6D, U+1E70-1E71, U+1E92-1E93, U+1EA0-1EF9, U+20AB;
+}
+
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("../fonts/IBMPlexMono-Medium-Pi.woff2") format("woff2");
+    unicode-range: U+03C0, U+0E3F, U+2000-200D, U+2010-2012, U+2015, U+2028-2029, U+202F, U+2032-2033, U+203E, U+205F, U+2070, U+2074-2079, U+2080-2089, U+2113, U+2116, U+2126, U+212E, U+2150-2151, U+2153-215E, U+2190-2199, U+21A9-21AA, U+21B0-21B3, U+21B6-21B7, U+21BA-21BB, U+21C4, U+21C6, U+2202, U+2206, U+220F, U+2211, U+2215, U+2219-221A, U+221E, U+222B, U+2236, U+2248, U+2260, U+2264-2265, U+2400-2421, U+2500-259F, U+25CA, U+2713, U+274C, U+2B0E-2B11, U+3000, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/IBMPlexMono-SemiBold-Latin1.woff2") format("woff2");
+    unicode-range: U+0020-007E, U+00A0-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2013-2014, U+2018-201A, U+201C-201E, U+2020-2022, U+2026, U+2030, U+2039-203A, U+2044, U+20AC, U+2122, U+2212, U+FB01-FB02;
+}
+
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/IBMPlexMono-SemiBold-Latin2.woff2") format("woff2");
+    unicode-range: U+0100-0101, U+0104-0130, U+0132-0151, U+0154-017F, U+018F, U+0192, U+01A0-01A1, U+01AF-01B0, U+01FA-01FF, U+0218-021B, U+0237, U+0259, U+1E80-1E85, U+1E9E, U+20A1, U+20A4, U+20A6, U+20A8-20AA, U+20AD-20AE, U+20B1-20B2, U+20B4-20B5, U+20B8-20BA, U+20BD, U+20BF;
+}
+
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/IBMPlexMono-SemiBold-Latin3.woff2") format("woff2");
+    unicode-range: U+0102-0103, U+01CD-01DC, U+1E0C-1E0D, U+1E12-1E13, U+1E24-1E25, U+1E36-1E37, U+1E3C-1E3D, U+1E40-1E47, U+1E4A-1E4B, U+1E62-1E63, U+1E6C-1E6D, U+1E70-1E71, U+1E92-1E93, U+1EA0-1EF9, U+20AB;
+}
+
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/IBMPlexMono-SemiBold-Pi.woff2") format("woff2");
+    unicode-range: U+03C0, U+0E3F, U+2000-200D, U+2010-2012, U+2015, U+2028-2029, U+202F, U+2032-2033, U+203E, U+205F, U+2070, U+2074-2079, U+2080-2089, U+2113, U+2116, U+2126, U+212E, U+2150-2151, U+2153-215E, U+2190-2199, U+21A9-21AA, U+21B0-21B3, U+21B6-21B7, U+21BA-21BB, U+21C4, U+21C6, U+2202, U+2206, U+220F, U+2211, U+2215, U+2219-221A, U+221E, U+222B, U+2236, U+2248, U+2260, U+2264-2265, U+2400-2421, U+2500-259F, U+25CA, U+2713, U+274C, U+2B0E-2B11, U+3000, U+FEFF, U+FFFD;
+}
+
+:root { --active-planet-size: 2.2vmin; }
+/* --- 1. RESET & BASE STYLES --- */
+
+/* Keep the site's own text sizes: iOS Safari otherwise enlarges blocks it
+   judges to be long text when the phone is turned sideways, so long entries
+   would read bigger than short ones */
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'IBM Plex Mono', monospace;
+    background-color: #1a1a1a;
+    color: #fafafa;
+    overflow: hidden;
+    touch-action: none; /* no page pinch-zoom on touch: windows enlarge their text instead (js/textzoom.js) */
+    cursor: crosshair;
+}
+
+/* The dark vignette at the screen's edges, over the stars (js/canvas.js puts
+   it right after the star canvas). It used to be the body's own shadow, with
+   the canvas tucked behind the body (z-index -1): Safari on iPhone can give
+   the body its own layer, and then paints its background over such a canvas,
+   hiding the stars and the time-stop wave for good. */
+#vignette {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 200px 50px rgba(0, 0, 0, 0.9);
+}
+
+
+/* --- 2. GLOBAL VARIABLES --- */
+
+:root {
+    /* Height actually visible. On phones, 100vh assumes the browser toolbar is
+       hidden, so anything sized from it ends up partly under the toolbar;
+       svh is the height with the toolbar showing. */
+    --visible-h: 100vh;
+
+    /* System positioning and scale coordinates */
+    --system-x: 50%;
+    --system-y: 45%;
+
+    /* System scaling multiplier */
+    --system-scale: 1.5;
+
+    /* Physics engine state */
+    --play-state: running;
+
+    /* Global theme color for planets and their tails */
+    --planet-color: #fafafa;
+}
+
+@supports (height: 100svh) {
+    :root { --visible-h: 100svh; }
+}
+
+/* Responsive scaling rules: the first-paint value. js/camera.js then fits
+   the system to the actual screen (fitSystem). */
+@media (max-width: 1200px) , (max-height: 800px) { :root { --system-scale: 1.25; } }
+@media (max-width: 900px) , (max-height: 700px) { :root { --system-scale: 0.85; } }
+@media (max-width: 700px) , (max-height: 550px) { :root { --system-scale: 0.75; } }
+@media (max-width: 450px) , (max-height: 400px) { :root { --system-scale: 0.45; } }
+/* Phones held upright: the vmin-sized orbits come out small on a narrow
+   screen, so zoom in until the outer orbit spans nearly the full width
+   (labels are kept on screen by js/ui.js). The
+   home menu takes the bottom edge, so the system rises slightly. */
+@media (max-width: 600px) and (orientation: portrait) { :root { --system-scale: 0.86; --system-y: 43%; } }
+/* Phones held sideways: little height, but the width leaves room to zoom in
+   (1.05 keeps the outer orbit and labels ~20px clear of the menu) */
+@media (max-height: 500px) and (orientation: landscape) { :root { --system-scale: 1.05; } }
+
+
+/* --- 3. MODULAR UTILITIES --- */
+
+/* Modular Sizes */
+.size-small  { --planet-size: 1.05vmin;  width: var(--planet-size); height: var(--planet-size); }
+
+/* With the phone zoom (upright or sideways), astres grow too (~8px), so they read as stars. This
+   follows screen size, not input, so it also shows in responsive design mode */
+@media (max-width: 600px) and (orientation: portrait), (max-height: 500px) and (orientation: landscape) {
+    .size-small { --planet-size: 2.5vmin; }
+    /* The star stays clearly the largest: ~15px against ~8px astres */
+    #sun-btn.size-large { --planet-size: 4.5vmin; }
+}
+
+    /* Touch screens: each astre gets an
+   invisible ~44px tap area (Apple's minimum; WCAG asks for 24px). The tap
+   area is in the astre's own 3D plane, so it follows it around the orbit,
+   and it also makes the focused astre (the home button) easy to hit. The
+   perspective shrinks that plane to ~0.75 on screen, hence 60px here. */
+@media (pointer: coarse) {
+
+    .astre-btn::after,
+    #sun-btn::after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 60px;
+        height: 60px;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+    }
+}
+.size-medium { --planet-size: 1.5vmin; width: var(--planet-size); height: var(--planet-size); }
+.size-large  { --planet-size: 3.1vmin; width: var(--planet-size); height: var(--planet-size); }
+
+/* Modular Colors */
+.bg-theme { background-color: var(--planet-color); color: #1a1a1a; }
+
+/* Base Button Shape */
+.circle-btn {
+    border-radius: 50%;
+    border: none;
+    outline: none;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: box-shadow 0.3s ease-out;
+}
+
+
+/* --- 4. GLOBAL UI LAYER --- */
+
+#starfield {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    /* First in the page and positioned: the lowest layer above the page's
+       background, without a negative z-index (see #vignette) */
+    pointer-events: none;
+    background-color: transparent;
+    transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1), transform 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+    transform: scale(1);
+    animation: initial-fade-in 2.5s ease-in-out;
+}
+
+
+
+/* --- 6. 3D SOLAR SYSTEM LAYOUT --- */
+
+#space-container {
+    position: relative;
+    /* Visible height, so the system centers above mobile browser toolbars */
+    height: var(--visible-h);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    touch-action: none; /* no page pinch-zoom on touch: windows enlarge their text instead (js/textzoom.js) */
+
+    /* Grows with the screen like the vmin-sized orbits (1500px on a 900px-tall
+       laptop), so large or zoomed-out screens keep the laptop's proportions;
+       a fixed 1500px let the outer orbits swell towards the viewer there and
+       fling their astres off the screen. Phones keep 1500px. */
+    perspective: max(1500px, 166.67vmin);
+    /* Align perspective origin with system coordinates */
+    perspective-origin: var(--system-x) var(--system-y);
+}
+
+/* Lighter scene on touch screens (index.html <head>): no decorative comet
+   orbits, the largest layers of all, and mostly off a narrow screen anyway */
+.lite .orbit-ring[class*="comet-"] {
+    display: none;
+}
+
+/* On an astre, nothing moves in the lighter scene (other orbits hidden, the
+   open one frozen, no star drift), so there is nothing for the time switch to
+   pause (WCAG 2.2.2 covers moving content): it steps aside until home */
+.lite body.planet-focused #time-switch,
+.lite body.planet-focused #time-switch * {
+    /* the children too: the shown label sets its own visibility (the halted
+       label's would otherwise show through a hidden switch) */
+    visibility: hidden !important;
+}
+
+.lite body.planet-focused #time-switch {
+    opacity: 0;
+}
+
+/* The stars as a picture on touch screens (js/canvas.js) */
+.lite #starfield {
+    background-size: 100% 100%;
+}
+
+/* Points around each main orbit, measured to fit the system (js/camera.js) */
+.orbit-probe {
+    position: absolute;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+/* Main wrapper */
+#solar-system {
+    position: absolute;
+    top: var(--system-y);
+    left: var(--system-x);
+    transform-style: preserve-3d;
+    transform: scale(var(--system-scale));
+}
+
+/* The Sun (Center Toggle) */
+#sun-btn {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) translateZ(0);
+    /* Star point: a small bright core in a soft halo, fully faded at the edge */
+    background: radial-gradient(circle closest-side,
+        #ffffff 0%,
+        #ffffff 28%,
+        rgba(255, 255, 255, 0.85) 40%,
+        rgba(255, 255, 255, 0.25) 66%,
+        rgba(255, 255, 255, 0) 100%);
+    box-shadow: none;
+}
+
+/* Wider, fainter outer halo: a gradient too (a box-shadow would start at the
+   button's edge and leave a visible seam) */
+#sun-btn::before {
+    content: '';
+    position: absolute;
+    inset: -70%;
+    border-radius: 50%;
+    /* One gradient at hover strength; every state is an opacity of it, so
+       hovering fades like the astres' glow (gradients themselves can't
+       animate). Resting 0.44 of it = the halo's former 0.12 x 0.8. */
+    background: radial-gradient(circle closest-side, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0));
+    pointer-events: none;
+    transition: opacity 0.3s ease-out;
+    opacity: 0.44;
+}
+
+/* Lens streak: one long, soft horizontal flare through the core, like an
+   anamorphic film lens. Static; sized from the star, so it scales with the system. */
+.sun-streak {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s ease-out;
+}
+
+.sun-streak {
+    /* ~15vmin, inside the innermost orbit; a percentage of the star's size */
+    width: 500%;
+    height: 70%;
+    background:
+        /* Hairline core of the streak */
+        linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.9) 50%, rgba(255, 255, 255, 0)) center / 100% 1px no-repeat,
+        /* Soft elongated glow around it */
+        radial-gradient(ellipse closest-side, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0)) center / 100% 100% no-repeat;
+}
+
+/* Time halted: the streak retracts into the core and the halo dims */
+body.time-halted .sun-streak {
+    transform: translate(-50%, -50%) scaleX(0.1);
+    opacity: 0.5;
+}
+
+
+/* Halted: dimmer, resting (former 0.12 x 0.35) and hovered */
+body.time-halted #sun-btn::before {
+    opacity: 0.19;
+}
+
+body.time-halted #sun-btn:hover::before {
+    opacity: 0.35;
+}
+
+#main-nav {
+    position: absolute;
+    top: 0; left: 0;
+    transform-style: preserve-3d;
+}
+
+/* Synchronize CSS animation time with JS persistent clock */
+#solar-system *,
+#solar-system *::before,
+#solar-system *::after {
+    animation-delay: var(--system-time, 0ms) !important;
+}
+
+/* Pinch-zoomed in (js/globals.js): drop the costly layers. The decorative
+   orbits go; astres stop asking for their own sharp layers. */
+.is-zoomed .orbit-ring[class*="comet-"] {
+    display: none;
+}
+
+.is-zoomed .astre-btn,
+.is-zoomed .planet-label {
+    will-change: auto;
+    filter: none;
+}
+
+/* Halted time, before js/physics.js has frozen the orbits (index.html <head>) */
+.halted-at-load #solar-system *,
+.halted-at-load #solar-system *::before,
+.halted-at-load #solar-system *::after {
+    animation-play-state: paused !important;
+}
+
+
+/* --- 7. ORBIT COMPONENTS --- */
+
+/* Orbit ring containers */
+.orbit-ring {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: var(--ring-size);
+    height: var(--ring-size);
+    margin-top: calc(var(--ring-size) / -2);
+    margin-left: calc(var(--ring-size) / -2);
+    border-radius: 50%;
+    transform-style: preserve-3d;
+    pointer-events: none;
+
+    /* Spin animation assignment */
+    animation: master-spin var(--spin-duration) linear infinite;
+}
+
+/* The trailing tail */
+.orbit-ring::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    border-radius: 50%;
+
+    /* Base border masked into trailing effect */
+    border: 1.5px solid var(--planet-color);
+    opacity: 1;
+
+    /* Gradient mask (fades out along orbit trajectory) */
+    -webkit-mask-image: conic-gradient(from 0deg, transparent 0%, transparent 3%, black 100%);
+    mask-image: conic-gradient(from 0deg, transparent 0%, transparent 3%, black 100%);
+
+    /* Initial render animation */
+    animation: initial-fade-in 2.5s ease-in-out;
+}
+
+.astre-btn {
+    position: absolute;
+    top: calc(var(--planet-size) / -2);
+    left: calc(50% - (var(--planet-size) / 2));
+    border-radius: 50%;
+    display: block;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    text-decoration: none;
+    pointer-events: auto;
+    
+    /* Force an independent compositing layer so the browser rasterizes at screen
+       resolution rather than at the CSS pixel size before the 3D perspective upscales it.
+       filter: blur(0) is the most cross-browser reliable trigger for this. */
+    filter: blur(0);
+    will-change: transform;
+    /* Spin counter to the orbit to keep the text/gradient facing up */
+    animation: master-anti-spin var(--spin-duration) linear infinite, initial-fade-in 2.5s ease-in-out;
+
+    /* Star point: a companion star. A firm core (brighter and larger than any
+       background star) fading into a soft halo, with no streak, so the central
+       star keeps its rank. */
+    background: radial-gradient(circle closest-side,
+        #ffffff 0%,
+        #ffffff 45%,
+        rgba(255, 255, 255, 0.55) 62%,
+        rgba(255, 255, 255, 0.16) 85%,
+        rgba(255, 255, 255, 0.07) 100%);
+    /* Outer halo. A box-shadow, because a pseudo-element halo gets clipped at the
+       planet's own box inside the 3D orbit; it starts at the same faint value the
+       gradient ends on, so there is no seam. */
+    box-shadow: 0 0 10px 0 rgba(255, 255, 255, 0.14);
+}
+
+
+
+/* Hover Interaction */
+/* Hover brightens the halo */
+.astre-btn:hover,
+.astre-btn.is-hovered {
+    box-shadow: 0 0 14px 1px rgba(255, 255, 255, 0.3);
+}
+
+/* Hover brightens the outer halo */
+#sun-btn:hover {
+    box-shadow: none;
+}
+
+#sun-btn:hover::before {
+    opacity: 1;
+}
+
+/* Base Floating Label (Pure 2D Screenspace) */
+.planet-label {
+    position: fixed;
+    /* Permanently pinned to origin — only transform drives position (same as crosshairs) */
+    top: 0;
+    left: 0;
+    color: #888888;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: lowercase;
+    white-space: nowrap;
+    pointer-events: none;
+    /* Promote to own compositing layer for tear-free sub-pixel tracking */
+    will-change: transform;
+    
+    /* Glitch in one after another as the astres fade in, just before the
+       time switch (--i: label order, set by js/ui.js) */
+    animation: glitch-in 0.45s steps(1, end) calc(0.9s + var(--i, 0) * 0.12s) backwards;
+}
+
+/* --- HOME LABEL --- */
+/* "[home]" on the open astre's horizontal crosshair, just right of the
+   astre, centred on the line, which breaks around it (placed by js/ui.js).
+   Styled like the astre labels; it fades in as the window opens and leaves
+   at once. */
+#home-label {
+    position: fixed;
+    z-index: 55;
+    /* Centred on the line, then lifted a hair: the brackets reach lower than
+       they reach high, so the text's ink sits below its box's middle */
+    transform: translateY(calc(-50% - 0.08em));
+    min-height: 24px; /* WCAG 2.5.8 target size */
+    padding: 4px 6px;
+    background: none;
+    border: none;
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+    color: #888888;
+    white-space: nowrap;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease-out, visibility 0s linear 0.15s, color 0.2s ease-out;
+}
+
+body.planet-focused #home-label {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease-out 0.5s, visibility 0s, color 0.2s ease-out;
+}
+
+#home-label::before {
+    content: '['; /* browsers without the alt-text syntax */
+    content: '[' / '';
+}
+
+#home-label::after {
+    content: ']';
+    content: ']' / '';
+}
+
+#home-label:hover,
+#home-label:focus-visible {
+    color: #ffffff;
+}
+
+#home-label:focus-visible {
+    outline: 1px dashed rgba(250, 250, 250, 0.5);
+    outline-offset: 3px;
+}
+
+/* Keyboard focus on an astre: four corner marks lock onto it, like the
+   windows' corners (and the favicon), instead of an outline. A flat overlay
+   placed around the astre by js/ui.js (its 3D orbit clips its own box). */
+#astre-focus {
+    --tick: 4px;
+    --mark: rgba(250, 250, 250, 0.85);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 51;
+    pointer-events: none;
+    opacity: 0;
+    background:
+        linear-gradient(var(--mark), var(--mark)) top left / var(--tick) 1px,
+        linear-gradient(var(--mark), var(--mark)) top left / 1px var(--tick),
+        linear-gradient(var(--mark), var(--mark)) top right / var(--tick) 1px,
+        linear-gradient(var(--mark), var(--mark)) top right / 1px var(--tick),
+        linear-gradient(var(--mark), var(--mark)) bottom left / var(--tick) 1px,
+        linear-gradient(var(--mark), var(--mark)) bottom left / 1px var(--tick),
+        linear-gradient(var(--mark), var(--mark)) bottom right / var(--tick) 1px,
+        linear-gradient(var(--mark), var(--mark)) bottom right / 1px var(--tick);
+    background-repeat: no-repeat;
+    transition: opacity 0.15s ease-out;
+}
+
+#astre-focus.is-on {
+    opacity: 1;
+}
+
+/* Its astre is off the screen, or the label is under the open home menu
+   (js/ui.js): fades out, and back in when clear */
+.planet-label.is-offscreen,
+.planet-label.is-under-menu {
+    opacity: 0 !important;
+    transition: opacity 0.25s ease-out;
+}
+
+/* "[projects]": the brackets are drawn here, not written in the label, so
+   translators only see the word; "/ ''" keeps them out of what screen
+   readers announce */
+.planet-label::before {
+    content: '['; /* browsers without the alt-text syntax */
+    content: '[' / '';
+}
+
+.planet-label::after {
+    content: ']'; /* browsers without the alt-text syntax */
+    content: ']' / '';
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .planet-label {
+        animation: initial-fade-in 2.5s ease-in-out;
+    }
+}
+
+
+/* --- 8. PLANET CONFIGURATIONS --- */
+
+/* --orbit-diag defines Z-axis rotation; --orbit-tilt defines X-axis pitch */
+/* Note: --planet-color uniquely overrides the global theme set in `:root` */
+
+/* Main Planets */
+.planet-1 { --ring-size: 22vmin; --orbit-diag: 0deg; --orbit-tilt: 68deg; --start-angle: 80deg; --spin-duration: 10s; }
+.planet-2 { --ring-size: 42vmin; --orbit-diag: 16deg; --orbit-tilt: 70deg; --start-angle: 240deg; --spin-duration: 15s; }
+.planet-3 { --ring-size: 63vmin; --orbit-diag: -12deg; --orbit-tilt: 58deg; --start-angle: 160deg; --spin-duration: 20s; }
+.planet-4 { --ring-size: 83vmin; --orbit-diag: 10deg; --orbit-tilt: 75deg; --start-angle: 0deg; --spin-duration: 25s; }
+
+/* Empty Comet Trails */
+/* Decorative orbits: fixed sizes, but growing with large or zoomed-out screens
+   like the vmin-sized main orbits (same value on a 900px-tall laptop), so they
+   keep their proportions instead of shrinking to the main orbits' size */
+.comet-1 { --ring-size: max(1120px, 124.44vmin); --orbit-diag: 37deg; --orbit-tilt: 80deg; --start-angle: 90deg; --spin-duration: 40s; --planet-color: #444444; }
+.comet-2 { --ring-size: max(1340px, 148.89vmin); --orbit-diag: -25deg; --orbit-tilt: 60deg; --start-angle: 300deg; --spin-duration: 60s; --planet-color: #444444; }
+.comet-3 { --ring-size: max(1560px, 173.33vmin); --orbit-diag: 8deg; --orbit-tilt: 75deg; --start-angle: 150deg; --spin-duration: 80s; --planet-color: #444444; }
+
+
+/* --- 9. PHYSICS ENGINE (KEYFRAMES) --- */
+
+/* 1. Primary spin animation */
+@keyframes master-spin {
+    from { transform: rotateZ(var(--orbit-diag)) rotateX(var(--orbit-tilt)) rotateZ(var(--start-angle)); }
+    to { transform: rotateZ(var(--orbit-diag)) rotateX(var(--orbit-tilt)) rotateZ(calc(var(--start-angle) + 360deg)); }
+}
+
+/* 2. Planet counter-spin */
+@keyframes master-anti-spin {
+    from { transform: rotateZ(calc(var(--start-angle) * -1)) rotateX(calc(var(--orbit-tilt) * -1)) rotateZ(calc(var(--orbit-diag) * -1)); }
+    to { transform: rotateZ(calc((var(--start-angle) + 360deg) * -1)) rotateX(calc(var(--orbit-tilt) * -1)) rotateZ(calc(var(--orbit-diag) * -1)); }
+}
+
+/* 3. Initial page load fade-in */
+@keyframes initial-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* 4. Click delay to prevent fade-in glitches */
+@keyframes click-delay {
+    0%, 99% { pointer-events: none; }
+    100% { pointer-events: auto; }
+}
+
+
+/* --- 10. CAMERA FOCUS DIMMING EFFECT --- */
+
+/* Base transition for smooth fading */
+.orbit-ring::before,
+.planet-label,
+#sun-btn {
+    transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease-out;
+}
+
+.astre-btn {
+    transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1), 
+                scale 1.5s cubic-bezier(0.25, 1, 0.5, 1), 
+                box-shadow 0.3s ease-out;
+}
+
+/* Fade the rest of the system behind the focused view; the starfield drifts instead (js/canvas.js) */
+body.planet-focused .orbit-ring::before,
+body.planet-focused #sun-btn,
+body.planet-focused .astre-btn:not(.active-planet),
+body.planet-focused .planet-label {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition-property: opacity !important;
+    transition-delay: 0.1s;
+    transition-duration: 0.6s;
+}
+
+/* Returning home: labels stay hidden until the camera has settled
+   (js/physics.js), then fade in next to their astres */
+body.labels-settling .planet-label {
+    opacity: 0 !important;
+    transition: none !important;
+}
+
+/* Reduced motion: the camera cuts (js/camera.js), so the rest of the system
+   hides and returns at once with the cut instead of fading where the cut
+   left it (in the corner) */
+@media (prefers-reduced-motion: reduce) {
+    .orbit-ring::before,
+    .planet-label,
+    #sun-btn,
+    .astre-btn {
+        transition-duration: 0s !important;
+        transition-delay: 0s !important;
+    }
+}
+
+
+/* Fade out the active planet's label after the camera arrives (1.5s delay) */
+
+/* Void Transition: Expand shadow and fade out active planet */
+.astre-btn.void-transition {
+    /* Expand box-shadow */
+    box-shadow: 0 0 50px 20px rgba(250, 250, 250, 1), 0 0 100px 40px rgba(250, 250, 250, 0.5) !important;
+    /* Fade opacity to 0 */
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition-delay: 0.1s;
+    transition-duration: 0.6s;
+    
+    /* Transition opacity and box-shadow */
+    transition: opacity 0.8s ease-out, box-shadow 0.8s ease-out !important;
+}
+
+
+body.planet-focused .astre-btn.active-planet {
+    width: var(--active-planet-size) !important;
+    height: var(--active-planet-size) !important;
+    top: var(--active-planet-offset) !important;
+    left: calc(50% + var(--active-planet-offset)) !important;
+}
+
+
+/* --- TIME SWITCH --- */
+/* The page's pause control: "[❚❚ HALT TIME]" while time runs, "[▶ RESUME
+   TIME]" once halted. Always on screen, also while reading: it sits in the
+   40px the windows leave free at the bottom. It glitches in just after the
+   home window powers on, like the menu rows. */
+#time-switch {
+    position: fixed;
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 45;
+    animation: glitch-in 0.45s steps(1, end) 1.5s both;
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+    min-height: 24px; /* WCAG 2.5.8 target size */
+    padding: 4px 10px;
+    background: none;
+    border: none;
+    font: inherit;
+    font-size: 0.6875rem; /* 11px at the default size */
+    letter-spacing: 3px;
+    white-space: nowrap;
+    color: #888888;
+    cursor: pointer;
+    transition: color 0.2s ease-out;
+}
+
+#time-switch:hover,
+#time-switch:focus-visible {
+    color: #ffffff;
+}
+
+#time-switch:focus-visible {
+    outline: 1px dashed rgba(120, 120, 120, 0.4);
+    outline-offset: -1px;
+}
+
+#time-switch svg {
+    width: 0.95em;
+    height: 0.95em;
+    margin-right: 0.7em;
+    fill: currentColor;
+    vertical-align: -0.12em;
+}
+
+/* Both labels share one grid cell, sized by the longer one, so the brackets
+   never move when the label changes; only the current label shows (hidden
+   text is also left out of the button's accessible name) */
+#time-switch .switch-labels {
+    display: inline-grid;
+    justify-items: center;
+}
+
+#time-switch .when-running,
+#time-switch .when-halted {
+    grid-area: 1 / 1;
+}
+
+#time-switch .when-halted,
+body.time-halted #time-switch .when-running {
+    visibility: hidden;
+}
+
+body.time-halted #time-switch .when-halted {
+    visibility: visible;
+}
+
+/* Halted reads as a status: a little brighter */
+body.time-halted #time-switch {
+    color: #cccccc;
+}
+
+/* Toggling: the label being shown glitches in. Only the visible label
+   carries the animation, so switching state starts it afresh. */
+body:not(.time-halted) #time-switch .when-running,
+body.time-halted #time-switch .when-halted {
+    animation: glitch-in 0.38s steps(1, end);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #time-switch {
+        animation: initial-fade-in 0.6s ease-out 1.5s both;
+    }
+
+    #time-switch .when-running,
+    #time-switch .when-halted {
+        animation: none !important;
+    }
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+@keyframes status-on {
+    0%   { opacity: 0; }
+    20%  { opacity: 1; }
+    40%  { opacity: 0; }
+    60%  { opacity: 1; }
+    80%  { opacity: 0.4; }
+    100% { opacity: 1; }
+}
+
+/* A closed window's title is empty: out of the page, so screen readers don't
+   list a blank heading */
+.window-header:empty {
+    display: none;
+}
+
+/* Without JavaScript the no-JS window has its own h1 */
+html:not(.js) #site-title {
+    display: none;
+}
+
+/* --- NO-SCRIPT FALLBACK --- */
+/* A still window centered over the frozen scene (index.html .no-script).
+   It covers the whole screen, so the scene's dead buttons can't be clicked.
+   <html class="js"> is set by an inline script as soon as JavaScript runs. */
+.js .no-script {
+    display: none;
+}
+
+.no-script {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+}
+
+.no-script .term-window {
+    width: min(100%, 52ch);
+}
+
+/* Window titles normally only show while a planet is focused */
+.no-script .window-header {
+    margin: 0;
+    font-weight: inherit;
+    opacity: 1;
+}
+
+.no-script .window-content {
+    max-height: none;
+}
+
+/* The scene stays as a faint backdrop, like it fades behind an open window */
+html:not(.js) #space-container {
+    opacity: 0.2;
+}
+
+/* --- 11. TARGETING CROSSHAIRS --- */
+#crosshair-x, #crosshair-y {
+    position: fixed;
+    background-color: rgba(255, 255, 255, 0.15); /* Faint, barely visible grey */
+    opacity: 0;
+    pointer-events: none;
+    z-index: 50; /* Place behind the planet but above the void */
+    transition: opacity 0.2s ease-out;
+}
+
+/* Horizontal line */
+#crosshair-x {
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 1px;
+}
+
+/* Vertical line */
+#crosshair-y {
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 100vh;
+}
+
+/* Fade in the crosshairs when hovering or locked on */
+body.crosshairs-active #crosshair-x,
+body.crosshairs-active #crosshair-y,
+body.planet-focused #crosshair-x,
+body.planet-focused #crosshair-y {
+    opacity: 1;
+}
+
+/* --- HOME WINDOW --- */
+/* Top-left, where the name used to be typed out; sizes to its rows */
+#home-nav {
+    position: fixed;
+    top: 24px;
+    left: 32px;
+    z-index: 45;
+    pointer-events: none;
+}
+
+/* Menu toggle: "▸ NAVIGATE" while collapsed, "▾ NAVIGATE" once open (the
+   triangle turns down; drawn as a shape, see .toggle-arrow) */
+.home-toggle {
+    display: block;
+    width: 100%;
+    padding: 0.25em 0.6em;
+    background: none;
+    border: none;
+    color: #cccccc;
+    font: inherit;
+    letter-spacing: 2px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.home-toggle:hover,
+.home-toggle:focus-visible {
+    color: #ffffff;
+    outline: 1px dashed var(--panel-border);
+    outline-offset: -1px;
+}
+
+.toggle-arrow {
+    display: inline-block;
+    margin-right: 1ch;
+    /* Its bottom edge sits on the baseline; moved up so its centre meets the
+       capitals' centre (0.349em up). With translate, like the row marker,
+       rather than vertical-align, which browsers round to whole pixels
+       differently (half a pixel low in Safari) */
+    --tri-raise: calc(var(--tri-h) / 2 - 0.349em);
+    translate: 0 var(--tri-raise);
+}
+
+/* Open: the triangle points down. Its weight sits in its wide top edge, so
+   centred by its box it reads a little high; nudged down about halfway to
+   its visual centre (optical alignment) */
+#home-window:not(.is-collapsed) .toggle-arrow {
+    rotate: 90deg;
+    translate: 0 calc(var(--tri-raise) + 0.05em);
+}
+
+#home-window:not(.is-collapsed) .home-toggle {
+    color: #888888;
+    margin-bottom: 0.5em;
+}
+
+/* Collapsed: the list folds to zero height but keeps its width, so the bar
+   is already as wide as the open menu and opening never jumps sideways. It
+   stays in the page for screen readers and the Tab key (focusing a link
+   opens the list). */
+#home-window.is-collapsed .home-sections {
+    height: 0;
+    overflow: hidden;
+}
+
+/* Opening: each row glitches in like the dossier text, a beat after the one
+   above (js/home.js adds .rows-in; --row is the row's index). No sideways
+   jitter here: four rows shifting together read as the whole menu moving. */
+#home-window.rows-in .menu-item {
+    --glitch-shift: 0px;
+    animation: glitch-in 0.38s steps(1, end) both;
+    animation-delay: calc(40ms + var(--row) * 35ms);
+}
+
+/* Closing: the rows flicker off together before the frame closes up */
+#home-window.rows-off .menu-item,
+#home-window.rows-off .menu-columns,
+#home-window.rows-off .menu-status {
+    animation: row-flicker-off 0.18s steps(1, end) both;
+}
+
+@keyframes row-flicker-off {
+    0%   { opacity: 1; }
+    30%  { opacity: 0.2; }
+    50%  { opacity: 0.8; }
+    75%  { opacity: 0; }
+    100% { opacity: 0; }
+}
+
+/* The content's top margin used to escape the window (margin collapsing):
+   the window sat a title-bar lower and the text started under the title, but
+   the scroll area then began above the frame, so a full menu (enlarged text,
+   phone held sideways) spilled past it. The same look, built on purpose: the
+   window keeps its content's margins inside and takes them as its own
+   (title-bar height above, a corner below), and the text's padding gives
+   them back. */
+#home-window {
+    display: flow-root;
+    margin-top: var(--head-h);
+    margin-bottom: var(--corner-h); /* phones: the menu is anchored by its bottom */
+}
+
+#home-window .window-content {
+    padding-top: calc(1.5em - var(--head-h));
+    padding-bottom: calc(1.5em - var(--corner-h)); /* the bottom margin escaped too */
+}
+
+/* Window titles normally show only during focus; the home title is always visible */
+#home-window .window-header {
+    opacity: 1;
+}
+
+/* Quiet open (returning home): one short fade instead of the power-on */
+.flicker-window.is-quiet.is-open .flicker-frame,
+.flicker-window.is-quiet.is-open .window-bar,
+.flicker-window.is-quiet.is-open .corner,
+.flicker-window.is-quiet.is-open .window-content {
+    animation: quiet-in 0.2s ease-out both;
+}
+
+@keyframes quiet-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* --- CONTENT WINDOWS --- */
+/* Row holding the main window and the reader. Anchored just below/right of the
+   focused planet; windows size to their content instead of the viewport. */
+#window-row {
+    position: absolute;
+    /* Clear of the horizontal crosshair line (y = 58.5) */
+    top: 94px;
+    left: 110px;
+    right: 40px;
+    bottom: 40px;
+    display: flex;
+    align-items: flex-start;
+    gap: 48px;
+    pointer-events: none;
+    z-index: 40;
+}
+
+/* --- TERMINAL WINDOW & CORNER ANIMATION --- */
+.term-window {
+    /* Cursor block geometry — scales with the font size so the split animation
+       always starts from exactly one line below the typewriter text.
+       Uses the same clamp() as .window-header (1.2vmin, 12–24px).
+       × 1.75 = line-height (1.5) + half-leading (0.25) above the glyph on line 2,
+       placing the corner block flush with the top of the █ character. */
+    /* Sizes in rem follow the visitor's default font size (browser settings);
+       vmin lets them grow on large screens, up to the cap.
+       Titles: 13px floor (at the default 16px), 24px cap. */
+    --header-font-size: clamp(0.8125rem, 1.2vmin, 1.5rem);
+    --cursor-y: calc(var(--header-font-size) * 1.75);
+
+    /* Corner tick dimensions — reverse-engineered from the original hardcoded values
+       at the 14px baseline: corner-w = 4.3/14 = 0.307, corner-h = 7.3/14 = 0.521 */
+    --corner-w: calc(var(--header-font-size) * 0.307);
+    --corner-h: calc(var(--header-font-size) * 0.521);
+
+    /* Body text size: scales with the screen so the 80ch measure keeps its proportion on 4K */
+    /* --text-zoom: a pinch on a window, on touch screens (js/textzoom.js).
+       Contents only: the title bars keep their size so the frames fit. */
+    /* Window text: 14.5px floor, 21px cap */
+    --content-font: calc(clamp(0.90625rem, 1vmin, 1.3125rem) * var(--text-zoom, 1));
+
+    /* Height of the header area above the content; flicker windows override it */
+    --head-h: calc(var(--cursor-y) + var(--corner-h));
+
+    /* Space the row leaves for content below the header (row top + bottom offsets) */
+    --row-inset: 134px; /* #window-row top (94) + bottom (40) */
+    --content-max-h: calc(var(--visible-h) - var(--row-inset) - var(--head-h));
+
+    /* Animation Timings */
+    --anim-speed: 0.5s;
+    --delay-x: 0.05s;
+    --delay-y: calc(var(--delay-x) + var(--anim-speed));
+    
+    /* Panel Aesthetics */
+    --panel-bg: rgba(120, 120, 120, 0.15);
+    --panel-border: rgba(120, 120, 120, 0.4);
+
+    position: relative;
+    flex: none;
+    pointer-events: none;
+}
+
+.window-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    /* Some titles are headings (h2, h3): no heading margins or bold */
+    margin: 0;
+    font-weight: inherit;
+    font-family: 'IBM Plex Mono', monospace;
+    color: #fafafa;
+    /* Scales with the viewport so text stays readable on 4K without being overwhelming on small screens */
+    font-size: var(--header-font-size);
+    letter-spacing: 2px;
+    line-height: 1.5;
+    /* Headers are written with textContent; pre keeps the "\n" cursor drop */
+    white-space: pre;
+    opacity: 0;
+    transition: opacity 0.2s ease-out;
+}
+
+body.planet-focused .window-header {
+    opacity: 1;
+}
+
+.corner {
+    position: absolute;
+    width: var(--corner-w);
+    height: var(--corner-h);
+    background: #fafafa;
+    opacity: 0;
+}
+
+/* Explicit starting geometry to form the cursor block */
+.corner-tl { top: var(--cursor-y); left: 0px; }
+.corner-tr { top: var(--cursor-y); left: var(--corner-w); }
+.corner-bl { top: calc(var(--cursor-y) + var(--corner-h)); left: 0px; }
+.corner-br { top: calc(var(--cursor-y) + var(--corner-h)); left: var(--corner-w); }
+
+/* Dynamic Animation: The cursor block shatters */
+.corner-window.is-open .corner-tl {
+    opacity: 1;
+    transition: opacity 0.05s ease-out;
+}
+
+.corner-window.is-open .corner-tr {
+    opacity: 1;
+    left: calc(100% - var(--corner-w));
+    transition: opacity 0.05s ease-out, 
+                left var(--anim-speed) cubic-bezier(0.25, 1, 0.5, 1) var(--delay-x);
+}
+
+.corner-window.is-open .corner-bl {
+    opacity: 1;
+    top: calc(100% - var(--corner-h));
+    transition: opacity 0.05s ease-out, 
+                top var(--anim-speed) cubic-bezier(0.25, 1, 0.5, 1) var(--delay-y);
+}
+
+.corner-window.is-open .corner-br {
+    opacity: 1;
+    left: calc(100% - var(--corner-w));
+    top: calc(100% - var(--corner-h));
+    transition: opacity 0.05s ease-out, 
+                left var(--anim-speed) cubic-bezier(0.25, 1, 0.5, 1) var(--delay-x), 
+                top var(--anim-speed) cubic-bezier(0.25, 1, 0.5, 1) var(--delay-y);
+}
+
+/* Hardware Accelerated Panel Background */
+.panel-clip-x {
+    position: absolute;
+    top: calc(var(--cursor-y) + var(--corner-h));
+    left: var(--corner-w);
+    width: calc(100% - (var(--corner-w) * 2));
+    height: calc(100% - var(--cursor-y) - (var(--corner-h) * 2));
+    clip-path: inset(0 100% 0 0); /* Hide right edge */
+    transition: clip-path var(--anim-speed) cubic-bezier(0.25, 1, 0.5, 1) var(--delay-x);
+    will-change: clip-path;
+}
+
+.panel-clip-y {
+    width: 100%;
+    height: 100%;
+    clip-path: inset(0 0 100% 0); /* Hide bottom edge */
+    transition: clip-path var(--anim-speed) cubic-bezier(0.25, 1, 0.5, 1) var(--delay-y);
+    will-change: clip-path;
+}
+
+.panel-bg {
+    width: 100%;
+    height: 100%;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    opacity: 0;
+    transition: opacity 0.05s ease-out;
+    box-sizing: border-box;
+}
+
+.corner-window.is-open .panel-clip-x {
+    clip-path: inset(0 0 0 0);
+}
+
+.corner-window.is-open .panel-clip-y {
+    clip-path: inset(0 0 0 0);
+}
+
+.corner-window.is-open .panel-bg {
+    opacity: 1;
+}
+
+/* --- WINDOW CONTENT --- */
+/* In normal flow so it sets the window's size; the frame (corners, panel)
+   is absolutely positioned around it and expands to 100% of that size. */
+.window-content {
+    position: relative;
+    margin-top: var(--head-h);
+    padding: 1.5em 1.75em;
+    box-sizing: border-box;
+    max-height: var(--content-max-h);
+    overflow-y: auto;
+    /* Vertical scrolling only: a pinch here enlarges the text (js/textzoom.js) */
+    touch-action: pan-y;
+    scrollbar-width: thin;
+    scrollbar-color: var(--panel-border) transparent;
+    font-size: var(--content-font);
+    line-height: 1.6;
+    color: #cccccc;
+    /* Hidden instantly when the window collapses so swapped content never flashes */
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* Fade in once the corners and panel have finished expanding */
+.corner-window.is-open .window-content {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition: opacity 0.3s ease-out calc(var(--delay-y) + var(--anim-speed));
+}
+
+.window-content p {
+    margin: 0 0 1em;
+}
+
+/* Prompt-style lines: "// no signal", "// no data" */
+.term-line {
+    color: #9a9a9a; /* 4.5:1+ on the panels (WCAG 1.4.3) */
+}
+
+/* Main window without a menu (planet placeholder content) */
+#content-window .window-content {
+    /* Never wider than the window (24ch grows with enlarged text on a phone) */
+    min-width: min(24ch, 100%);
+    min-height: 6em;
+}
+
+/* Reader: fills the rest of the row (capped at ~120 columns on very wide
+   screens). Its height fits the entry, up to the space left in the row
+   (longer entries scroll), and never drops below the index's height
+   (set by js/menu.js). The 80-column dossier is centered inside. */
+#reader-window {
+    flex: 1 1 auto;
+    min-width: 0;
+    /* 120ch of the monospace content font (0.6em advance) + padding */
+    max-width: calc(var(--content-font) * 75.5);
+}
+
+
+/* --- MENU INDEX --- */
+/* Rendered by js/menu.js into the main window: header line, entries, status line */
+/* Column header row: same flex layout and padding as the entries below */
+.menu-columns {
+    display: flex;
+    align-items: baseline;
+    gap: 1ch;
+    padding: 0 0.6em 0.75em 1.8em;
+    border-bottom: 1px solid var(--panel-border);
+    /* Same size and spacing as the rows: monospace columns only line up
+       when the character widths match */
+    letter-spacing: 1px;
+    color: #9a9a9a; /* 4.5:1+ on the panels (WCAG 1.4.3) */
+}
+
+.menu-list {
+    list-style: none;
+    padding: 0;
+    margin: 0.5em 0 0;
+}
+
+.menu-item {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    gap: 1ch;
+    width: 100%;
+    padding: 0.25em 0.6em 0.25em 1.8em;
+    background: none;
+    border: none;
+    color: #aaaaaa;
+    font: inherit;
+    letter-spacing: 1px;
+    text-align: left;
+    /* Enlarged text (js/textzoom.js, or the system's text size): long titles
+       wrap rather than spilling out of the window (index rows: .menu-entry) */
+    white-space: normal;
+    flex-wrap: wrap;
+    cursor: pointer;
+}
+
+.menu-num,
+.menu-meta {
+    white-space: nowrap;
+}
+
+/* Title, leader and meta: the room beside the number, wrapping there like
+   a dossier field. A meta that doesn't fit beside the whole title goes to
+   the right of the next line; a title too long for its line wraps (inside
+   a word only if it alone is too wide), never under the number */
+.menu-entry {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 1ch;
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.menu-title {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.menu-col-title {
+    flex: 1 1 auto;
+}
+
+.menu-columns .menu-meta,
+.menu-item.is-wrapped .menu-meta {
+    margin-left: auto;
+}
+
+/* The leader shows while title and year share a line; a row that wrapped
+   drops it (marked by js/menu.js, markWrappedRows) */
+.menu-item.is-wrapped .menu-leader {
+    display: none;
+}
+
+/* Small triangles (selection marker, NAVIGATE toggle): one SVG shape
+   filled with the text color, so they look the same on every device (the
+   site font has no triangles, and system fonts draw them differently) and
+   screen readers skip them. Both are centred on the capital letters next to
+   them: Plex Mono's capitals are 0.698em tall, so their centre sits 0.349em
+   above the baseline. */
+.menu-item::before,
+.toggle-arrow {
+    --tri-h: 0.65em;
+    width: 1ch;
+    height: var(--tri-h);
+    background-color: currentColor;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 12'%3E%3Cpath d='M1 1L9 6L1 11Z'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 12'%3E%3Cpath d='M1 1L9 6L1 11Z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* Selection marker */
+.menu-item::before {
+    content: '';
+    /* A flex item aligned on the row's baseline (its bottom edge sits on it),
+       raised so its centre meets the capitals' centre: the same reference as
+       the toggle, whatever the row holds. The margins take back the space it
+       and the row's gap would use, so it hangs at 0.5em in the left padding. */
+    flex: none;
+    margin-left: -1.3em;
+    margin-right: calc(1.3em - 2ch);
+    translate: 0 calc(var(--tri-h) / 2 - 0.349em);
+    color: #fafafa;
+    opacity: 0;
+}
+
+.menu-item:hover,
+.menu-item[aria-current="true"] {
+    color: #ffffff;
+}
+
+.menu-item[aria-current="true"]::before {
+    opacity: 1;
+}
+
+.menu-item:focus-visible {
+    outline: 1px dashed var(--panel-border);
+    outline-offset: -1px;
+}
+
+.menu-num,
+.menu-meta {
+    color: #9a9a9a; /* 4.5:1+ on the panels (WCAG 1.4.3) */
+}
+
+/* Fixed number column so the header "NO" and "01" line up */
+.menu-num {
+    min-width: 2ch;
+}
+
+/* Dotted leader between title and meta: "01 TITLE ····· 2026" */
+.menu-leader {
+    flex: 1;
+    min-width: 3ch;
+    border-bottom: 1px dotted rgba(120, 120, 120, 0.5);
+    transform: translateY(-0.3em);
+}
+
+.menu-status {
+    display: flex;
+    justify-content: space-between;
+    gap: 2em;
+    margin-top: 1em;
+    padding-top: 0.5em;
+    border-top: 1px solid var(--panel-border);
+    font-size: 0.85em;
+    letter-spacing: 2px;
+    white-space: nowrap;
+    color: #9a9a9a; /* 4.5:1+ on the panels (WCAG 1.4.3) */
+}
+
+/* Keyboard hints are noise on touch-only devices */
+@media (hover: none) {
+    /* Out of the layout too: hidden but sized, they would hold windows wider
+       than a phone once the text is enlarged (js/textzoom.js) */
+    .menu-keys {
+        display: none !important;
+    }
+
+    /* A page's side block has nothing else on its status line */
+    .page-side .menu-status {
+        display: none;
+    }
+}
+
+/* --- FLICKER WINDOW --- */
+/* Powers on like a CRT instead of unfolding: the frame starts as a bright
+   scanline, snaps open with a few flickers, then the content glitches in.
+   Only opacity/transform (and a brief text-shadow) animate, once per open. */
+.flicker-window {
+    /* One title line; the frame's top edge runs through its middle */
+    --bar-h: calc(var(--header-font-size) * 1.5);
+    --frame-top: calc(var(--bar-h) / 2);
+    --head-h: var(--bar-h);
+}
+
+/* Title bar: ─ TITLE ──────────── META ─  drawn over the frame's top edge */
+.window-bar {
+    position: absolute;
+    top: 0;
+    left: var(--corner-w);
+    right: var(--corner-w);
+    height: var(--bar-h);
+    display: flex;
+    align-items: center;
+    opacity: 0;
+}
+
+.bar-line {
+    flex: 1;
+    height: 1px;
+    background: var(--panel-border);
+}
+
+.bar-edge {
+    flex: 0 0 1.25em;
+}
+
+.window-bar .window-header {
+    position: static;
+    padding: 0 0.75ch;
+}
+
+/* Right side of the bar: entry count on the index, close tag on the reader */
+.window-meta {
+    padding: 0 0.75ch;
+    font-size: calc(var(--header-font-size) * 0.85);
+    letter-spacing: 2px;
+    line-height: 1;
+    white-space: nowrap;
+    color: #888888;
+}
+
+.window-meta:empty {
+    display: none;
+}
+
+.flicker-frame {
+    position: absolute;
+    top: var(--frame-top);
+    left: var(--corner-w);
+    right: var(--corner-w);
+    bottom: var(--corner-h);
+    /* Static scanlines over the panel tint */
+    background:
+        repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 3px),
+        var(--panel-bg);
+    /* The top edge is drawn by the title bar */
+    border: 1px solid var(--panel-border);
+    border-top: none;
+    box-sizing: border-box;
+    opacity: 0;
+}
+
+/* The frame stops one corner tick above the window's bottom edge; end the
+   scroll area there too, so long entries never show text below the frame */
+.flicker-window .window-content {
+    margin-bottom: var(--corner-h);
+    max-height: calc(var(--content-max-h) - var(--corner-h));
+}
+
+/* Corners sit diagonally outside the frame's corners: they flicker, they don't travel */
+.flicker-window .corner-tl { top: calc(var(--frame-top) - var(--corner-h)); }
+.flicker-window .corner-tr { top: calc(var(--frame-top) - var(--corner-h)); left: calc(100% - var(--corner-w)); }
+.flicker-window .corner-bl { top: calc(100% - var(--corner-h)); }
+.flicker-window .corner-br { left: calc(100% - var(--corner-w)); top: calc(100% - var(--corner-h)); }
+
+.flicker-window.is-open .window-bar {
+    opacity: 1;
+    animation: flicker-in 0.5s steps(1, end) both;
+}
+
+.flicker-window.is-open .window-meta {
+    pointer-events: auto;
+}
+
+.flicker-window.is-open .flicker-frame {
+    opacity: 1;
+    animation: crt-on 0.5s linear both;
+}
+
+.flicker-window.is-open .corner {
+    opacity: 1;
+    animation: flicker-in 0.5s steps(1, end) both;
+}
+
+.flicker-window.is-open .window-content {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    animation: glitch-in 0.45s steps(1, end) 0.25s both;
+}
+
+@keyframes crt-on {
+    0%   { opacity: 0;    transform: scale(0.6, 0.006); }
+    20%  { opacity: 1;    transform: scale(1, 0.006); }
+    45%  { opacity: 1;    transform: scale(1, 1); }
+    55%  { opacity: 0.35; }
+    62%  { opacity: 1; }
+    72%  { opacity: 0.6; }
+    80%  { opacity: 1; }
+    100% { opacity: 1;    transform: scale(1, 1); }
+}
+
+@keyframes flicker-in {
+    0%   { opacity: 0; }
+    40%  { opacity: 1; }
+    50%  { opacity: 0; }
+    60%  { opacity: 1; }
+    75%  { opacity: 0.3; }
+    85%  { opacity: 1; }
+    100% { opacity: 1; }
+}
+
+/* Jitter + red/cyan channel split, resolving to clean text. The jitter uses
+   `translate`, which adds to an element's own transform instead of replacing
+   it, so elements placed by transform (astre labels, the time switch) glitch
+   in place. --glitch-shift sets how far it jitters (3px by default). */
+@keyframes glitch-in {
+    0%   { opacity: 0; }
+    15%  { opacity: 1;    translate: calc(-1 * var(--glitch-shift, 3px)) 0; text-shadow: 2px 0 rgba(255, 60, 100, 0.55), -2px 0 rgba(60, 220, 255, 0.55); }
+    30%  { opacity: 0.25; translate: calc(0.67 * var(--glitch-shift, 3px)) 0; }
+    45%  { opacity: 1;    translate: 0 0;    text-shadow: -1px 0 rgba(255, 60, 100, 0.4), 1px 0 rgba(60, 220, 255, 0.4); }
+    60%  { opacity: 0.7;  text-shadow: none; }
+    100% { opacity: 1;    translate: none;   text-shadow: none; }
+}
+
+/* Redraw line: sweeps down the reader when switching entries (js/menu.js) */
+.redraw-line {
+    position: absolute;
+    top: 0;
+    left: var(--corner-w);
+    right: var(--corner-w);
+    height: 1px;
+    z-index: 2;
+    pointer-events: none;
+    background: #fafafa;
+    box-shadow: 0 0 8px 1px rgba(250, 250, 250, 0.55);
+    opacity: 0;
+}
+
+/* --- DOSSIER (reader content) --- */
+/* Replaced on every entry switch, so the glitch replays without any JS */
+.dossier {
+    max-width: 80ch;
+    margin: 0 auto;
+    animation: glitch-in 0.35s steps(1, end);
+}
+
+.dossier-close,
+.dossier-nav button,
+.copy-button {
+    padding: 0;
+    background: none;
+    border: none;
+    color: #9a9a9a; /* 4.5:1+ on the panels (WCAG 1.4.3) */
+    font: inherit;
+    letter-spacing: inherit;
+    cursor: pointer;
+}
+
+.dossier-close:hover,
+.dossier-close:focus-visible,
+.dossier-nav button:hover,
+.dossier-nav button:focus-visible,
+.copy-button:hover,
+.copy-button:focus-visible {
+    color: #ffffff;
+}
+
+/* Same focus ring as the index rows instead of the browser default */
+.dossier-close:focus-visible,
+.dossier-nav button:focus-visible,
+.copy-button:focus-visible {
+    outline: 1px dashed var(--panel-border);
+    outline-offset: 2px;
+}
+
+/* Label/value grid with dotted leaders: "YEAR ........ 2026" */
+.dossier-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 4ch;
+    row-gap: 0.4em;
+    margin: 0;
+    padding-bottom: 1em;
+    border-bottom: 1px solid var(--panel-border);
+}
+
+.dossier-field {
+    display: flex;
+    flex-wrap: wrap;
+    /* Lines packed at the top: a field stretched to its row's height (by a
+       taller neighbour) would otherwise spread its lines apart */
+    align-content: flex-start;
+    align-items: baseline;
+    min-width: 0;
+}
+
+.dossier-field dt {
+    display: flex;
+    /* The leader sits on the label's baseline (then lifted to the capitals'
+       middle), like the index leaders, not at the bottom of the line box */
+    align-items: baseline;
+    flex: 1;
+    /* Never narrower than its own label, so a long value can't slide over it */
+    min-width: auto;
+    color: #9a9a9a; /* 4.5:1+ on the panels (WCAG 1.4.3) */
+    letter-spacing: 1px;
+}
+
+.dossier-field dt::after,
+.dossier-field.is-stacked .value-line:first-child::before {
+    content: '';
+    flex: 1;
+    min-width: 2ch;
+    margin: 0 1ch;
+    border-bottom: 1px dotted rgba(120, 120, 120, 0.5);
+    transform: translateY(-0.3em);
+}
+
+/* Values never get cut: one that doesn't fit beside its label goes whole
+   to the right of the next line (wrapping inside it beside the leader would
+   leave a gap and split the value), and wraps there only if still too long */
+.dossier-field dd {
+    flex: 0 1 auto;
+    min-width: 0;
+    margin: 0 0 0 auto;
+    color: #e8e8e8;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+/* The leader shows while label and value share a line; a row that wrapped
+   drops it (marked by js/menu.js, markWrappedRows) */
+.dossier-field.is-wrapped dt {
+    flex: none;
+    margin-right: 1ch;
+}
+
+.dossier-field.is-wrapped dt::after {
+    display: none;
+}
+
+/* List values: a list that doesn't fit on one line stacks two items per
+   line, right-aligned under the first pair, which stays on the label's line
+   with its leader (marked by js/menu.js, markWrappedRows). The value fills
+   the rest of the row and draws the leader in its first line, so the leader
+   runs up to the first pair however long the pairs below are */
+.dossier-field.is-stacked .value-line {
+    display: block;
+}
+
+.dossier-field.is-stacked dt {
+    flex: none;
+}
+
+.dossier-field.is-stacked dt::after {
+    display: none;
+}
+
+.dossier-field.is-stacked dd {
+    flex: 1 1 auto;
+}
+
+.dossier-field.is-stacked .value-line:first-child {
+    display: flex;
+    align-items: baseline;
+    justify-content: flex-end;
+}
+
+/* A stacked list that still doesn't fit beside its label goes below it,
+   without a leader, like any wrapped row */
+.dossier-field.is-stacked.is-wrapped .value-line:first-child::before {
+    display: none;
+}
+
+.dossier-field.is-stacked .value-sep {
+    display: none;
+}
+
+.dossier-body {
+    margin-top: 1.25em;
+    line-height: 1.7;
+}
+
+/* No fields above (an entry without details): no gap to keep from them */
+.dossier > .dossier-body:first-child {
+    margin-top: 0;
+}
+
+/* Single-page window (contact): a fixed reading width instead of a list's */
+#content-window.is-page .window-content {
+    width: calc(64ch + 3.5em);
+    max-width: calc(100vw - 150px);
+}
+
+/* A page's fields read as one column: label ············ value */
+#content-window.is-page .dossier-fields,
+#reader-window.is-page .dossier-fields {
+    grid-template-columns: 1fr;
+}
+
+/* A page's side block (contact channels) alone in the main window */
+.page-side .dossier-fields.channels {
+    margin-top: 0;
+    padding-bottom: 0;
+}
+
+/* Contact channels: one column of label ···· link */
+.dossier-fields.channels {
+    grid-template-columns: 1fr;
+    margin-top: 1.25em;
+    border-bottom: none;
+}
+
+.dossier-field dd a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dotted rgba(250, 250, 250, 0.45);
+}
+
+.dossier-field dd a:hover,
+.dossier-field dd a:focus-visible {
+    color: #ffffff;
+    border-bottom-color: #ffffff;
+    outline: none;
+}
+
+/* ↗ after links that leave the site */
+.ext-mark {
+    color: #9a9a9a; /* 4.5:1+ on the panels (WCAG 1.4.3) */
+}
+
+/* Trajectory: dated rows, newest first, on a rail of markers: filled for
+   ongoing roles (.now), a diamond for one-off events (.event), hollow for
+   finished roles. Drawn shapes, not characters: the site font has none,
+   and system fonts draw them differently. */
+.timeline {
+    --tl-gap: 1.1em;
+    --tl-mark: 0.55em;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--tl-gap);
+}
+
+.timeline li {
+    position: relative;
+    display: grid;
+    grid-template-columns: 13ch 1fr; /* "2021 — 2024" with its letter spacing */
+    column-gap: 2ch;
+    padding-left: 3ch;
+}
+
+/* Marker, centred on the first line (line-height 1.7, .dossier-body) */
+.timeline li::before {
+    content: '';
+    position: absolute;
+    left: 0.5ch;
+    top: calc(0.85em - var(--tl-mark) / 2);
+    width: var(--tl-mark);
+    height: var(--tl-mark);
+    box-sizing: border-box;
+    border: 1px solid #9a9a9a;
+    border-radius: 50%;
+}
+
+.timeline li.now::before {
+    background: #e8e8e8;
+    border-color: #e8e8e8;
+}
+
+.timeline li.event::before {
+    border-radius: 0;
+    transform: rotate(45deg) scale(0.85);
+}
+
+/* Rail: from below each marker down to the next one */
+.timeline li::after {
+    content: '';
+    position: absolute;
+    left: calc(0.5ch + var(--tl-mark) / 2 - 0.5px);
+    top: calc(0.85em + var(--tl-mark) / 2 + 0.3em);
+    bottom: calc(0.3em - var(--tl-gap) - 0.85em + var(--tl-mark) / 2);
+    border-left: 1px solid var(--panel-border);
+}
+
+.timeline li:last-child::after {
+    display: none;
+}
+
+.tl-when {
+    grid-row: span 2;
+    color: #9a9a9a; /* 4.5:1+ on the panels (WCAG 1.4.3) */
+    letter-spacing: 1px;
+    font-variant-numeric: tabular-nums;
+}
+
+.tl-what {
+    color: #e8e8e8;
+}
+
+.tl-note {
+    color: #aaaaaa;
+}
+
+/* Now: short items with a terminal marker */
+.now-list {
+    margin: 0;
+    padding-left: 2ch;
+}
+
+.now-list li {
+    margin-bottom: 0.4em;
+}
+
+.now-list li::marker {
+    content: '› ';
+    color: #9a9a9a; /* 4.5:1+ on the panels (WCAG 1.4.3) */
+}
+
+/* Key hints stack in one cell: the line keeps the longest hint's width */
+.menu-keys {
+    display: inline-grid;
+}
+
+.menu-keys > [data-hint] {
+    grid-area: 1 / 1;
+    visibility: hidden;
+}
+
+.menu-keys[data-state="browse"] > [data-hint="browse"],
+.menu-keys[data-state="reading"] > [data-hint="reading"],
+.menu-keys[data-state="reader"] > [data-hint="reader"] {
+    visibility: visible;
+}
+
+/* Pane focus: while the reader has the keyboard, its frame brightens and
+   the index recedes: its frame fades, and the whole window dims slightly.
+   Only to 90%: it can still be clicked, so its faintest text must keep
+   4.5:1 (WCAG 1.4.3), measured at 4.52:1 there (45% took it to about 2:1). */
+#content-window {
+    transition: opacity 0.2s ease-out;
+}
+
+#window-row.focus-reader #content-window {
+    opacity: 0.9;
+}
+
+#content-window .flicker-frame,
+#content-window .bar-line,
+#content-window .corner,
+#reader-window .flicker-frame {
+    transition: opacity 0.2s ease-out, border-color 0.2s ease-out, background-color 0.2s ease-out, filter 0.2s ease-out;
+}
+
+#window-row.focus-reader #content-window .flicker-frame,
+#window-row.focus-reader #content-window .bar-line {
+    border-color: rgba(120, 120, 120, 0.18);
+}
+
+#window-row.focus-reader #content-window .bar-line {
+    background-color: rgba(120, 120, 120, 0.18);
+}
+
+/* (brightness, not opacity: the corners' power-on animation holds their opacity) */
+#window-row.focus-reader #content-window .corner {
+    filter: brightness(0.4);
+}
+
+#window-row.focus-reader #reader-window .flicker-frame,
+#window-row.focus-reader #reader-window .bar-line {
+    border-color: rgba(200, 200, 200, 0.65);
+}
+
+#window-row.focus-reader #reader-window .bar-line {
+    background: rgba(200, 200, 200, 0.65);
+}
+
+/* The frame shows focus; no outline around the scroll area */
+#reader-window .window-content:focus {
+    outline: none;
+}
+
+/* Previous | ← INDEX | next */
+.dossier-nav {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: baseline;
+    gap: 2ch;
+    margin-top: 2em;
+    padding-top: 0.75em;
+    border-top: 1px solid var(--panel-border);
+    font-size: 0.85em;
+    letter-spacing: 1px;
+}
+
+/* Capped at their column, and wrapping there rather than cut with "…", so a
+   long title stays readable (prev aligned left, next right) */
+.dossier-nav button {
+    min-width: 0;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: break-word; /* inside a word only if it alone is too wide */
+    text-align: left;
+}
+
+.dossier-nav .nav-prev {
+    justify-self: start;
+}
+
+.dossier-nav .nav-next {
+    justify-self: end;
+    text-align: right;
+}
+
+.nav-hint {
+    display: inline-grid;
+    justify-items: center;
+    color: #9a9a9a; /* 4.5:1+ on the panels (WCAG 1.4.3) */
+}
+
+.nav-hint > span {
+    grid-area: 1 / 1;
+}
+
+/* The hint describes keys: drop it on touch screens and narrow layouts, where
+   it would crowd the links; previous and next then share the row */
+@media (hover: none), (max-width: 900px) {
+    .dossier-nav {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    .nav-hint {
+        display: none;
+    }
+}
+
+/* Keyboard reader at the end: "END · ↓ NEXT · ← INDEX" replaces "← INDEX" */
+.nav-hint .hint-end {
+    visibility: hidden;
+}
+
+#window-row.focus-reader #reader-window.at-end .hint-reading {
+    visibility: hidden;
+}
+
+#window-row.focus-reader #reader-window.at-end .hint-end {
+    visibility: visible;
+    color: #cccccc;
+    animation: status-on 0.6s steps(1, end);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #home-window.rows-in .menu-item,
+    #home-window.rows-off .menu-item,
+    .dossier {
+        animation: none;
+    }
+
+    /* Windows open with the quiet fade instead of the power-on flicker, like
+       the home menu on a return: opacity only, nothing moves */
+    .flicker-window.is-open .flicker-frame,
+    .flicker-window.is-open .window-bar,
+    .flicker-window.is-open .corner,
+    .flicker-window.is-open .window-content {
+        animation: quiet-in 0.2s ease-out both;
+    }
+}
+
+/* --- COMPACT LAYOUT --- */
+/* Matches compactQuery in js/menu.js: one window at a time, index first, then the reader */
+@media (max-width: 900px) {
+    /* Tighter corner on compact screens (crosshairs at 28.5, 52.5 in
+       js/globals.js), leaving more room for reading. The crosshair line sits
+       below the time switch (16-40px), and the windows below the line. */
+    #window-row {
+        top: 66px;
+        left: 44px;
+        right: 12px;
+        bottom: 16px;
+    }
+
+    .term-window {
+        --row-inset: 82px; /* compact top (66) + bottom (16) */
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    /* Touch screens: no time switch on an astre, so everything sits higher
+       (astre and crosshairs at 34.5, see js/globals.js) */
+    .lite #window-row {
+        top: 50px;
+    }
+
+    .lite .term-window {
+        --row-inset: 66px; /* compact top (50) + bottom (16) */
+    }
+
+    .window-content {
+        padding: 1.25em 1em;
+    }
+
+    #home-window .window-content {
+        padding-top: calc(1.25em - var(--head-h));
+        padding-bottom: calc(1.25em - var(--corner-h));
+    }
+
+    /* The home menu takes the bottom edge, so the time switch moves to the
+       top right. It stays in the same place in every view: the focused
+       astre, its crosshairs and the windows sit below it, and the
+       "[home]" label beside the astre has the top left to itself. */
+    #time-switch {
+        bottom: auto;
+        top: calc(16px + env(safe-area-inset-top, 0px));
+        left: auto;
+        right: 8px;
+        transform: none;
+    }
+
+    /* Touch screens hide it on an astre (nothing moves there), so it never
+       meets "[home]" and goes back to the centre, like on desktop */
+    .lite #time-switch {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+    }
+
+    /* Bottom of the screen, within thumb reach; the list opens upward */
+    #home-nav {
+        top: auto;
+        bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+        left: 16px;
+        right: 16px;
+    }
+
+    #home-nav .term-window {
+        width: 100%;
+    }
+
+    /* Keyboard hints would wrap at this width; the position counter is enough */
+    .menu-keys {
+        display: none;
+    }
+
+    .menu-status {
+        justify-content: flex-end;
+    }
+
+    .dossier-fields {
+        grid-template-columns: 1fr;
+    }
+
+    #content-window.is-page .window-content {
+        width: 100%;
+        max-width: none;
+    }
+
+    .timeline li {
+        grid-template-columns: 1fr;
+    }
+
+    .tl-when {
+        grid-row: auto;
+    }
+
+    #window-row:not(.is-reading) #reader-window,
+    #window-row.is-reading #content-window {
+        display: none;
+    }
+}
+
+/* --- FORCED COLORS (Windows High Contrast) --- */
+/* That mode swaps every colour for the visitor's theme and drops gradients:
+   the astres and the star (gradients) would vanish, and the triangles and
+   focus marks (shapes filled with background colour) with them. The scene is
+   kept as drawn, like an image, on the page's dark ground (the grain left out)
+   so it shows in light and dark themes alike; the windows take the theme's
+   colours on a solid ground, and the triangles its text colour. Last in the
+   file so it overrides the rules it adjusts. */
+@media (forced-colors: active) {
+    /* The filled marker keeps its fill in the theme's text colour */
+    .timeline li.now::before {
+        forced-color-adjust: none;
+        background: CanvasText;
+        border-color: CanvasText;
+    }
+
+    html {
+        forced-color-adjust: none;
+        background-color: #161616;
+    }
+
+    body {
+        forced-color-adjust: auto;
+        background: transparent;
+    }
+
+    #space-container,
+    #crosshair-x,
+    #crosshair-y,
+    #astre-focus {
+        forced-color-adjust: none;
+    }
+
+    .term-window {
+        forced-color-adjust: auto;
+    }
+
+    .term-window.is-open {
+        background-color: Canvas;
+    }
+
+    .menu-item::before,
+    .toggle-arrow {
+        forced-color-adjust: none;
+        background-color: CanvasText;
+    }
+}
