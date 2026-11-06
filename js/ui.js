@@ -9,6 +9,10 @@ const LABEL_FADE_MS = 800;
 
 const FOCUS_GROWTH = 1.4; /* the focused astre grows by this much in the corner */
 const LABEL_MARGIN = 6; /* labels keep this distance from the screen edges */
+/* The label's padding (css .planet-label): a larger click target around the
+   word, left out when placing it, so the word sits where it would without */
+const LABEL_PAD_X = 6;
+const LABEL_PAD_Y = 5;
 document.fonts && document.fonts.ready.then(() => trackers.forEach(t => { t.size = null; }));
 /* Label sizes are cached for the tracking loop; measured again whenever a
    label's size changes (web fonts arriving, or a browser translating the
@@ -138,8 +142,9 @@ astreBtns.forEach((planet, i) => {
     floatingLabel.style.setProperty('--i', i); /* glitches in after the labels before it */
     document.body.appendChild(floatingLabel);
     
-    /* Hover triggers for dynamic crosshair tracking */
-    planet.addEventListener('mouseenter', () => {
+    /* Hover triggers for dynamic crosshair tracking. The label is part of
+       its astre's target: hovering either one lights both */
+    const hoverOn = () => {
         if (!document.body.classList.contains('planet-focused')) {
             const showing = document.body.classList.contains('crosshairs-active')
                 || returnSweep || performance.now() - crossHiddenAt < CROSS_FADE_MS;
@@ -148,6 +153,7 @@ astreBtns.forEach((planet, i) => {
             /* Hovering takes the crosshairs over from a return sweep */
             returnSweep = null;
             planet.classList.add('is-hovered');
+            floatingLabel.classList.add('is-hovered');
             document.body.classList.add('crosshairs-active');
 
             /* Set transition styles once on hover */
@@ -156,15 +162,25 @@ astreBtns.forEach((planet, i) => {
                 crossY.style.transition = 'opacity 0.2s ease-out';
             }
         }
-    });
+    };
 
-    planet.addEventListener('mouseleave', () => {
+    const hoverOff = () => {
         planet.classList.remove('is-hovered');
+        floatingLabel.classList.remove('is-hovered');
         if (!document.body.classList.contains('planet-focused')) {
             document.body.classList.remove('crosshairs-active');
             crossHiddenAt = performance.now();
         }
+    };
+
+    [planet, floatingLabel].forEach(el => {
+        el.addEventListener('mouseenter', hoverOn);
+        el.addEventListener('mouseleave', hoverOff);
     });
+
+    /* A click on the label is a click on its astre, which stays the one
+       control keyboards and screen readers reach (the label is hidden from them) */
+    floatingLabel.addEventListener('click', () => planet.click());
 
     /* Register with the shared tracking loop (see trackAllPositions below) */
     trackers.push({ planet, label: floatingLabel });
@@ -361,11 +377,11 @@ function trackAllPositions(now) {
         const LABEL_OFFSET = screenRadius + 8;
         /* Label box anchored outward from the astre, then nudged back inside
            the screen when the astre swings close to an edge (phones) */
-        const [labelW, labelH] = t.size;
+        const labelW = t.size[0] - 2 * LABEL_PAD_X, labelH = t.size[1] - 2 * LABEL_PAD_Y;
         const labelX = Math.min(Math.max(planetX + dx * LABEL_OFFSET + labelW * xPercent / 100, LABEL_MARGIN), viewW - labelW - LABEL_MARGIN);
         const labelY = Math.min(Math.max(planetY + dy * LABEL_OFFSET + labelH * yPercent / 100, LABEL_MARGIN), viewH - labelH - LABEL_MARGIN);
         /* Drive position exclusively via transform — no left/top writes (same as crosshairs) */
-        t.label.style.transform = `translate3d(${labelX}px, ${labelY}px, 0)`;
+        t.label.style.transform = `translate3d(${labelX - LABEL_PAD_X}px, ${labelY - LABEL_PAD_Y}px, 0)`;
         /* An astre off the screen (wide orbits, zoomed out): its label leaves
            too, instead of sliding along the edge where it is kept */
         t.label.classList.toggle('is-offscreen', planetX < 0 || planetX > viewW || planetY < 0 || planetY > viewH);

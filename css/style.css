@@ -529,7 +529,11 @@ body.time-halted #sun-btn:hover::before {
     letter-spacing: 1px;
     text-transform: lowercase;
     white-space: nowrap;
-    pointer-events: none;
+    /* Clickable, like its astre (js/ui.js): the padding gives it a target of
+       24px or more (WCAG 2.5.8) and is left out when placing it
+       (LABEL_PAD_X/Y in js/ui.js) */
+    padding: 5px 6px;
+    cursor: pointer;
     /* Promote to own compositing layer for tear-free sub-pixel tracking */
     will-change: transform;
     
@@ -620,11 +624,17 @@ body.planet-focused #home-label {
     opacity: 1;
 }
 
+/* Hovering the label or its astre (js/ui.js) */
+.planet-label.is-hovered {
+    color: #ffffff;
+}
+
 /* Its astre is off the screen, or the label is under the open home menu
-   (js/ui.js): fades out, and back in when clear */
+   (js/ui.js): fades out, and back in when clear. Hidden, it can't be clicked */
 .planet-label.is-offscreen,
 .planet-label.is-under-menu {
     opacity: 0 !important;
+    pointer-events: none;
     transition: opacity 0.25s ease-out;
 }
 
@@ -701,7 +711,7 @@ body.planet-focused #home-label {
 .orbit-ring::before,
 .planet-label,
 #sun-btn {
-    transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease-out;
+    transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease-out, color 0.2s ease-out;
 }
 
 .astre-btn {
@@ -726,6 +736,7 @@ body.planet-focused .planet-label {
    (js/physics.js), then fade in next to their astres */
 body.labels-settling .planet-label {
     opacity: 0 !important;
+    pointer-events: none;
     transition: none !important;
 }
 
