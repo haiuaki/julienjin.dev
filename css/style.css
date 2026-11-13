@@ -456,9 +456,11 @@ body.time-halted #sun-btn:hover::before {
     border: 1.5px solid var(--planet-color);
     opacity: 1;
 
-    /* Gradient mask (fades out along orbit trajectory) */
-    -webkit-mask-image: conic-gradient(from 0deg, transparent 0%, transparent 3%, black 100%);
-    mask-image: conic-gradient(from 0deg, transparent 0%, transparent 3%, black 100%);
+    /* Gradient mask (fades out along orbit trajectory): brightest just
+       behind the astre, which sits at the top (0deg) and moves
+       counterclockwise, so the tail runs clockwise from it */
+    -webkit-mask-image: conic-gradient(from 0deg, black 0%, transparent 97%, transparent 100%);
+    mask-image: conic-gradient(from 0deg, black 0%, transparent 97%, transparent 100%);
 
     /* Initial render animation */
     animation: initial-fade-in 2.5s ease-in-out;
@@ -683,13 +685,13 @@ body.planet-focused #home-label {
 /* 1. Primary spin animation */
 @keyframes master-spin {
     from { transform: rotateZ(var(--orbit-diag)) rotateX(var(--orbit-tilt)) rotateZ(var(--start-angle)); }
-    to { transform: rotateZ(var(--orbit-diag)) rotateX(var(--orbit-tilt)) rotateZ(calc(var(--start-angle) + 360deg)); }
+    to { transform: rotateZ(var(--orbit-diag)) rotateX(var(--orbit-tilt)) rotateZ(calc(var(--start-angle) - 360deg)); }
 }
 
 /* 2. Planet counter-spin */
 @keyframes master-anti-spin {
     from { transform: rotateZ(calc(var(--start-angle) * -1)) rotateX(calc(var(--orbit-tilt) * -1)) rotateZ(calc(var(--orbit-diag) * -1)); }
-    to { transform: rotateZ(calc((var(--start-angle) + 360deg) * -1)) rotateX(calc(var(--orbit-tilt) * -1)) rotateZ(calc(var(--orbit-diag) * -1)); }
+    to { transform: rotateZ(calc((var(--start-angle) - 360deg) * -1)) rotateX(calc(var(--orbit-tilt) * -1)) rotateZ(calc(var(--orbit-diag) * -1)); }
 }
 
 /* 3. Initial page load fade-in */
